@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html >
+	<head>
+		<meta charset="UTF-8" />
+		<title>HTML and CSS Keyboard</title>
+		<link rel="stylesheet" href="css/style.css" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	</head>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<body>
+		<div id="my-text-input" class="-hidden">
+			<input class="input-listen input-block input-lg" placeholder="Введите на английском" id="word-input" name="word-input" size="30" type="text" lang="fr" value="" tabindex="1" dir="auto" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+		</div>
+		<div id="virt-keyboard" class="keyboard">
+			<header class="topbar">
+				<div class="toggledropdown main" data-language="main">
+					<span class="langspan main">English</span>
+					<ul class="dropdown arrow-top main" id="mainlang" data-language="en" role="menu"></ul>
+				</div>
+				<div class="keycodesetting normal-key hidden">
+					<input id="normal-key" placeholder="Regular character" />
+				</div>
+				<span id="jsonkeyboard"></span>
+				<div class="logo">
+					<span class="owl"></span>
+					<ul class="download arrow-top"></ul>
+				</div>
+				<div class="keycodesetting shift-key hidden">
+					<input id="shift-key" placeholder="Shift character" />
+				</div>
+				<div class="toggledropdown secondary" data-language="secondary">
+					<span class="langspan secondary">English</span>
+					<ul class="dropdown arrow-top secondary" id="secondarylang" data-language="ru" role="menu"></ul>
+				</div>
+			</header>
+			<div class="section">
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" >
+		var shift = false;
+		var caps = false;
+		var newcodepage = false;
+		var newlang = "";
+		var mainlang = "ru";
+		var keys = {
+			"supported_lang": [],
+			"layout_map": {},
+			"base": {
+				"raw": {
+					"0": [{
+							"type": "keylabel",
+							"code": "192"
+						}, {
+							"type": "keylabel",
+							"code": "49"
+						}, {
+							"type": "keylabel",
+							"code": "50"
+						}, {
+							"type": "keylabel",
+							"code": "51"
+						}, {
+							"type": "keylabel",
+							"code": "52"
+						}, {
+							"type": "keylabel",
+							"code": "53"
+						}, {
+							"type": "keylabel",
+							"code": "54"
+						}, {
+							"type": "keylabel",
+							"code": "55"
+						}, {
+							"type": "keylabel",
+							"code": "56"
+						}, {
+							"type": "keylabel",
+							"code": "57"
+						}, {
+							"type": "keylabel",
+							"code": "48"
+						}, {
+							"type": "keylabel",
+							"code": "189"
+						}, {
+							"type": "keylabel",
+							"code": "187"
+						}, {
+							"type": "backspace",
+							"code": "8",
+							"name": "Backspace"
+						}
+					],
+					"1": [{
+							"type": "tab special disabled",
+							"code": "9",
+							"name": "Tab"
+						}, {
+							"type": "keylabel",
+							"code": "81"
+						}, {
+							"type": "keylabel",
+							"code": "87"
+						}, {
+							"type": "keylabel",
+							"code": "69"
+						}, {
+							"type": "keylabel",
+							"code": "82"
+						}, {
+							"type": "keylabel",
+							"code": "84"
+						}, {
+							"type": "keylabel",
+							"code": "89"
+						}, {
+							"type": "keylabel",
+							"code": "85"
+						}, {
+							"type": "keylabel",
+							"code": "73"
+						}, {
+							"type": "keylabel",
+							"code": "79"
+						}, {
+							"type": "keylabel",
+							"code": "80"
+						}, {
+							"type": "keylabel",
+							"code": "219"
+						}, {
+							"type": "keylabel",
+							"code": "221"
+						}, {
+							"type": "slash",
+							"code": "220"
+						}
+					],
+					"2": [{
+							"type": "caps special switch",
+							"code": "20",
+							"name": "CapsLock"
+						}, {
+							"type": "keylabel",
+							"code": "65"
+						}, {
+							"type": "keylabel",
+							"code": "83"
+						}, {
+							"type": "keylabel",
+							"code": "68"
+						}, {
+							"type": "keylabel",
+							"code": "70"
+						}, {
+							"type": "keylabel",
+							"code": "71"
+						}, {
+							"type": "keylabel",
+							"code": "72"
+						}, {
+							"type": "keylabel",
+							"code": "74"
+						}, {
+							"type": "keylabel",
+							"code": "75"
+						}, {
+							"type": "keylabel",
+							"code": "76"
+						}, {
+							"type": "keylabel",
+							"code": "186"
+						}, {
+							"type": "keylabel",
+							"code": "222"
+						}, {
+							"type": "enter special disabled",
+							"code": "13",
+							"name": "Enter"
+						}
+					],
+					"3": [{
+							"type": "shift left special switch",
+							"code": "16",
+							"name": "Shift"
+						}, {
+							"type": "keylabel",
+							"code": "90"
+						}, {
+							"type": "keylabel",
+							"code": "88"
+						}, {
+							"type": "keylabel",
+							"code": "67"
+						}, {
+							"type": "keylabel",
+							"code": "86"
+						}, {
+							"type": "keylabel",
+							"code": "66"
+						}, {
+							"type": "keylabel",
+							"code": "78"
+						}, {
+							"type": "keylabel",
+							"code": "77"
+						}, {
+							"type": "keylabel",
+							"code": "188"
+						}, {
+							"type": "keylabel",
+							"code": "190"
+						}, {
+							"type": "keylabel",
+							"code": "191"
+						}, {
+							"type": "shift right special disabled",
+							"code": "16",
+							"name": "Shift"
+						}
+					],
+					"4": [{
+							"type": "ctrl special disabled",
+							"code": "17",
+							"name": "Control"
+						}, {
+							"type": "home special",
+							"code": "91",
+							"name": "Meta"
+						}, {
+							"type": "alt special disabled",
+							"code": "18",
+							"name": "Alt"
+						}, {
+							"type": "space",
+							"code": "32",
+							"name": " "
+						}, {
+							"type": "alt special disabled",
+							"code": "18",
+							"name": "Alt"
+						}, {
+							"type": "menu special",
+							"code": "93",
+							"name": "ContextMenu"
+						}, {
+							"type": "ctrl right special disabled",
+							"code": "17",
+							"name": "Control"
+						}
+					]
+				}
+			},
+			"supported": function(lang){
+								if (keys.supported_lang.indexOf(lang)!==-1){return lang;}
+								if (keys.layout_map[lang]) {return keys.supported_lang[keys.layout_map[lang]];}
+								return -1;	
+							}
+		};
+		var saveToLocalStorage = function (parameter, value) {
+			if (window.localStorage !== undefined) {
+				var localStorage = window.localStorage;
+				localStorage["keyboard." + parameter] = JSON.stringify(value);
+				return true;
+			}
+			return false;
+		};
+		var fillKeyboard = function(lang0,lang1,keys){
+			if (!lang0 && lang1) {lang0 = lang1}
+			if (!(lang0 && lang1)) {
+				console.error("Language keycodes not provided.");
+				return false;
+			}
+			for (var keycode in keys[lang0]){
+				var mainlabel = keys[lang0][keycode];
+				var secondarylabel={};
+				var mainclass = "l4";
+				var updatekey = "." + keycode;
+				$(updatekey).html("");
+				var span0 = $("<span>");
+				if (lang1 && lang1!==lang0 && keys[lang1]) {
+					secondarylabel = keys[lang1][keycode];
+					var span2 = $("<span>");
+					if (secondarylabel.normal !== mainlabel.normal){
+						mainclass = "l0";
+						span2.addClass("l8");
+						span2[0].textContent = secondarylabel.normal.toUpperCase();
+						$(updatekey).append(span2);
+					}
+					if (secondarylabel.shift !== mainlabel.shift && secondarylabel.shift.toLowerCase() !== secondarylabel.normal){
+						mainclass = "l0";
+						var span3 = $("<span>");
+						span3.addClass("l2");
+						span3[0].textContent = secondarylabel.shift;
+						$(updatekey).append(span3);
+					}
+				}
+				if (mainlabel.normal === mainlabel.shift.toLowerCase()){
+					span0.addClass(mainclass);
+					span0[0].textContent = mainlabel.shift;
+					$(updatekey).append(span0);
+				} 
+				else {
+					var span1 = $("<span>");
+					span0.addClass("l0");
+					span0[0].textContent = mainlabel.shift;
+					span1.addClass("l6");
+					span1[0].textContent = mainlabel.normal;
+					$(updatekey).append(span0);
+					$(updatekey).append(span1);
+				}
+			}
+		};
+		var typecustomchar = function(inputf,charcode,keys,input_lang){
+			var inputtext = $(inputf).val();
+			var selStart = $(inputf)[0].selectionStart;
+			var selEnd = $(inputf)[0].selectionEnd;
+			if (selStart === undefined) {
+				selStart = selEnd = inputtext.length;
+			}
+			var inputs = "";
+			if (keys[input_lang][charcode]) {
+				var changecase="";
+				if (shift){
+					if(!$(".shift.left").hasClass("hover")) {$(".shift.left").addClass("hover")};
+					inputs = keys[input_lang][charcode].shift;
+					changecase = "toLowerCase";
+				} 
+				else {
+					if($(".shift.left").hasClass("hover")) {$(".shift.left").removeClass("hover")};
+					inputs = keys[input_lang][charcode].normal;
+					changecase = "toUpperCase";
+				}
+				if (caps){
+					try{
+						inputs=inputs[changecase]();
+					}
+					catch(e){/*do nothing*/}
+					if(!$(".caps").hasClass("hover")) {$(".caps").addClass("hover")};
+				} 
+				else {
+					if($(".caps").hasClass("hover")) {$(".caps").removeClass("hover")};
+				}
+			}
+			else{
+				if (charcode===8) {
+					selStart = inputtext.length-1;
+				}
+				if (charcode===32) {
+					inputs = " ";
+				}
+			}
+			$(inputf).val(inputtext.slice(0, selStart) + inputs + inputtext.slice(selEnd));
+			$(inputf)[0].selectionStart = $(inputf)[0].selectionEnd = selStart + inputs.length;
+		}
+		var updatesecondary = function(keys){
+			var divider = $("<li>");
+			divider.addClass("divider new");
+			$(".dropdown.secondary").addClass("settings");
+			$(".dropdown.secondary").append(divider);
+			for (var langcode in duo.language_names_ui[mainlang]){
+				if (keys.supported_lang.indexOf(langcode) === -1){
+					var langname = duo.language_names_ui[mainlang][langcode];
+					var newentry = $("<li>");
+					newentry.addClass("data-choice new");
+					newentry.data("language",langcode);
+					newentry[0].textContent = langname;
+					$(".dropdown.secondary").append(newentry);
+				}
+			}
+			data_choice(keys);
+		};
+		var updatecodepages = function(newlangcode, update, keys){
+			console.debug("Configure language: [" + newlangcode + "] " + duo.language_names_ui[mainlang][newlangcode]);
+			if(!keys[newlangcode]||update){
+				newcodepage = true;
+				newlang = newlangcode;
+				$(".keycodesetting").show();
+			}
+		};
+		var updatesupportedlangs = function(keys, isDL){
+			var ddclass = isDL?".download":".dropdown"
+			var dchclass = isDL?"dl-choice":"data-choice"
+			isDL?$(ddclass + " > a").remove():$(ddclass + " > li").remove();
+			for (var i in keys.supported_lang){
+				var langcode = keys.supported_lang[i];
+				var newentry = $("<li>");
+				var ui_langs = (duo.language_names_ui[mainlang]?duo.language_names_ui[mainlang]:duo.language_names_ui.en)
+				var langname = ui_langs[langcode].split("");
+				langname[0] = langname[0].toUpperCase();
+				langname = langname.join("");
+				newentry.addClass(dchclass);
+				if(mainlang === langcode && !isDL) {
+					newentry.addClass("active");
+					for (var n in $("span.langspan")) {
+						$("span.langspan")[n].textContent = langname;
+					}
+					$(ddclass).data("language",langcode);
+				}
+				newentry.data("language",langcode);
+				newentry[0].textContent = langname;
+				if (isDL) {
+					var a_link = $("<a>");
+					var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(keys[langcode]));
+					a_link.attr("href",dataStr);
+					a_link.attr("download", "keyboard." + langcode + ".json");
+					a_link.append(newentry.append($("<i class=\x22material-icons\x22>save</i>")));
+					$(ddclass).append(a_link);
+				}
+				else {
+					$(ddclass).append(newentry);
+				}
+			}
+			if (!isDL){
+				if ($(".active").length < 1){
+					$($("#mainlang > li.data-choice")[0]).addClass("active");
+					$($("#secondarylang > li.data-choice")[0]).addClass("active");
+					for (var n=0;n<$("span.langspan").length;n++) {
+						$("span.langspan")[n].textContent = $(".data-choice")[0].textContent;
+					}
+					$(ddclass).data("language",$($(".data-choice")[0]).data("language"));
+				}
+				data_choice(keys);
+			}
+		};
+		var drawKeyboard = function(keys){
+				$(".section").html("");
+				var baseraws = keys.base.raw;
+				for (var i in baseraws){
+					var virtkeyraw = baseraws[i];
+					var ul = $("<ul>")
+					ul.addClass("row");
+					ul.addClass(i);
+					for (var n in virtkeyraw){
+						var li = $("<li class=\x22key\x22>");
+						var keyhtml= $("<div data-keycode=\x22" + virtkeyraw[n].code + "\x22 class=\x22keylabel " + virtkeyraw[n].code + "\x22>");
+						if (virtkeyraw[n].name) {keyhtml.data("name",virtkeyraw[n].name);}
+						if(virtkeyraw[n].type !== "keylabel") {
+							li.addClass(virtkeyraw[n].type);
+							li.data("type",virtkeyraw[n].type);
+						}
+						ul.append(li.append(keyhtml));
+					}
+					$(".section").append(ul);
+				}
+			};
+		var data_choice = function(keys){
+			$(".data-choice").on("click", function(){
+				if(!$(this).hasClass("active") && !$(this).hasClass("new")) {
+					$(this).addClass("active").siblings().removeClass("active");
+				}
+				$(this).parent().data("language", $(this).data("language"));
+				$(this).parent().parent().find("span.langspan")[0].textContent = $(this)[0].textContent;
+				if ($(".dropdown.secondary").hasClass("settings")) {
+					updatecodepages($(this).data("language"),$(this).parent().hasClass("update"),keys);
+				}
+				fillKeyboard($("#mainlang").data("language"), $("#secondarylang").data("language"), keys);
+				$(this).parent().off("mouseleave");
+				$(this).parent().slideUp("medium");
+			});
+		};
+		/*var eventTrigger = function(target, keyCode){
+			var keypress = jQuery.Event();
+			keypress.which = keyCode;
+			keypress.keyCode = keyCode;
+			keypress.key = String.fromCharCode(keyCode);
+			keypress.bubbles = true;
+			keypress.type= "keydown";
+			target.trigger(keypress);
+			keypress.type= "keypress";
+			target.trigger(keypress);
+			keypress.type="keyup";
+			target.trigger(keypress);
+		};*/
+		$.fn.draggable = function(){
+			var $this = this,
+			ns = 'draggable_'+(Math.random()+'').replace('.',''),
+			mm = 'mousemove.'+ns,
+			mu = 'mouseup.'+ns,
+			$w = $(window),
+			isFixed = ($this.css('position') === 'fixed'),
+			adjX = 0, adjY = 0;
+			$this.mousedown(function(ev){
+				var pos = $this.position();
+				if (isFixed) {
+					adjX = $w.scrollLeft(); adjY = $w.scrollTop();
+				}
+				var ox = (ev.pageX - pos.left), oy = (ev.pageY - pos.top);
+				$this.data(ns,{ x : ox, y: oy });
+				$w.on(mm, function(ev){
+					ev.preventDefault();
+					ev.stopPropagation();
+					if (isFixed) {
+						adjX = $w.scrollLeft(); adjY = $w.scrollTop();
+					}
+					var offset = $this.data(ns);
+					$this.css({left: ev.pageX - adjX - offset.x, top: ev.pageY - adjY - offset.y});
+				});
+				$w.on(mu, function(){
+					$w.off(mm + ' ' + mu).removeData(ns);
+				});
+			});
+			return this;
+		};
+		$(document).ready(function(){
+			$.ajax({
+				type: "get",
+				url: "/duoLingo.json"
+			}).done(function (json) {
+				duo = json;
+				mainlang = duo.user.ui_language;
+				$.ajax({
+					type: "get",
+					url: "/duo/keyboard.base.json"
+				}).done(function (json) {
+					for (var subobj in json) {
+						keys[subobj] = json[subobj];
+					}
+					for (var lcode in keys.supported_lang) {
+						$.ajax({
+							type: "get",
+							url: "/duo/keyboard." + keys.supported_lang[lcode] + ".json"
+						}).done(function (json) {
+							keys[json.lang] = json.keysmap;
+							if (keys[$("#mainlang").data("language")] && keys[$("#secondarylang").data("language")]) {
+								fillKeyboard($("#mainlang").data("language"), $("#secondarylang").data("language"), keys);
+							}
+							saveToLocalStorage("keys", keys);
+						});
+					}
+					drawKeyboard(keys);
+					updatesupportedlangs(keys);
+					$(".key").on("click", function (){
+						var inputfield = $("#text-input").length>0?$("#text-input"):$("#word-input");
+						var keycode = $(this).find("div").data("keycode");
+						var keyname = $(this).find("div").data("name");
+						if($(this).hasClass("home")){
+							if (!$(".home").hasClass("switch")) {
+								$(".home").addClass("switch");
+							}
+							if(!$(".dropdown.secondary").hasClass("settings")){
+								updatesecondary(keys);
+							} 
+							else {
+								newcodepage = false;
+								$(".keycodesetting").hide();
+								$(".dropdown.secondary").removeClass("settings");
+								$(".dropdown.secondary").removeClass("update");
+								$(".dropdown.secondary > li.new").remove();
+								saveToLocalStorage("keys", keys);
+								updatesupportedlangs(keys);
+							}
+						}
+						if($(this).hasClass("menu")){
+							if (!$(".menu").hasClass("switch")) {
+								$(".menu").addClass("switch");
+							}
+							if(!$(".dropdown.secondary").hasClass("settings")){
+								$(".dropdown.secondary").addClass("update");
+								updatesecondary(keys);
+							} 
+							else {
+								newcodepage = false;
+								$(".keycodesetting").hide();
+								$(".dropdown.secondary").removeClass("settings");
+								$(".dropdown.secondary").removeClass("update");
+								$(".dropdown.secondary > li.new").remove();
+								saveToLocalStorage("keys", keys);
+								updatesupportedlangs(keys);
+							}
+						}
+						if($(this).hasClass("special")){
+							$(this).toggleClass("hover");
+							if ($(this).hasClass("shift") && $(this).hasClass("left")){
+								shift = shift?false:true;
+							}
+							if ($(this).hasClass("caps")){
+								caps = caps?false:true;
+							}
+							
+							/*.bind("mouseleave", function () {
+								if (dropdownmenu.is(":visible")) { dropdownmenu.slideUp("medium");}
+							});*/
+							//var keypressed = jQuery.Event( "keypress", { "keyCode": keycode } );
+							var keypressed = jQuery.Event({ "type":"keypress", "keyCode":keycode, "which":keycode, "shiftKey":shift, "key":keyname});
+							$(inputfield).trigger(keypressed);
+							$(inputfield).focus();
+							return true;
+						}
+						if (!newcodepage) {//propogate pressed key
+							var input_lang = keys.supported(inputfield.attr("lang"));
+							if (input_lang === -1) {
+								input_lang = mainlang;
+							}
+							if (inputfield) {
+								typecustomchar(inputfield, keycode, keys, input_lang);
+								$(inputfield).focus();
+							}
+						}
+						else {//set up new values for pressed key
+							var nfield = $("#normal-key");
+							var sfield = $("#shift-key");
+							if (keys.supported_lang.indexOf(newlang) === -1) {keys.supported_lang.push(newlang);}
+							if (!keys[newlang]){keys[newlang] = JSON.parse(JSON.stringify(keys[$("#mainlang").data("language")]));}
+							if (nfield.val()!==""){
+								keys[newlang][keycode].normal = nfield.val();
+							}
+							if (sfield.val()!==""){
+								keys[newlang][keycode].shift = sfield.val();
+							}
+							fillKeyboard($("#mainlang").data("language"), newlang, keys);
+						}
+					});
+				});
+			});
+			$(".toggledropdown").on("click", function (){
+				var dropdownmenu = $(this).find("ul.dropdown");
+				if (dropdownmenu.is(":visible")) { 
+					dropdownmenu.slideUp("medium");
+					$(".toggledropdown").off("mouseleave");
+				}
+				else { 
+					$(".toggledropdown").on("mouseleave", function () {
+						dropdownmenu.slideUp("medium");
+					});
+					dropdownmenu.slideDown("medium");
+				}
+				
+				dropdownmenu.off("mouseleave");
+				dropdownmenu.on("mouseleave", function () {
+					$(".toggledropdown").off("mouseleave");
+					dropdownmenu.slideUp("medium");
+				});
+			});
+			$(".logo").on("click", function (){
+				updatesupportedlangs(keys,true);
+				var dropdownmenu = $(this).find("ul.download");
+				if (dropdownmenu.is(":visible")) { 
+					dropdownmenu.slideUp("medium");
+				}
+				else { 
+					dropdownmenu.slideDown("medium");
+				}
+				dropdownmenu.off("mouseleave");
+				dropdownmenu.on("mouseleave", function () {
+					dropdownmenu.slideUp("medium");
+				});
+				/*if (keys) {
+						var lang = keys.supported_lang[2];
+						var a_link = $("<a>"); //$("#jsonkeyboard")
+						var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(keys[lang]));
+						a_link.attr("href",dataStr);
+						a_link.attr("download", "keyboard." + lang + ".json");
+						$("#jsonkeyboard").append(a_link);
+						a_link.click();
+						$($("#jsonkeyboard")[0]).click();
+				}*/
+			});
+			$(document).on("keydown", "#text-input, #word-input", function (keypressed) {
+					//getting code for input language
+					var input_lang = keys.supported($(this).attr("lang"));
+					if (input_lang === -1) {
+						input_lang = mainlang;
+					}
+					shift = keypressed.shiftKey;
+					caps = ((caps && keypressed.keyCode===20) ||(!shift === (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length))
+					if (!(keys[input_lang]) || !keys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
+						return true;
+					}
+					typecustomchar(this, keypressed.keyCode, keys, input_lang);
+					keypressed.preventDefault();
+					return false;
+				});
+			$("#virt-keyboard").draggable();
+		});
+	</script>
+</html>

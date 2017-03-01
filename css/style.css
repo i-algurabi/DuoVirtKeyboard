@@ -1,0 +1,331 @@
+::selection{
+	background-color:none;
+	color:inherit;
+}
+body{
+  background-color: #14B524; 
+}
+#virt-keyboard{
+	position: absolute;
+  width:618px;
+  height: 220px;
+  background-color: #35629a;
+  background-color: rgba(0, 58, 128, 0.79);
+  margin: 10px auto;
+  border-radius: 9px;
+  padding: 40px;
+  color: #eee;
+}
+.vrt-topbar{
+	position: relative;
+    width: 616px;
+    top: -52px;
+    height: 70px;
+	z-index:99999;
+}
+.vrt-logo{
+	width: 40px;
+    height: 40px;
+    background-color: #CCC;
+    font-weight: 300;
+    font-style: oblique;
+    font-size: 30px;
+    line-height: 40px;
+    text-align: center;
+    margin: 19px 0px -48px 277px;
+    border-radius: 40px;
+    position: relative;
+    top: 5px;
+    left: 2px;
+}
+.vrt-section{
+    position: relative;
+    top: -80px;
+	width:660px; 
+  height:260px; 
+  float:right;
+}
+
+.key{
+  width: 30px; 
+  height:40px;
+  display:block;
+  background-color:#333;
+  text-align: left;
+  padding: 0px 4px 0px 4px;
+  line-height: 20px;
+  border-radius:2px;
+  float:left; margin-left: 2px;
+  margin-bottom:2px;
+  cursor: pointer;
+  transition: box-shadow 0.7s ease;
+}
+.key:hover{
+	box-shadow:0px 0px 10px #c2e1e6;
+	z-index:10;
+	color:#00b7d4;
+}
+.key.virthover, .key.switch.hover{
+	box-shadow:0px 0px 10px #c2e1e6;
+	z-index:10;
+	color:#00b7d4;
+}
+
+.keylabel{
+	width: 0px;
+	height:0px;
+	position: relative;
+}
+.keylabel>span {
+	top: 0px;
+    left: -2px;	
+	width:20px; 
+	max-width:20px; height:20px;
+    position: absolute !important;
+}
+
+.keylabel>span.l0, .keylabel>span.l3, .keylabel>span.l6{
+	padding-left: 0px;
+	text-align: left;
+}
+.keylabel>span.l1, .keylabel>span.l4, .keylabel>span.l7{
+	padding-left: 3px;
+	text-align: center;
+}
+.keylabel>span.l2, .keylabel>span.l5, .keylabel>span.l8{
+	padding-left: 12px;
+	text-align: right;
+}
+
+.keylabel>span.l0, .keylabel>span.l1, .keylabel>span.l2{
+	padding-top: 2px;
+	vertical-align: top;
+}
+.keylabel>span.l3, .keylabel>span.l4, .keylabel>span.l5{
+	padding-top: 10px;
+	vertical-align: middle;
+}
+.keylabel>span.l6, .keylabel>span.l7, .keylabel>span.l8{
+    vertical-align: bottom;
+    padding-top: 20px;
+}
+
+.tab {
+	width: 50px; 
+}
+.caps{
+	width:70px; 
+	font-size:12px; 
+	line-height:18px;
+}
+.shift.left{
+	width: 90px;
+}
+
+.ctrl{
+	width: 82px;
+}
+.home, .menu{
+	width:36px;
+}
+.home>div, .menu>div{
+    width: 20px;
+    height: 20px;
+    background-size: 1000px;
+    background-image: url(//d7mj4aqfscim2.cloudfront.net/images/icon-sprite_mv_07abea0df11480e804b8accecc1c101a.svg);
+    vertical-align: top;
+    margin: 11px 0px 0px 7px;
+    background-position: -146px -70px;
+}
+.space{
+	width:234px;
+	text-align:center;
+}
+.special{
+	line-height: 40px;
+	font-size:13px;
+}
+
+.backspace {
+	width:77px; 
+	text-align: right; 
+	font-size: 13px;
+	padding-right:7px;
+	line-height: 40px;
+}
+.slash{
+	padding-right:7px;
+	width:57px;
+}
+.enter{
+	width:81px; 
+	text-align: right; 
+	padding-left:0;
+	padding-right:7px;
+}
+.shift.right{
+	text-align: right; 
+	padding-right:7px;
+	width: 97px;
+}
+.ctrl.right{
+	text-align: right; 
+	padding-right:7px;
+	width: 89px;
+}
+
+.alt:before {
+	content:"Alt"; 
+}
+.backspace:before {
+	content:"Backspace"; 
+}
+.caps:before{
+	content:"Caps Lock"; 
+}
+.ctrl:before{
+	content:"Ctrl"; 
+}.enter:before{
+	content:"Enter"; 
+}
+.shift:before{
+	content:"Shift"; 
+}
+.tab:before {
+	content: "Tab"; 
+}
+
+.vrt-dropdown, .vrt-download {
+    text-align: left;
+    position: absolute;
+    top: 30px;
+    left: 10px;
+    z-index: 99999;
+    display: none;
+    float: left;
+    min-width: 200px;
+    padding: 10px 0;
+    margin: 5px 0 0;
+    list-style: inside;
+    background-color: #fff;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    -moz-box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    background-clip: padding-box;
+	color:grey;
+}
+.vrt-download {
+    left: -72px;	
+}
+.vrt-dropdown>li.vrt-active, .vrt-download>a>li.vrt-active{
+	position: relative;
+    background: #dfdfdf;
+	color:black;
+    display: list-item;
+    text-align: -webkit-match-parent;
+}
+.vrt-dropdown>li:hover, .vrt-download>a>li:hover{
+	background: #ffdfdf;
+}
+.vrt-toggledropdown {
+    position: absolute;
+    top: 5px;
+    line-height: 40px;
+    width: 160px;
+    font-size: 23px;
+	background-color: #1983b2;
+    background-color: rgba(40, 168, 230, 0.58);
+    text-align: center;
+    border-radius: 5px;
+}
+.vrt-toggledropdown.vrt-main {
+    float: left;
+}
+.vrt-toggledropdown.vrt-secondary {
+    left: 447px;
+}
+.vrt-arrow-top:after {
+    height: 0;
+    width: 0;
+    position: absolute;
+    top: -19px;
+    left: 21px;
+    content: "";
+    border: 10px solid transparent;
+    border-bottom: 10px solid #fff;
+    display: block;
+}
+.vrt-download.vrt-arrow-top:after {
+    left: 83px;
+}
+
+.vrt-data-choice {
+	padding-left: 15px;
+	font-size: 20px;
+	font-style: oblique;
+}
+.vrt-new {
+	background-color:#dfdfdf;
+}
+.vrt-divider {
+	border-top: 2px solid #607D8B;
+    margin: 9px 13px;
+    height: 1px;
+    list-style-type: none;
+}
+.vrt-dl-choice {
+	padding-left: 15px;
+	font-size: 20px;
+	list-style-type: none;
+}
+.vrt-dl-choice > i{
+    position: relative;
+    top: 10px;
+    font-size: 22px;
+    float: left;
+}
+
+.vrt-owl {
+    background-image: url(//d7mj4aqfscim2.cloudfront.net/images/owl-sprite19.svg);
+    background-size: 255px;
+    display: inline-block;
+    background-position: -153px 1px;
+    height: 40px;
+    width: 40px;
+}
+
+.home>div:hover, .menu>div:hover {
+    background-position: -167px -70px;
+}
+
+.vrt-hidden {
+	display: none;
+}
+
+.vrt-keycodesetting {
+	position: absolute;
+    width: 0;
+    height: 0px;
+}
+.vrt-keycodesetting.vrt-normal-key {
+    top: 16px;
+    left: 166px;
+}
+.vrt-keycodesetting.vrt-shift-key {
+    top: 16px;
+    left: 328px;
+}
+#vrt-shift-key, #vrt-normal-key{
+	position:relative;
+	width: 104px;
+}
+.disabled {
+	color:#686868;
+	background-color:#353639;
+}
+.disabled:hover {
+	box-shadow:0px 0px 10px #d21e23;
+	z-index:10;
+	color:#ab6262;
+}

@@ -1,0 +1,193 @@
+{
+	"lang": "ru",
+	"keysmap": {
+		"48": {
+			"normal": "0",
+			"shift": ")"
+		},
+		"49": {
+			"normal": "1",
+			"shift": "!"
+		},
+		"50": {
+			"normal": "2",
+			"shift": "\""
+		},
+		"51": {
+			"normal": "3",
+			"shift": "№"
+		},
+		"52": {
+			"normal": "4",
+			"shift": ";"
+		},
+		"53": {
+			"normal": "5",
+			"shift": "%"
+		},
+		"54": {
+			"normal": "6",
+			"shift": ":"
+		},
+		"55": {
+			"normal": "7",
+			"shift": "?"
+		},
+		"56": {
+			"normal": "8",
+			"shift": "*"
+		},
+		"57": {
+			"normal": "9",
+			"shift": "("
+		},
+		"65": {
+			"normal": "ф",
+			"shift": "Ф"
+		},
+		"66": {
+			"normal": "и",
+			"shift": "И"
+		},
+		"67": {
+			"normal": "с",
+			"shift": "С"
+		},
+		"68": {
+			"normal": "в",
+			"shift": "В"
+		},
+		"69": {
+			"normal": "у",
+			"shift": "У"
+		},
+		"70": {
+			"normal": "а",
+			"shift": "А"
+		},
+		"71": {
+			"normal": "п",
+			"shift": "П"
+		},
+		"72": {
+			"normal": "р",
+			"shift": "Р"
+		},
+		"73": {
+			"normal": "ш",
+			"shift": "Ш"
+		},
+		"74": {
+			"normal": "о",
+			"shift": "О"
+		},
+		"75": {
+			"normal": "л",
+			"shift": "Л"
+		},
+		"76": {
+			"normal": "д",
+			"shift": "Д"
+		},
+		"77": {
+			"normal": "ь",
+			"shift": "Ь"
+		},
+		"78": {
+			"normal": "т",
+			"shift": "Т"
+		},
+		"79": {
+			"normal": "щ",
+			"shift": "Щ"
+		},
+		"80": {
+			"normal": "з",
+			"shift": "З"
+		},
+		"81": {
+			"normal": "й",
+			"shift": "Й"
+		},
+		"82": {
+			"normal": "к",
+			"shift": "К"
+		},
+		"83": {
+			"normal": "ы",
+			"shift": "Ы"
+		},
+		"84": {
+			"normal": "е",
+			"shift": "Е"
+		},
+		"85": {
+			"normal": "г",
+			"shift": "Г"
+		},
+		"86": {
+			"normal": "м",
+			"shift": "М"
+		},
+		"87": {
+			"normal": "ц",
+			"shift": "Ц"
+		},
+		"88": {
+			"normal": "ч",
+			"shift": "Ч"
+		},
+		"89": {
+			"normal": "н",
+			"shift": "Н"
+		},
+		"90": {
+			"normal": "я",
+			"shift": "Я"
+		},
+		"186": {
+			"normal": "ж",
+			"shift": "Ж"
+		},
+		"187": {
+			"normal": "=",
+			"shift": "+"
+		},
+		"188": {
+			"normal": "б",
+			"shift": "Б"
+		},
+		"189": {
+			"normal": "-",
+			"shift": "_"
+		},
+		"190": {
+			"normal": "ю",
+			"shift": "Ю"
+		},
+		"191": {
+			"normal": ".",
+			"shift": ","
+		},
+		"192": {
+			"normal": "ё",
+			"shift": "Ё"
+		},
+		"219": {
+			"normal": "х",
+			"shift": "Х"
+		},
+		"220": {
+			"normal": "\\",
+			"shift": "/"
+		},
+		"221": {
+			"normal": "ъ",
+			"shift": "Ъ"
+		},
+		"222": {
+			"normal": "э",
+			"shift": "Э"
+		}
+	}
+}

@@ -1,0 +1,213 @@
+{
+	"supported_lang": ["en", "ru", "ar"],
+	"layout_map": {
+		"fr": "0"
+	},
+	"base": {
+		"raw": {
+			"0": [{
+					"type": "keylabel",
+					"code": "192"
+				}, {
+					"type": "keylabel",
+					"code": "49"
+				}, {
+					"type": "keylabel",
+					"code": "50"
+				}, {
+					"type": "keylabel",
+					"code": "51"
+				}, {
+					"type": "keylabel",
+					"code": "52"
+				}, {
+					"type": "keylabel",
+					"code": "53"
+				}, {
+					"type": "keylabel",
+					"code": "54"
+				}, {
+					"type": "keylabel",
+					"code": "55"
+				}, {
+					"type": "keylabel",
+					"code": "56"
+				}, {
+					"type": "keylabel",
+					"code": "57"
+				}, {
+					"type": "keylabel",
+					"code": "48"
+				}, {
+					"type": "keylabel",
+					"code": "189"
+				}, {
+					"type": "keylabel",
+					"code": "187"
+				}, {
+					"type": "backspace",
+					"code": "8",
+					"name": "Backspace"
+				}
+			],
+			"1": [{
+					"type": "tab special disabled",
+					"code": "9",
+					"name": "Tab"
+				}, {
+					"type": "keylabel",
+					"code": "81"
+				}, {
+					"type": "keylabel",
+					"code": "87"
+				}, {
+					"type": "keylabel",
+					"code": "69"
+				}, {
+					"type": "keylabel",
+					"code": "82"
+				}, {
+					"type": "keylabel",
+					"code": "84"
+				}, {
+					"type": "keylabel",
+					"code": "89"
+				}, {
+					"type": "keylabel",
+					"code": "85"
+				}, {
+					"type": "keylabel",
+					"code": "73"
+				}, {
+					"type": "keylabel",
+					"code": "79"
+				}, {
+					"type": "keylabel",
+					"code": "80"
+				}, {
+					"type": "keylabel",
+					"code": "219"
+				}, {
+					"type": "keylabel",
+					"code": "221"
+				}, {
+					"type": "slash",
+					"code": "220"
+				}
+			],
+			"2": [{
+					"type": "caps special switch",
+					"code": "20",
+					"name": "CapsLock"
+				}, {
+					"type": "keylabel",
+					"code": "65"
+				}, {
+					"type": "keylabel",
+					"code": "83"
+				}, {
+					"type": "keylabel",
+					"code": "68"
+				}, {
+					"type": "keylabel",
+					"code": "70"
+				}, {
+					"type": "keylabel",
+					"code": "71"
+				}, {
+					"type": "keylabel",
+					"code": "72"
+				}, {
+					"type": "keylabel",
+					"code": "74"
+				}, {
+					"type": "keylabel",
+					"code": "75"
+				}, {
+					"type": "keylabel",
+					"code": "76"
+				}, {
+					"type": "keylabel",
+					"code": "186"
+				}, {
+					"type": "keylabel",
+					"code": "222"
+				}, {
+					"type": "enter special disabled",
+					"code": "13",
+					"name": "Enter"
+				}
+			],
+			"3": [{
+					"type": "shift left special switch",
+					"code": "16",
+					"name": "Shift"
+				}, {
+					"type": "keylabel",
+					"code": "90"
+				}, {
+					"type": "keylabel",
+					"code": "88"
+				}, {
+					"type": "keylabel",
+					"code": "67"
+				}, {
+					"type": "keylabel",
+					"code": "86"
+				}, {
+					"type": "keylabel",
+					"code": "66"
+				}, {
+					"type": "keylabel",
+					"code": "78"
+				}, {
+					"type": "keylabel",
+					"code": "77"
+				}, {
+					"type": "keylabel",
+					"code": "188"
+				}, {
+					"type": "keylabel",
+					"code": "190"
+				}, {
+					"type": "keylabel",
+					"code": "191"
+				}, {
+					"type": "shift right special disabled",
+					"code": "16",
+					"name": "Shift"
+				}
+			],
+			"4": [{
+					"type": "ctrl special disabled",
+					"code": "17",
+					"name": "Control"
+				}, {
+					"type": "home special",
+					"code": "91",
+					"name": "Meta"
+				}, {
+					"type": "alt special disabled",
+					"code": "18",
+					"name": "Alt"
+				}, {
+					"type": "space",
+					"code": "32",
+					"name": " "
+				}, {
+					"type": "alt special disabled",
+					"code": "18",
+					"name": "Alt"
+				}, {
+					"type": "menu special",
+					"code": "93",
+					"name": "ContextMenu"
+				}, {
+					"type": "ctrl right special disabled",
+					"code": "17",
+					"name": "Control"
+				}
+			]
+		}
+	}
+}
