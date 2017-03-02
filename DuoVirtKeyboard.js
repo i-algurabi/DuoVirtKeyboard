@@ -2347,6 +2347,7 @@
 		newcodepage: false,
 		newlang: "",
 		mainlang: "",
+		secondlang: "",
 		body: "<div id='virt-keyboard' class='vrt-hidden'><header class='vrt-topbar'><div class='vrt-toggledropdown vrt-main'><span class='vrt-langspan vrt-main'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-main' id='vrt-mainlang' data-language='en'></ul></div><div class='vrt-keycodesetting vrt-normal-key vrt-hidden'><input id='vrt-normal-key' placeholder='Regular character' /></div><div class='vrt-logo'><ul class='vrt-download vrt-arrow-top'></ul></div><div class='vrt-keycodesetting vrt-shift-key vrt-hidden'><input id='vrt-shift-key' placeholder='Shift character' /></div><div class='vrt-toggledropdown vrt-secondary'><span class='vrt-langspan vrt-secondary'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-secondary' id='vrt-secondarylang' data-language='en'></ul></div></header><div class='vrt-section'></div></div>",
 		saveToLocalStorage: function (parameter, value) {
 			if (window.localStorage !== undefined) {
@@ -2365,7 +2366,9 @@
 			return false;
 		},
 		fillKeyboard: function(lang0,lang1,keys){
-			if (!lang0 && lang1) {lang0 = lang1;}
+			if (!lang0) lang0 = virtKeyboard.mainlang;
+			if (!lang1) lang1 = virtKeyboard.secondlang;
+			if (!keys) keys = basekeys;
 			if (!(lang0 && lang1)) {
 				console.error("Language keycodes not provided.");
 				return false;
@@ -2411,8 +2414,6 @@
 			}
 		},
 		typecustomchar: function(inputf,charcode,keys,input_lang){
-			$(inputf).val($(inputf).attr("value"));
-			$(inputf)[0].innerText = $(inputf).attr("value");
 			var inputtext = $(inputf).val();
 			var selStart = $(inputf)[0].selectionStart;
 			var selEnd = $(inputf)[0].selectionEnd;
@@ -2452,10 +2453,9 @@
 				}
 			}
 			var z = inputtext.slice(0, selStart) + inputs + inputtext.slice(selEnd);
+			$(inputf).focus();
 			$(inputf).val(z);
 			$(inputf).attr("value", z);
-			$(inputf)[0].textContent = z;
-			$(inputf)[0].innerText = z;
 			$(inputf)[0].selectionStart = $(inputf)[0].selectionEnd = selStart + inputs.length;
 		},
 		updatesecondary: function(keys){
@@ -2763,7 +2763,7 @@
 					}
 					virtKeyboard.shift = keypressed.shiftKey;
 					virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode===20) ||((keypressed.keyCode > 57 || virtKeyboard.caps) && (!virtKeyboard.shift === (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
-					if (!(basekeys[input_lang]) || !basekeys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
+					if (!(keypressed.keyCode === 8 || keypressed.keyCode === 32) && !(basekeys[input_lang]) || !basekeys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
 						return true;
 					}
 					virtKeyboard.typecustomchar(this, keypressed.keyCode, basekeys, input_lang);
@@ -2793,11 +2793,6 @@
 			virtKeyboard.updateLangs();
 		},
 		init: function(){
-			/*
-			$("#root > div > div > div > div > div > div > div > div > textarea").on("focus",function(){
-				console.info("Textarea focused");
-			});
-			*/
 			$("body").append(virtKeyboard.body);
 			$("#virt-keyboard").hover(function(){
 				$("#virt-keyboard").addClass("vrt-keep");
@@ -2805,18 +2800,16 @@
 				$("#virt-keyboard").removeClass("vrt-keep");
 			});
 			$(document).on("focus", "textarea", function(){
-				//$("#virt-keyboard").removeClass("vrt-hidden");
 				$(this).val($(this).attr("value"));
 				$(this)[0].innerText = $(this).attr("value");
-				console.info("[focus] Text area value is: [" + $(this).val() + "]");
+				virtKeyboard.updatesupportedlangs(basekeys);
+				virtKeyboard.fillKeyboard();
 				$("#virt-keyboard").show("slow");
 			});
 			$(document).on("focusout", "textarea", function(){
 				$(this).val($(this).attr("value"));
 				$(this)[0].innerText = $(this).attr("value");
-				console.info("[focusout] Text area value is: [" + $(this).val() + "]");
 				if (!$("#virt-keyboard").hasClass("vrt-keep")){
-					//$("#virt-keyboard").addClass("vrt-hidden");
 					$("#virt-keyboard").hide();
 				}
 			});
@@ -2839,26 +2832,16 @@
 		preinit: function(){
 			debugger;
 			console.info("VirtKeyboard: v." + virtKeyboard.version);
-//			userId = virtKeyboard.getLoggedInUserId();
-			virtKeyboard.mainlang = "en";
+			var duoState = JSON.parse(localStorage["duo.state"]);
+			virtKeyboard.mainlang = duoState.user.fromLanguage||"en";
+			virtKeyboard.secondlang = duoState.user.learningLanguage||"en";
 			virtKeyboard.init();
-	/*
-			$.ajax({//get user info
-				type: "GET",
-				url: "2016-04-13/users/" + userId,
-				data: "{fields:username,courses,currentCourse}"
-			}).done(function (json) {
-				virtKeyboard.mainlang = json.currentCourse.fromLanguage;
-				virtKeyboard.init();
-			});
-	*/	
 		}
 	};
 	script = document.createElement('script');
 	script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
 	vrtcss = document.createElement('link');
 	vrtcss.rel = "stylesheet";
-	//vrtcss.href = "http://192.168.2.36:8887/css/style.css";
 	vrtcss.href = "https://rawgit.com/icecube00/DuoVirtKeyboard/master/css/style.css";
 	document.getElementsByTagName('head')[0].appendChild(script);
 	document.getElementsByTagName('head')[0].appendChild(vrtcss);
