@@ -2,25 +2,24 @@
 	background-color:none;
 	color:inherit;
 }
-body{
-  background-color: #14B524; 
-}
 #virt-keyboard{
 	position: absolute;
-  width:618px;
-  height: 220px;
-  background-color: #35629a;
-  background-color: rgba(0, 58, 128, 0.79);
-  margin: 10px auto;
-  border-radius: 9px;
-  padding: 40px;
-  color: #eee;
+	top:375px;
+	left:25%;
+	width:704px;
+	height: 220px;
+	background-color: #35629a;
+	background-color: rgba(0, 58, 128, 0.79);
+	margin: 10px auto;
+	border-radius: 9px;
+	padding: 40px;
+	color: #eee;
 }
 .vrt-topbar{
 	position: relative;
-    width: 616px;
+    width: 625px;
     top: -52px;
-    height: 70px;
+    height: 88px;
 	z-index:99999;
 }
 .vrt-logo{
@@ -36,18 +35,17 @@ body{
     border-radius: 40px;
     position: relative;
     top: 5px;
-    left: 2px;
+    left: 15px;
 }
 .vrt-section{
     position: relative;
     top: -80px;
-	width:660px; 
-  height:260px; 
-  float:right;
+	width:627px;
+	height:260px; 
 }
 
 .key{
-  width: 30px; 
+  width: 40px; 
   height:40px;
   display:block;
   background-color:#333;
@@ -89,11 +87,11 @@ body{
 	text-align: left;
 }
 .keylabel>span.l1, .keylabel>span.l4, .keylabel>span.l7{
-	padding-left: 3px;
+	padding-left: 12px;
 	text-align: center;
 }
 .keylabel>span.l2, .keylabel>span.l5, .keylabel>span.l8{
-	padding-left: 12px;
+	padding-left: 20px;
 	text-align: right;
 }
 
@@ -102,7 +100,7 @@ body{
 	vertical-align: top;
 }
 .keylabel>span.l3, .keylabel>span.l4, .keylabel>span.l5{
-	padding-top: 10px;
+	padding-top: 12px;
 	vertical-align: middle;
 }
 .keylabel>span.l6, .keylabel>span.l7, .keylabel>span.l8{
@@ -111,22 +109,24 @@ body{
 }
 
 .tab {
-	width: 50px; 
+	width: 55px; 
 }
 .caps{
-	width:70px; 
+	width:72px; 
 	font-size:12px; 
 	line-height:18px;
 }
 .shift.left{
-	width: 90px;
+	width: 97px;
 }
-
+.alt{
+	width: 50px;
+}
 .ctrl{
-	width: 82px;
+	width: 94px;
 }
 .home, .menu{
-	width:36px;
+	width:43px;
 }
 .home>div, .menu>div{
     width: 20px;
@@ -138,7 +138,7 @@ body{
     background-position: -146px -70px;
 }
 .space{
-	width:234px;
+	width:237px;
 	text-align:center;
 }
 .special{
@@ -155,10 +155,10 @@ body{
 }
 .slash{
 	padding-right:7px;
-	width:57px;
+	width:62px;
 }
 .enter{
-	width:81px; 
+	width:87px; 
 	text-align: right; 
 	padding-left:0;
 	padding-right:7px;
@@ -166,7 +166,7 @@ body{
 .shift.right{
 	text-align: right; 
 	padding-right:7px;
-	width: 97px;
+	width: 104px;
 }
 .ctrl.right{
 	text-align: right; 
@@ -243,7 +243,7 @@ body{
     float: left;
 }
 .vrt-toggledropdown.vrt-secondary {
-    left: 447px;
+    left: 465px;
 }
 .vrt-arrow-top:after {
     height: 0;
@@ -305,20 +305,20 @@ body{
 
 .vrt-keycodesetting {
 	position: absolute;
+    top: 12px;
     width: 0;
     height: 0px;
 }
 .vrt-keycodesetting.vrt-normal-key {
-    top: 16px;
-    left: 166px;
+    left: 164px;
 }
 .vrt-keycodesetting.vrt-shift-key {
-    top: 16px;
-    left: 328px;
+    left: 336px;
 }
 #vrt-shift-key, #vrt-normal-key{
 	position:relative;
-	width: 104px;
+	text-align: center;
+	width: 125px;
 }
 .disabled {
 	color:#686868;
