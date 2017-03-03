@@ -338,10 +338,10 @@
     left: -22px;
 }
 .v-show {
-	background-position: 0px 15px;
+	background-position: 0px 30px;
 }
 .v-disabled{
-	background-position: 0px 30px;	
+	background-position: 0px 15px;	
 }
 div.v-close{
 	background: #2e2e2e;
