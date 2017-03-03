@@ -1,13 +1,13 @@
 // ==UserScript==
-// @name			DuoVirtKeyboard
+// @name		DuoVirtKeyboard
 // @namespace		duolingo
-// @description		Useful add-on for Duolingo
-// @version			0.0.6
-// @author			IceCube aka i.algurabi, (c) 2017
-// @include			https://*.duolingo.com/*
+// @description		A virtual keyboard for Duolingo with auto layout switching
+// @version		0.0.7
+// @author		IceCube aka i.algurabi, (c) 2017
+// @include		https://*.duolingo.com/*
 // @updateURL		http://127.0.0.1:8887/DuoVirtKeyboard.meta
 // @downloadURL		http://127.0.0.1:8887/DuoVirtKeyboard.js
-// @grant			none
+// @grant		none
 // ==/UserScript==
 
 	basekeys = {
@@ -2341,7 +2341,7 @@
 						}
 	};
 	virtKeyboard = {
-		version: "0.0.6",
+		version: "0.0.7",
 		shift: false,
 		caps: false,
 		newcodepage: false,
@@ -2831,6 +2831,9 @@
 		},
 		preinit: function(){
 			debugger;
+			var vKeyboardLogo = $("<span>");
+			vKeyboardLogo.addClass("v-logo");
+			$("a[href='/'")[0].append(vKeyboardLogo);
 			console.info("VirtKeyboard: v." + virtKeyboard.version);
 			var duoState = JSON.parse(localStorage["duo.state"]);
 			virtKeyboard.mainlang = duoState.user.fromLanguage||"en";

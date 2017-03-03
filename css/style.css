@@ -329,3 +329,11 @@
 	z-index:10;
 	color:#ab6262;
 }
+.v-logo {
+    background-image: url(//rawgit.com/icecube00/DuoVirtKeyboard/master/css/logo.png);
+	background-position: 1px 1px;
+    background-size: 90px;
+    display: inline-block;
+    height: 30px;
+    width: 90px;
+}
