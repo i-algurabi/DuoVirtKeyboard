@@ -14,6 +14,9 @@
 	border-radius: 9px;
 	padding: 40px;
 	color: #eee;
+    font: 500 15px/20px museo-sans-rounded,sans-serif;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;	
 }
 .vrt-topbar{
 	position: relative;
@@ -23,6 +26,9 @@
 	z-index:99999;
 }
 .vrt-logo{
+    background-image: url(//rawgit.com/icecube00/DuoVirtKeyboard/master/css/logo.png);	
+    background-position: 3px 37px;
+    background-size: 102px;
 	width: 40px;
     height: 40px;
     background-color: #CCC;
@@ -138,7 +144,7 @@
     background-position: -146px -70px;
 }
 .space{
-	width:237px;
+	width:242px;
 	text-align:center;
 }
 .special{
@@ -240,7 +246,7 @@
     border-radius: 5px;
 }
 .vrt-toggledropdown.vrt-main {
-    float: left;
+    left:0px;
 }
 .vrt-toggledropdown.vrt-secondary {
     left: 465px;
@@ -286,15 +292,6 @@
     float: left;
 }
 
-.vrt-owl {
-    background-image: url(//d7mj4aqfscim2.cloudfront.net/images/owl-sprite19.svg);
-    background-size: 255px;
-    display: inline-block;
-    background-position: -153px 1px;
-    height: 40px;
-    width: 40px;
-}
-
 .home>div:hover, .menu>div:hover {
     background-position: -167px -70px;
 }
@@ -331,9 +328,39 @@
 }
 .v-logo {
     background-image: url(//rawgit.com/icecube00/DuoVirtKeyboard/master/css/logo.png);
-	background-position: 1px 1px;
-    background-size: 90px;
+    background-position: 0px 0px;
+    background-size: 45px;
     display: inline-block;
-    height: 30px;
-    width: 90px;
+    height: 15px;
+    width: 45px;
+    position: relative;
+    top: 8px;
+    left: -22px;
+}
+.v-show {
+	background-position: 0px 15px;
+}
+.v-disabled{
+	background-position: 0px 30px;	
+}
+div.v-close{
+	background: #2e2e2e;
+    border-radius: 98px;
+    cursor: pointer;
+    height: 25px;
+    position: absolute;
+    right: -51px;
+    top:-19px;
+    width: 25px;
+}
+span.v-close{
+    background-position: -260px -69px;
+    height: 12px;
+    width: 12px;	
+    background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/icon-sprite.svg);
+    display: inline-block;
+    vertical-align: middle;
+	margin: 2px 0 0 6px;
+	right: -10px;
+	top: -10px;
 }
