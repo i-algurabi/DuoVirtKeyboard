@@ -2,7 +2,7 @@
 // @name		DuoVirtKeyboard
 // @namespace		duolingo
 // @description		A virtual keyboard for Duolingo with auto layout switching
-// @version		0.0.8
+// @version		0.0.9
 // @author		IceCube aka i.algurabi, (c) 2017
 // @include		https://*.duolingo.com/*
 // @updateURL		http://127.0.0.1:8887/DuoVirtKeyboard.meta
@@ -28,13 +28,11 @@ userInfo = {
         var result = {};
         for (var skill in this.duoState.skills){
             if (this.duoState.skills[skill].strength && this.duoState.skills[skill].strength<1){
-                if (result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]) {
-                    result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage][this.duoState.skills[skill].name]=this.duoState.skills[skill];
-                }
-                else {
+                if (!result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]) {
                     result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]={};
-                    result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage][this.duoState.skills[skill].name]=this.duoState.skills[skill];
                 }
+                this.duoState.skills[skill].URI="/skill/"+this.duoState.skills[skill].learningLanguage+"/"+this.duoState.skills[skill].urlName;
+                result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage][this.duoState.skills[skill].name]=this.duoState.skills[skill];
             }
         }
         return result;
@@ -43,17 +41,27 @@ userInfo = {
         this.duoState = this.refresh();
         var result = {};
         for (var skill in this.duoState.skills){
-            if (this.duoState.skills[skill].strength && this.duoState.skills[skill].strength<1){
-                if (result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]) {
-                    result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage][this.duoState.skills[skill].name]=this.duoState.skills[skill];
-                }
-                else {
+            if (this.duoState.skills[skill].accessible && this.duoState.skills[skill].finishedLessons<this.duoState.skills[skill].lessons){
+                if (!result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]) {
                     result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]={};
-                    result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage][this.duoState.skills[skill].name]=this.duoState.skills[skill];
                 }
+                this.duoState.skills[skill].URI="/skill/"+this.duoState.skills[skill].learningLanguage+"/"+this.duoState.skills[skill].urlName;
+                result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage][this.duoState.skills[skill].name]=this.duoState.skills[skill];
             }
         }
         return result;
+    },
+    switchLanguage: function(course){
+        $.ajax({//switch language
+            type: "POST",
+            url: "/api/1/me/switch_language",
+            data: {
+                from_language: course.fromLanguage,
+                learning_language: course.learningLanguage
+            }
+        }).done(function () {
+            document.location.href = document.location.protocol + "//" + document.location.hostname;
+        });
     },
     dict: {
         "logo": ".NJXKT._1nAJB.cCL9P",
@@ -2437,7 +2445,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.8",
+    version: "0.0.9",
     show: true,
     apply: true,
     shift: false,
@@ -2510,7 +2518,7 @@ virtKeyboard = {
             }
         }
     },
-    typecustomchar: function(inputf,charcode,input_lang){
+    typecustomchar: function(inputf,charcode,input_lang, key){
         var inputtext = $(inputf).val();
         var selStart = $(inputf)[0].selectionStart;
         var selEnd = $(inputf)[0].selectionEnd;
@@ -2867,7 +2875,7 @@ virtKeyboard = {
                 if (!(keypressed.keyCode === 8 || keypressed.keyCode === 32) && !(basekeys[input_lang]) || !basekeys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
                     return true;
                 }
-                virtKeyboard.typecustomchar(this, keypressed.keyCode, input_lang);
+                virtKeyboard.typecustomchar(this, keypressed.keyCode, input_lang, keypressed.key);
                 keypressed.preventDefault();
                 //return false;
             }
@@ -2957,7 +2965,7 @@ virtKeyboard = {
                 if (basekeys.supported_lang[sl]!==json.supported_lang[sl]) {v_update=true;}
             } 
             if (v_update) {
-				console.info("Updateing VirtKeyboard language pack");
+                console.info("Updateing VirtKeyboard language pack");
                 virtKeyboard.updateBase(json);
                 virtKeyboard.updateLangs(userInfo.getLangs());
             }
@@ -2985,4 +2993,4 @@ document.getElementsByTagName('head')[0].appendChild(script);
 document.getElementsByTagName('head')[0].appendChild(vrtcss);
 setTimeout(function () {
     virtKeyboard.preinit();
-}, 7000);
+}, 4000);
