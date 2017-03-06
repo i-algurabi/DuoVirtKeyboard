@@ -27,7 +27,7 @@
 }
 .vrt-logo{
     background-image: url(//rawgit.com/icecube00/DuoVirtKeyboard/master/css/logo.png);	
-    background-position: 3px 37px;
+    background-position: 3px 71px;
     background-size: 102px;
 	width: 40px;
     height: 40px;
@@ -70,7 +70,7 @@
 	color:#00b7d4;
 }
 .key.virthover, .key.switch.hover{
-	box-shadow:0px 0px 10px #c2e1e6;
+	box-shadow:0px 0px 25px #c2e1e6;
 	z-index:10;
 	color:#00b7d4;
 }
