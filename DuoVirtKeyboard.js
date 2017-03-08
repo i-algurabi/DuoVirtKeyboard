@@ -2,7 +2,7 @@
 // @name		DuoVirtKeyboard
 // @namespace		duolingo
 // @description		A virtual keyboard for Duolingo with auto layout switching
-// @version		0.0.9
+// @version		0.0.10
 // @author		IceCube aka i.algurabi, (c) 2017
 // @include		https://*.duolingo.com/*
 // @updateURL		http://127.0.0.1:8887/DuoVirtKeyboard.meta
@@ -51,23 +51,31 @@ userInfo = {
         }
         return result;
     },
-    switchLanguage: function(course){
+    switchLanguage: function(fromLanguage,learningLanguage){
         $.ajax({//switch language
             type: "POST",
             url: "/api/1/me/switch_language",
             data: {
-                from_language: course.fromLanguage,
-                learning_language: course.learningLanguage
+                from_language: fromLanguage,
+                learning_language: learningLanguage
             }
         }).done(function () {
             document.location.href = document.location.protocol + "//" + document.location.hostname;
         });
     },
     dict: {
-        "logo": ".NJXKT._1nAJB.cCL9P",
-        "flag": "._3viv6",
-        "flag-cell": "._3I51r._3HsQj._2OF7V",
-        "practice-button": "._6Hq2p._1AthD._1lig4._3IS_q._2cWmF",
+        "circle": "_3hKMG",
+        "circle-hoverable": "_1z_vo _3hKMG",
+        "blue": "_2VAWl",
+        "gray": "_39kLK",
+        "green": "_1na3J",
+        "purple": "_2wyKI",
+        "red": "_3E0y_",
+        "gold": "ewiWc",
+        "logo": "NJXKT _1nAJB cCL9P",
+        "flag": "_3viv6",
+        "flag-cell": "_3I51r _3HsQj _2OF7V",
+        "practice-button": "_6Hq2p _1AthD _1lig4 _3IS_q _2cWmF",
         "fr": "_2KQN3",
         "es": "u5W-o",
         "de": "oboa9",
@@ -2737,7 +2745,7 @@ virtKeyboard = {
             });
             return this;
         },
-            $("#virt-keyboard").on("click", ".key", function (){
+        $("#virt-keyboard").on("click", ".key", function (){
             var inputfield = $("textarea");
             var keycode = $(this).find("div").data("keycode");
             var keyname = $(this).find("div").data("name");
@@ -2974,7 +2982,7 @@ virtKeyboard = {
             if ($(".v-logo").length===0){
                 var vKeyboardLogo = $("<span>");
                 vKeyboardLogo.addClass("v-logo v-show");
-                if ($(userInfo.dict.logo).next("div").after(vKeyboardLogo).length===0) $($("a[href='/'")[0]).next("div").after(vKeyboardLogo);
+                if ($("." + userInfo.dict.logo.split(" ").join(".")).next("div").after(vKeyboardLogo).length===0) $($("a[href='/'")[0]).next("div").after(vKeyboardLogo);
             }
             console.info("VirtKeyboard: v." + virtKeyboard.version);
             userInfo.duoState = userInfo.refresh();
@@ -2984,6 +2992,39 @@ virtKeyboard = {
         }
     }
 };
+sidepanel = {
+	html: "<div class='sidepanel'>",
+	init: function(){
+		$("body").append(this.html);
+		$(document).on("mouseover",".sidepanel", function(){
+			$(".sidepanel").addClass("expand");
+		});
+		$(document).on("mouseout",".sidepanel", function(){
+			$(".sidepanel").removeClass("expand");
+		});
+		var courses = userInfo.refresh().courses;
+		var courseslist = $("<ul class='courses'>");
+		for (var course in courses) {
+			var li = $("<li class='course'>");
+			var span1 = $("<span>");
+			var span2 = $("<span>");
+			span1.addClass(userInfo.dict.flag + " from");
+			span2.addClass(userInfo.dict.flag + " to");
+            li.data("fromLanguage",courses[course].fromLanguage);
+            li.data("learningLanguage",courses[course].learningLanguage);
+			span1.addClass(userInfo.dict[courses[course].fromLanguage]);
+			span2.addClass(userInfo.dict[courses[course].learningLanguage]);
+			li.append(span1);
+			li.append(span2);
+			courseslist.append(li);
+		}
+		$(".sidepanel").append(courseslist);
+		$("li.course").on("click", function(){
+			userInfo.switchLanguage($(this).data("fromLanguage"),$(this).data("learningLanguage"));
+		});
+	}
+};
+
 script = document.createElement('script');
 script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
 vrtcss = document.createElement('link');
@@ -2993,4 +3034,5 @@ document.getElementsByTagName('head')[0].appendChild(script);
 document.getElementsByTagName('head')[0].appendChild(vrtcss);
 setTimeout(function () {
     virtKeyboard.preinit();
+	sidepanel.init();
 }, 4000);
