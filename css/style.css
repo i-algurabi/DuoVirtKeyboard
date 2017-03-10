@@ -380,11 +380,12 @@ span.v-close{
 .sidepanel {
     position: fixed;
     top: 110px;
-    left: -10px;
+    left: -484px;
     background-color: rgba(41, 168, 228, 0.76);
-    width: 20px;
+    width: 494px;
     height: 75%;
     border-radius: 10px;
+	overflow: hidden;
 }
 .expand {
     width: 494px;

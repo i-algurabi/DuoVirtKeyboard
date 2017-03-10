@@ -2453,7 +2453,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.9",
+    version: "0.0.10",
     show: true,
     apply: true,
     shift: false,
@@ -2996,12 +2996,19 @@ sidepanel = {
 	html: "<div class='sidepanel'>",
 	init: function(){
 		$("body").append(this.html);
-		$(document).on("mouseover",".sidepanel", function(){
-			$(".sidepanel").addClass("expand");
-		});
+		$(".sidepanel").hover(
+			function(){
+				$(this).animate({'left': '-10px'}, 100);
+			}, 
+			function(){
+				$(this).animate({'left': '-484px'}, 100);   
+			}
+		);
+/*
 		$(document).on("mouseout",".sidepanel", function(){
 			$(".sidepanel").removeClass("expand");
 		});
+*/
 		var courses = userInfo.refresh().courses;
 		var courseslist = $("<ul class='courses'>");
 		for (var course in courses) {
