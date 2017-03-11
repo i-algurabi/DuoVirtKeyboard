@@ -2,7 +2,7 @@
 // @name		DuoVirtKeyboard
 // @namespace		duolingo
 // @description		A virtual keyboard for Duolingo with auto layout switching
-// @version		0.0.10
+// @version		0.0.11
 // @author		IceCube aka i.algurabi, (c) 2017
 // @include		https://*.duolingo.com/*
 // @updateURL		http://127.0.0.1:8887/DuoVirtKeyboard.meta
@@ -23,11 +23,14 @@ userInfo = {
     refresh: function(){
         return JSON.parse(localStorage["duo.state"]);			
     },
-    getWeakendSkills: function(){
+    getWeakendSkills: function(fromLanguage,learningLanguage){
         this.duoState = this.refresh();
         var result = {};
         for (var skill in this.duoState.skills){
-            if (this.duoState.skills[skill].strength && this.duoState.skills[skill].strength<1){
+            if (!fromLanguage) fromLanguage=this.duoState.skills[skill].fromLanguage;
+            if (!learningLanguage) learningLanguage=this.duoState.skills[skill].learningLanguage;
+            var willreturn = (fromLanguage===this.duoState.skills[skill].fromLanguage) && (learningLanguage===this.duoState.skills[skill].learningLanguage) && (this.duoState.skills[skill].finishedLessons===this.duoState.skills[skill].lessons);
+            if (willreturn && this.duoState.skills[skill].strength && this.duoState.skills[skill].strength<1){
                 if (!result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]) {
                     result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]={};
                 }
@@ -37,11 +40,14 @@ userInfo = {
         }
         return result;
     },
-    getNewSkills: function(){
+    getNewSkills: function(fromLanguage, learningLanguage){
         this.duoState = this.refresh();
         var result = {};
         for (var skill in this.duoState.skills){
-            if (this.duoState.skills[skill].accessible && this.duoState.skills[skill].finishedLessons<this.duoState.skills[skill].lessons){
+            if (!fromLanguage) fromLanguage=this.duoState.skills[skill].fromLanguage;
+            if (!learningLanguage) learningLanguage=this.duoState.skills[skill].learningLanguage;
+            var willreturn = (fromLanguage===this.duoState.skills[skill].fromLanguage) && (learningLanguage===this.duoState.skills[skill].learningLanguage);
+            if (willreturn && this.duoState.skills[skill].accessible && this.duoState.skills[skill].finishedLessons<this.duoState.skills[skill].lessons){
                 if (!result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]) {
                     result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]={};
                 }
@@ -2453,7 +2459,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.10",
+    version: "0.0.11",
     show: true,
     apply: true,
     shift: false,
@@ -2745,7 +2751,7 @@ virtKeyboard = {
             });
             return this;
         },
-        $("#virt-keyboard").on("click", ".key", function (){
+            $("#virt-keyboard").on("click", ".key", function (){
             var inputfield = $("textarea");
             var keycode = $(this).find("div").data("keycode");
             var keyname = $(this).find("div").data("name");
@@ -2993,43 +2999,65 @@ virtKeyboard = {
     }
 };
 sidepanel = {
-	html: "<div class='sidepanel'>",
-	init: function(){
-		$("body").append(this.html);
-		$(".sidepanel").hover(
-			function(){
-				$(this).animate({'left': '-10px'}, 100);
-			}, 
-			function(){
-				$(this).animate({'left': '-484px'}, 100);   
-			}
-		);
-/*
+    html: "<div class='sidepanel'>",
+    init: function(){
+        $("body").append(this.html);
+        $(".sidepanel").hover(
+            function(){
+                $(this).animate({'left': '-10px'}, 100);
+            }, 
+            function(){
+                $(this).animate({'left': '-484px'}, 100);   
+            }
+        );
+        /*
 		$(document).on("mouseout",".sidepanel", function(){
 			$(".sidepanel").removeClass("expand");
 		});
 */
-		var courses = userInfo.refresh().courses;
-		var courseslist = $("<ul class='courses'>");
-		for (var course in courses) {
-			var li = $("<li class='course'>");
-			var span1 = $("<span>");
-			var span2 = $("<span>");
-			span1.addClass(userInfo.dict.flag + " from");
-			span2.addClass(userInfo.dict.flag + " to");
-            li.data("fromLanguage",courses[course].fromLanguage);
-            li.data("learningLanguage",courses[course].learningLanguage);
-			span1.addClass(userInfo.dict[courses[course].fromLanguage]);
-			span2.addClass(userInfo.dict[courses[course].learningLanguage]);
-			li.append(span1);
-			li.append(span2);
-			courseslist.append(li);
-		}
-		$(".sidepanel").append(courseslist);
-		$("li.course").on("click", function(){
-			userInfo.switchLanguage($(this).data("fromLanguage"),$(this).data("learningLanguage"));
-		});
-	}
+        userInfo.duoState = userInfo.refresh();
+        var courseslist = $("<ul class='courses'>");
+        for (var course in userInfo.duoState.courses) {
+            var li = $("<li class='course'>");
+            var span1 = $("<span>");
+            var span2 = $("<span>");
+            span1.addClass(userInfo.dict.flag + " from");
+            span2.addClass(userInfo.dict.flag + " to");
+            var fromLanguage = userInfo.duoState.courses[course].fromLanguage;
+            var learningLanguage = userInfo.duoState.courses[course].learningLanguage;
+            li.data("fromLanguage",fromLanguage);
+            li.data("learningLanguage",learningLanguage);
+            span1.addClass(userInfo.dict[fromLanguage]);
+            span2.addClass(userInfo.dict[learningLanguage]);
+            var weakspan = $("<div class='skill weak'>");
+            var newspan = $("<div class='skill new'>");
+            if (learningLanguage === userInfo.duoState.user.learningLanguage &&
+                fromLanguage === userInfo.duoState.user.fromLanguage) {
+                li.addClass("active");
+                var weakSkills = userInfo.getWeakendSkills(fromLanguage,learningLanguage)[learningLanguage + "<" + fromLanguage];
+                var newSkills = userInfo.getNewSkills(fromLanguage,learningLanguage)[learningLanguage + "<" + fromLanguage];
+                for (var skill in weakSkills){
+                    var nClone = $("a[href='" + weakSkills[skill].URI + "'").clone();
+                    nClone.addClass("micro");
+                    weakspan.append(nClone);
+                }
+                for (var skill in newSkills){
+                    var nClone = $("a[href='" + newSkills[skill].URI + "'").clone();
+                    nClone.addClass("micro");
+                    newspan.append(nClone);
+                }
+            }
+            li.append(span1);
+            li.append(span2);
+            if (weakspan.find("a").length>0) li.append(weakspan);
+            if (newspan.find("a").length>0) li.append(newspan);
+            courseslist.append(li);
+        }
+        $(".sidepanel").append(courseslist);
+        $("li.course").on("click", function(){
+            userInfo.switchLanguage($(this).data("fromLanguage"),$(this).data("learningLanguage"));
+        });
+    }
 };
 
 script = document.createElement('script');
@@ -3041,5 +3069,5 @@ document.getElementsByTagName('head')[0].appendChild(script);
 document.getElementsByTagName('head')[0].appendChild(vrtcss);
 setTimeout(function () {
     virtKeyboard.preinit();
-	sidepanel.init();
+    sidepanel.init();
 }, 4000);

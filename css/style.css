@@ -408,15 +408,56 @@ span.v-close{
     border-radius: 0px 30px 30px 0px;
 }
 li.course{
-    height: 30px;
+    min-height: 30px;
     width: 455px;
 	background-color: #77f095;
     background-color: rgba(26, 230, 77, 0.59);
     border-radius: 30px;
     margin: 6px 0px 6px 0px;
 }
+li.course.active{
+	background-color: #770f95;
+    background-color: rgba(26, 25, 77, 0.59);
+}
 ul.courses{
 	position: relative;
     top: 10px;
     left: 18px;
+}
+.skills {
+	border-radius: 98px;
+    display: inline-block;
+    background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/skill-icons-unlocked2.svg);
+	margin: 0 0 13px;
+	height: 80px;
+    width: 80px;
+}
+
+.micro {
+    -webkit-transform: scale(.6);
+    -ms-transform: scale(.6);
+    transform: scale(.6);
+    -webkit-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    transform-origin: 0 0;
+	height:85px;
+	width:85px;
+	left: 40px;
+	top:20px;
+	display: inline-block;
+}
+.skill{
+    position: relative;
+	width: 380px;
+    left: 37px;
+	padding-bottom: 10px;
+	border-radius:5px;	
+}
+.skill.weak {
+    top: -20px;
+	background-color: rgba(255, 127, 80, 0.70);
+}
+.skill.new {
+    top: -10px;
+	background-color: rgba(130,221,0,0.6);
 }
