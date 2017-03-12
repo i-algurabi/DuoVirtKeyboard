@@ -2999,8 +2999,10 @@ virtKeyboard = {
     }
 };
 sidepanel = {
+    version: "0.0.4",
     html: "<div class='sidepanel'>",
     init: function(){
+        console.info("sidepanel: v." + sidepanel.version);
         $("body").append(this.html);
         $(".sidepanel").hover(
             function(){
@@ -3031,26 +3033,52 @@ sidepanel = {
             span2.addClass(userInfo.dict[learningLanguage]);
             var weakspan = $("<div class='skill weak'>");
             var newspan = $("<div class='skill new'>");
+            var weakSkills = userInfo.getWeakendSkills(fromLanguage,learningLanguage)[learningLanguage + "<" + fromLanguage];
+            var newSkills = userInfo.getNewSkills(fromLanguage,learningLanguage)[learningLanguage + "<" + fromLanguage];
             if (learningLanguage === userInfo.duoState.user.learningLanguage &&
                 fromLanguage === userInfo.duoState.user.fromLanguage) {
+                var prevWeak = $(virtKeyboard.getFromLocalStorage("weakspan").html)||$("");
+                var prevNew = $(virtKeyboard.getFromLocalStorage("newspan").html)||$("");
                 li.addClass("active");
-                var weakSkills = userInfo.getWeakendSkills(fromLanguage,learningLanguage)[learningLanguage + "<" + fromLanguage];
-                var newSkills = userInfo.getNewSkills(fromLanguage,learningLanguage)[learningLanguage + "<" + fromLanguage];
                 for (var skill in weakSkills){
-                    var nClone = $("a[href='" + weakSkills[skill].URI + "'").clone();
+                    var a_href = "a[href='" + weakSkills[skill].URI + "']";
+                    var oClone = prevWeak.filter(a_href).clone();
+                    var nClone = oClone.length>0?oClone:$(a_href).clone();
                     nClone.addClass("micro");
                     weakspan.append(nClone);
                 }
                 for (var skill in newSkills){
-                    var nClone = $("a[href='" + newSkills[skill].URI + "'").clone();
+                    var a_href = "a[href='" + newSkills[skill].URI + "']";
+                    var oClone = prevNew.filter(a_href).clone();
+                    var nClone = oClone.length>0?oClone:$(a_href).clone();
                     nClone.addClass("micro");
+                    newspan.append(nClone);
+                }
+                console.info("weakspan:" + weakspan.html());
+                console.info("newspan:" + newspan.html());
+                virtKeyboard.saveToLocalStorage("weakspan",{"html":weakspan.html()});
+                virtKeyboard.saveToLocalStorage("newspan",{"html":newspan.html()});
+            }
+            else {
+                var color = ["red","blue","green"];
+                var i = 0;
+                for (var skill in weakSkills){
+                    i++;
+                    var nClone = $("<span class='skills'>");
+                    nClone.addClass(userInfo.dict[color[i%3]]);
+                    weakspan.append(nClone);
+                }
+                for (var skill in newSkills){
+                    i++;
+                    var nClone = $("<span class='skills'>");
+                    nClone.addClass(userInfo.dict[color[i%3]]);
                     newspan.append(nClone);
                 }
             }
             li.append(span1);
             li.append(span2);
-            if (weakspan.find("a").length>0) li.append(weakspan);
-            if (newspan.find("a").length>0) li.append(newspan);
+            if (weakspan.find("span").length>0) li.append(weakspan);
+            if (newspan.find("span").length>0) li.append(newspan);
             courseslist.append(li);
         }
         $(".sidepanel").append(courseslist);
