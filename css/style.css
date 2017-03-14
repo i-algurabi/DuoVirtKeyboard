@@ -1,53 +1,36 @@
 ::selection{
-	background-color:none;
-	color:inherit;
+    background-color:none;
+    color:inherit;
 }
 #virt-keyboard{
-	position: absolute;
-	top:375px;
-	left:25%;
-	width:704px;
-	height: 290px;
-	background-color: #35629a;
-	background-color: rgba(0, 58, 128, 0.79);
-	margin: 10px auto;
-	border-radius: 9px;
-	padding: 40px;
-	color: #eee;
+    position: absolute;
+    top:375px;
+    left:25%;
+    width:704px;
+    height: 290px;
+    background-color: #35629a;
+    background-color: rgba(0, 58, 128, 0.79);
+    margin: 10px auto;
+    border-radius: 9px;
+    padding: 40px;
+    color: #eee;
     font: 500 15px/20px museo-sans-rounded,sans-serif;
     -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;	
+    -webkit-font-smoothing: antialiased;    
 }
 .vrt-topbar{
-	position: relative;
+    position: relative;
     width: 625px;
     top: -52px;
     height: 88px;
-	z-index:99999;
+    z-index:99999;
 }
-.vrt-logo{
-    background-image: url(//rawgit.com/icecube00/DuoVirtKeyboard/master/css/logo.png);	
-    background-position: 3px 71px;
-    background-size: 102px;
-	width: 40px;
-    height: 40px;
-    background-color: #CCC;
-    font-weight: 300;
-    font-style: oblique;
-    font-size: 30px;
-    line-height: 40px;
-    text-align: center;
-    margin: 19px 0px -48px 277px;
-    border-radius: 40px;
-    position: relative;
-    top: 5px;
-    left: 15px;
-}
+
 .vrt-section{
     position: relative;
     top: -80px;
-	width:627px;
-	height:260px; 
+    width:627px;
+    height:260px; 
 }
 
 .key{
@@ -65,49 +48,49 @@
   transition: box-shadow 0.7s ease;
 }
 .key:hover{
-	box-shadow:0px 0px 10px #c2e1e6;
-	z-index:10;
-	color:#00b7d4;
+    box-shadow:0px 0px 10px #c2e1e6;
+    z-index:10;
+    color:#00b7d4;
 }
 .key.virthover, .key.switch.hover{
-	box-shadow:0px 0px 25px #c2e1e6;
-	z-index:10;
-	color:#00b7d4;
+    box-shadow:0px 0px 25px #c2e1e6;
+    z-index:10;
+    color:#00b7d4;
 }
 
 .keylabel{
-	width: 0px;
-	height:0px;
-	position: relative;
+    width: 0px;
+    height:0px;
+    position: relative;
 }
 .keylabel>span {
-	top: 0px;
-    left: -2px;	
-	width:20px; 
-	max-width:20px; height:20px;
+    top: 0px;
+    left: -2px;    
+    width:20px; 
+    max-width:20px; height:20px;
     position: absolute !important;
 }
 
 .keylabel>span.l0, .keylabel>span.l3, .keylabel>span.l6{
-	padding-left: 0px;
-	text-align: left;
+    padding-left: 0px;
+    text-align: left;
 }
 .keylabel>span.l1, .keylabel>span.l4, .keylabel>span.l7{
-	padding-left: 12px;
-	text-align: center;
+    padding-left: 12px;
+    text-align: center;
 }
 .keylabel>span.l2, .keylabel>span.l5, .keylabel>span.l8{
-	padding-left: 20px;
-	text-align: right;
+    padding-left: 20px;
+    text-align: right;
 }
 
 .keylabel>span.l0, .keylabel>span.l1, .keylabel>span.l2{
-	padding-top: 2px;
-	vertical-align: top;
+    padding-top: 2px;
+    vertical-align: top;
 }
 .keylabel>span.l3, .keylabel>span.l4, .keylabel>span.l5{
-	padding-top: 12px;
-	vertical-align: middle;
+    padding-top: 12px;
+    vertical-align: middle;
 }
 .keylabel>span.l6, .keylabel>span.l7, .keylabel>span.l8{
     vertical-align: bottom;
@@ -115,24 +98,24 @@
 }
 
 .tab {
-	width: 55px; 
+    width: 55px; 
 }
 .caps{
-	width:72px; 
-	font-size:12px; 
-	line-height:18px;
+    width:72px; 
+    font-size:12px; 
+    line-height:18px;
 }
 .shift.left{
-	width: 97px;
+    width: 97px;
 }
 .alt{
-	width: 50px;
+    width: 50px;
 }
 .ctrl{
-	width: 94px;
+    width: 94px;
 }
 .home, .menu{
-	width:43px;
+    width:43px;
 }
 .home>div, .menu>div{
     width: 20px;
@@ -144,61 +127,61 @@
     background-position: -146px -70px;
 }
 .space{
-	width:242px;
-	text-align:center;
+    width:242px;
+    text-align:center;
 }
 .special{
-	line-height: 40px;
-	font-size:13px;
+    line-height: 40px;
+    font-size:13px;
 }
 
 .backspace {
-	width:77px; 
-	text-align: right; 
-	font-size: 13px;
-	padding-right:7px;
-	line-height: 40px;
+    width:77px; 
+    text-align: right; 
+    font-size: 13px;
+    padding-right:7px;
+    line-height: 40px;
 }
 .slash{
-	padding-right:7px;
-	width:62px;
+    padding-right:7px;
+    width:62px;
 }
 .enter{
-	width:87px; 
-	text-align: right; 
-	padding-left:0;
-	padding-right:7px;
+    width:87px; 
+    text-align: right; 
+    padding-left:0;
+    padding-right:7px;
 }
 .shift.right{
-	text-align: right; 
-	padding-right:7px;
-	width: 104px;
+    text-align: right; 
+    padding-right:7px;
+    width: 104px;
 }
 .ctrl.right{
-	text-align: right; 
-	padding-right:7px;
-	width: 89px;
+    text-align: right; 
+    padding-right:7px;
+    width: 89px;
 }
 
 .alt:before {
-	content:"Alt"; 
+    content:"Alt"; 
 }
 .backspace:before {
-	content:"Backspace"; 
+    content:"Backspace"; 
 }
 .caps:before{
-	content:"Caps Lock"; 
+    content:"Caps Lock"; 
 }
 .ctrl:before{
-	content:"Ctrl"; 
+    content:"Ctrl"; 
 }.enter:before{
-	content:"Enter"; 
+    content:"Enter"; 
 }
 .shift:before{
-	content:"Shift"; 
+    content:"Shift"; 
 }
 .tab:before {
-	content: "Tab"; 
+    content: "Tab"; 
 }
 
 .vrt-dropdown, .vrt-download {
@@ -219,20 +202,20 @@
     -moz-box-shadow: 0 2px 15px rgba(0,0,0,0.2);
     box-shadow: 0 2px 15px rgba(0,0,0,0.2);
     background-clip: padding-box;
-	color:grey;
+    color:grey;
 }
 .vrt-download {
-    left: -72px;	
+    left: -72px;    
 }
 .vrt-dropdown>li.vrt-active, .vrt-download>a>li.vrt-active{
-	position: relative;
+    position: relative;
     background: #dfdfdf;
-	color:black;
+    color:black;
     display: list-item;
     text-align: -webkit-match-parent;
 }
 .vrt-dropdown>li:hover, .vrt-download>a>li:hover{
-	background: #ffdfdf;
+    background: #ffdfdf;
 }
 .vrt-toggledropdown {
     position: absolute;
@@ -240,7 +223,7 @@
     line-height: 40px;
     width: 160px;
     font-size: 23px;
-	background-color: #1983b2;
+    background-color: #1983b2;
     background-color: rgba(40, 168, 230, 0.58);
     text-align: center;
     border-radius: 5px;
@@ -267,23 +250,23 @@
 }
 
 .vrt-data-choice {
-	padding-left: 15px;
-	font-size: 20px;
-	font-style: oblique;
+    padding-left: 15px;
+    font-size: 20px;
+    font-style: oblique;
 }
 .vrt-new {
-	background-color:#dfdfdf;
+    background-color:#dfdfdf;
 }
 .vrt-divider {
-	border-top: 2px solid #607D8B;
+    border-top: 2px solid #607D8B;
     margin: 9px 13px;
     height: 1px;
     list-style-type: none;
 }
 .vrt-dl-choice {
-	padding-left: 15px;
-	font-size: 20px;
-	list-style-type: none;
+    padding-left: 15px;
+    font-size: 20px;
+    list-style-type: none;
 }
 .vrt-dl-choice > i{
     position: relative;
@@ -297,11 +280,11 @@
 }
 
 .vrt-hidden {
-	display: none;
+    display: none;
 }
 
 .vrt-keycodesetting {
-	position: absolute;
+    position: absolute;
     top: 12px;
     width: 0;
     height: 0px;
@@ -313,21 +296,21 @@
     left: 336px;
 }
 #vrt-shift-key, #vrt-normal-key{
-	position:relative;
-	text-align: center;
-	width: 125px;
+    position:relative;
+    text-align: center;
+    width: 125px;
 }
 .disabled {
-	color:#686868;
-	background-color:#353639;
+    color:#686868;
+    background-color:#353639;
 }
 .disabled:hover {
-	box-shadow:0px 0px 10px #d21e23;
-	z-index:10;
-	color:#ab6262;
+    box-shadow:0px 0px 10px #d21e23;
+    z-index:10;
+    color:#ab6262;
 }
 .v-logo {
-    background-image: url(//rawgit.com/icecube00/DuoVirtKeyboard/master/css/logo.png);
+    background-image: url(//cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/css/logo.png);
     background-position: 0px 0px;
     background-size: 45px;
     display: inline-block;
@@ -336,15 +319,33 @@
     position: relative;
     top: 8px;
     left: -22px;
+    background-color: #21c5f1;
+    background-color: rgba(28, 207, 246, 0.75);
 }
 .v-show {
-	background-position: 0px 30px;
+    background-position: 0px 30px;
+    background-color: #35d385;
+    background-color: rgba(61, 255, 35, 0.49);
 }
 .v-disabled{
-	background-position: 0px 15px;	
+    background-position: 0px 15px;
+    background-color: #9bbed0;
+    background-color: rgba(206, 199, 199, 0.68);
+}
+.v-big{
+    background-position: 3px 71px;
+    background-size: 102px;
+    width: 40px;
+    height: 40px;
+    background-color: #CCC;
+    margin: 19px 0px -48px 277px;
+    border-radius: 40px;
+    position: relative;
+    top: 0px;
+    left: 15px;
 }
 div.v-close{
-	background: #2e2e2e;
+    background: #2e2e2e;
     border-radius: 98px;
     cursor: pointer;
     height: 25px;
@@ -356,13 +357,13 @@ div.v-close{
 span.v-close{
     background-position: -260px -69px;
     height: 12px;
-    width: 12px;	
+    width: 12px;    
     background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/icon-sprite.svg);
     display: inline-block;
     vertical-align: middle;
-	margin: 2px 0 0 6px;
-	right: -10px;
-	top: -10px;
+    margin: 2px 0 0 6px;
+    right: -10px;
+    top: -10px;
 }
 
 .sidepanel.blue {
@@ -385,11 +386,11 @@ span.v-close{
     width: 494px;
     height: 75%;
     border-radius: 10px;
-	overflow-x: hidden;
-	overflow-y: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 .from{
-	height: 30px;
+    height: 30px;
     width: 30px;
     position: relative;
     display: inline-block;
@@ -408,17 +409,17 @@ span.v-close{
 li.course{
     min-height: 30px;
     width: 455px;
-	background-color: #77f095;
+    background-color: #77f095;
     background-color: rgba(26, 230, 77, 0.59);
     border-radius: 30px;
     margin: 6px 0px 6px 0px;
 }
 li.course.active{
-	background-color: #770f95;
+    background-color: #770f95;
     background-color: rgba(26, 25, 77, 0.59);
 }
 ul.courses{
-	position: relative;
+    position: relative;
     top: 10px;
     left: 18px;
 }
@@ -440,11 +441,11 @@ ul.courses{
     -webkit-transform-origin: 0 0;
     -ms-transform-origin: 0 0;
     transform-origin: 0 0;
-	height:85px;
-	width:85px;
-	left: 40px;
-	top:20px;
-	display: inline-block;
+    height:85px;
+    width:85px;
+    left: 40px;
+    top:20px;
+    display: inline-block;
 }
 .nano {
     -webkit-transform: scale(.3);
@@ -453,24 +454,24 @@ ul.courses{
     -webkit-transform-origin: 0 0;
     -ms-transform-origin: 0 0;
     transform-origin: 0 0;
-	height:85px;
-	width:85px;
-	left: 40px;
-	top:20px;
-	display: inline-block;
+    height:85px;
+    width:85px;
+    left: 40px;
+    top:20px;
+    display: inline-block;
 }
 .skill{
     position: relative;
-	width: 380px;
+    width: 380px;
     left: 37px;
-	padding-bottom: 10px;
-	border-radius:5px;	
+    padding-bottom: 10px;
+    border-radius:5px;    
 }
 .skill.weak {
     top: -20px;
-	background-color: rgba(255, 127, 80, 0.70);
+    background-color: rgba(255, 127, 80, 0.70);
 }
 .skill.new {
     top: -10px;
-	background-color: rgba(130,221,0,0.6);
+    background-color: rgba(130,221,0,0.6);
 }

@@ -2,13 +2,14 @@
 // @name		DuoVirtKeyboard
 // @namespace		duolingo
 // @description		A virtual keyboard for Duolingo with auto layout switching
-// @version		0.0.11
+// @version		0.0.12
 // @author		IceCube aka i.algurabi, (c) 2017
 // @include		https://*.duolingo.com/*
-// @updateURL		http://127.0.0.1:8887/DuoVirtKeyboard.meta
-// @downloadURL		http://127.0.0.1:8887/DuoVirtKeyboard.js
+// @updateURL		https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/DuoVirtKeyboard.meta
+// @downloadURL		https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/DuoVirtKeyboard.js
 // @grant		none
 // ==/UserScript==
+
 userInfo = {
     duoState: null,
     getLangs: function(){
@@ -2459,7 +2460,13 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.11",
+    version: "0.0.12",
+	/* production link *
+	rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
+	* production link */
+	/* test link */
+	rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
+	/* test link */
     show: true,
     apply: true,
     shift: false,
@@ -2468,7 +2475,7 @@ virtKeyboard = {
     newlang: "",
     mainlang: "",
     secondlang: "",
-    body: "<div id='virt-keyboard' class='vrt-hidden'><header class='vrt-topbar'><div class='vrt-toggledropdown vrt-main'><span class='vrt-langspan vrt-main'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-main' id='vrt-mainlang' data-language='en'></ul></div><div class='vrt-keycodesetting vrt-normal-key vrt-hidden'><input id='vrt-normal-key' placeholder='Regular character' /></div><div class='vrt-logo'><ul class='vrt-download vrt-arrow-top'></ul></div><div class='vrt-keycodesetting vrt-shift-key vrt-hidden'><input id='vrt-shift-key' placeholder='Shift character' /></div><div class='vrt-toggledropdown vrt-secondary'><span class='vrt-langspan vrt-secondary'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-secondary' id='vrt-secondarylang' data-language='en'></ul></div><div class='v-close'><span class='v-close'></span></div></header><div class='vrt-section'></div></div>",
+    body: "<div id='virt-keyboard' class='vrt-hidden'><header class='vrt-topbar'><div class='vrt-toggledropdown vrt-main'><span class='vrt-langspan vrt-main'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-main' id='vrt-mainlang' data-language='en'></ul></div><div class='vrt-keycodesetting vrt-normal-key vrt-hidden'><input id='vrt-normal-key' placeholder='Regular character' /></div><div class='v-logo v-big'><ul class='vrt-download vrt-arrow-top'></ul></div><div class='vrt-keycodesetting vrt-shift-key vrt-hidden'><input id='vrt-shift-key' placeholder='Shift character' /></div><div class='vrt-toggledropdown vrt-secondary'><span class='vrt-langspan vrt-secondary'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-secondary' id='vrt-secondarylang' data-language='en'></ul></div><div class='v-close'><span class='v-close'></span></div></header><div class='vrt-section'></div></div>",
     saveToLocalStorage: function (parameter, value) {
         if (window.localStorage !== undefined) {
             var localStorage = window.localStorage;
@@ -2707,7 +2714,7 @@ virtKeyboard = {
             if (basekeys.supported_lang.indexOf(lcode)!==-1) {
                 $.ajax({//get language layout
                     type: "get",
-                    url: "https://rawgit.com/icecube00/DuoVirtKeyboard/master/duo/keyboard." + lcode + ".json"
+                    url: virtKeyboard.rawgit + "duo/keyboard." + lcode + ".json"
                 }).done(function (json) {
                     basekeys[json.lang] = json.keysmap;
                     if (basekeys[$("#vrt-mainlang").data("language")] && basekeys[$("#vrt-secondarylang").data("language")]) {
@@ -2885,7 +2892,9 @@ virtKeyboard = {
                     input_lang = virtKeyboard.mainlang;
                 }
                 virtKeyboard.shift = keypressed.shiftKey;
-                virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode===20) ||((keypressed.keyCode > 57 || virtKeyboard.caps) && (!virtKeyboard.shift === (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
+                virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode===20) ||
+                                     ((keypressed.keyCode > 57 || virtKeyboard.caps) &&
+                                      (virtKeyboard.shift !== (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
                 if (!(keypressed.keyCode === 8 || keypressed.keyCode === 32) && !(basekeys[input_lang]) || !basekeys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
                     return true;
                 }
@@ -2957,7 +2966,7 @@ virtKeyboard = {
         if (!oldkeys) {
             $.ajax({//get base keyboard layout
                 type: "get",
-                url: "https://rawgit.com/icecube00/DuoVirtKeyboard/master/duo/keyboard.base.json"
+                url: virtKeyboard.rawgit + "duo/keyboard.base.json"
             }).done(function (json) {
                 virtKeyboard.updateBase(json);
                 virtKeyboard.completeInit();
@@ -2972,12 +2981,12 @@ virtKeyboard = {
     preinit: function(){
         $.ajax({//get base keyboard layout
             type: "get",
-            url: "https://rawgit.com/icecube00/DuoVirtKeyboard/master/duo/keyboard.base.json"
+            url: virtKeyboard.rawgit + "duo/keyboard.base.json"
         }).done(function (json) {
             var v_update = false;
             for (var sl in basekeys.supported_lang){
                 if (basekeys.supported_lang[sl]!==json.supported_lang[sl]) {v_update=true;}
-            } 
+            }
             if (v_update) {
                 console.info("Updateing VirtKeyboard language pack");
                 virtKeyboard.updateBase(json);
@@ -3007,9 +3016,9 @@ sidepanel = {
         $(".sidepanel").hover(
             function(){
                 $(this).animate({'left': '-10px'}, 100);
-            }, 
+            },
             function(){
-                $(this).animate({'left': '-484px'}, 100);   
+                $(this).animate({'left': '-484px'}, 100);
             }
         );
         /*
@@ -3054,8 +3063,6 @@ sidepanel = {
                     nClone.addClass("micro");
                     newspan.append(nClone);
                 }
-                console.info("weakspan:" + weakspan.html());
-                console.info("newspan:" + newspan.html());
                 virtKeyboard.saveToLocalStorage("weakspan",{"html":weakspan.html()});
                 virtKeyboard.saveToLocalStorage("newspan",{"html":newspan.html()});
             }
@@ -3092,7 +3099,8 @@ script = document.createElement('script');
 script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
 vrtcss = document.createElement('link');
 vrtcss.rel = "stylesheet";
-vrtcss.href = "https://rawgit.com/icecube00/DuoVirtKeyboard/master/css/style.css";
+vrtcss.href = virtKeyboard.rawgit + "css/style.css";
+//vrtcss.href = "https://rawgit.com/i-algurabi/46909ac8f7ebb51642b11748977c51ec/raw/305183b7ec12477eba267c89aa9ef6fb98b404d3/style.css";
 document.getElementsByTagName('head')[0].appendChild(script);
 document.getElementsByTagName('head')[0].appendChild(vrtcss);
 setTimeout(function () {
