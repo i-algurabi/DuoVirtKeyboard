@@ -4,7 +4,7 @@
 }
 #virt-keyboard{
     position: absolute;
-    top:375px;
+    top:50%;
     left:25%;
     width:704px;
     height: 290px;
