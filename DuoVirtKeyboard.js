@@ -2,7 +2,7 @@
 // @name		DuoVirtKeyboard
 // @namespace		duolingo
 // @description		A virtual keyboard for Duolingo with auto layout switching
-// @version		0.0.12
+// @version		0.0.13
 // @author		IceCube aka i.algurabi, (c) 2017
 // @include		https://*.duolingo.com/*
 // @updateURL		https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/DuoVirtKeyboard.meta
@@ -2460,7 +2460,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.12",
+    version: "0.0.13",
 	/* production link *
 	rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
 	* production link */
