@@ -396,6 +396,11 @@ span.v-close{
     border-radius: 10px;
     overflow-x: hidden;
     overflow-y: auto;
+    -webkit-transition: left 1s, right 1s;
+    transition: left 1s, right 1s;
+}
+.sidepanel.show {
+	left: -10px;
 }
 .from{
     height: 30px;
@@ -485,6 +490,19 @@ ul.courses{
     background-color: rgba(130,221,0,0.6);
 }
 
+html[dir="rtl"] .sidepanel {
+    right: -484px;
+}
+html[dir="rtl"] .sidepanel.show {
+    right: -10px;
+}
+html[dir="rtl"] .from{
+    border-radius: 0px 30px 30px 0px;
+}
+html[dir="rtl"] .to{
+    float: left;
+    border-radius: 30px 0px 0px 30px;
+}
 html[dir="rtl"] #virt-keyboard{
     right: 25%;
 }
@@ -528,10 +546,10 @@ html[dir="rtl"] ul.courses {
     right: 18px;
 }
 html[dir="rtl"] .micro {
-    right: 40px;
+    right: 0px;
 }
 html[dir="rtl"] .nano {
-    right: 40px;
+    right: 0px;
 }
 html[dir="rtl"] .skill{
     right: 37px;
