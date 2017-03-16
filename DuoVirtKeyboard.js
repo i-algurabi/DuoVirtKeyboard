@@ -2465,7 +2465,7 @@ virtKeyboard = {
 	rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
 	* production link */
 	/* test link */
-	rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
+	rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
 	/* test link */
     show: true,
     apply: true,
