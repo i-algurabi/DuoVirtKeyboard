@@ -28,7 +28,7 @@
     position: relative;
     width: 625px;
     top: -52px;
-    height: 88px;
+    height: 100px;
     z-index: 99999;
 }
 
@@ -227,7 +227,7 @@
 }
 .vrt-toggledropdown {
     position: absolute;
-    top: 5px;
+    top: 20px;
     line-height: 40px;
     width: 160px;
     font-size: 23px;
@@ -540,7 +540,7 @@ html[dir="rtl"] .v-logo {
     right: -166px;
 }
 html[dir="rtl"] .v-big{
-    right: 15px;
+    right: 277px;
 }
 html[dir="rtl"] ul.courses {
     right: 18px;
