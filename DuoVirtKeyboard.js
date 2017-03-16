@@ -2,7 +2,7 @@
 // @name		DuoVirtKeyboard
 // @namespace		duolingo
 // @description		A virtual keyboard for Duolingo with auto layout switching
-// @version		0.0.13
+// @version		0.0.14
 // @author		IceCube aka i.algurabi, (c) 2017
 // @include		https://*.duolingo.com/*
 // @updateURL		https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -22,7 +22,7 @@ userInfo = {
         return result;
     },
     refresh: function(){
-        return JSON.parse(localStorage["duo.state"]);			
+        return JSON.parse(localStorage["duo.state"]);
     },
     getWeakendSkills: function(fromLanguage,learningLanguage){
         this.duoState = this.refresh();
@@ -2460,13 +2460,13 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.13",
-	/* production link *
+    version: "0.0.14",
+    /* production link *
 	rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
 	* production link */
-	/* test link */
-	rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
-	/* test link */
+    /* test link */
+    rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
+    /* test link */
     show: true,
     apply: true,
     shift: false,
@@ -2527,7 +2527,7 @@ virtKeyboard = {
                 span0.addClass(mainclass);
                 span0[0].textContent = mainlabel.shift;
                 $(updatekey).append(span0);
-            } 
+            }
             else {//some other symbol
                 var span1 = $("<span>");
                 span0.addClass("l0");
@@ -2553,7 +2553,7 @@ virtKeyboard = {
                 if(!$(".shift.left").hasClass("hover")) {$(".shift.left").addClass("hover");}
                 inputs = basekeys[input_lang][charcode].shift;
                 changecase = "toLowerCase";
-            } 
+            }
             else {
                 if($(".shift.left").hasClass("hover")) {$(".shift.left").removeClass("hover");}
                 inputs = basekeys[input_lang][charcode].normal;
@@ -3008,17 +3008,17 @@ virtKeyboard = {
     }
 };
 sidepanel = {
-    version: "0.0.4",
+    version: "0.0.5",
     html: "<div class='sidepanel'>",
     init: function(){
         console.info("sidepanel: v." + sidepanel.version);
         $("body").append(this.html);
         $(".sidepanel").hover(
             function(){
-                $(this).animate({'left': '-10px'}, 100);
+                $(this).addClass("show");
             },
             function(){
-                $(this).animate({'left': '-484px'}, 100);
+                $(this).removeClass("show");
             }
         );
         /*
