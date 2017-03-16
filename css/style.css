@@ -1,8 +1,8 @@
 #virt-keyboard{
     position: absolute;
-    top:50%;
-    left:25%;
-    width:704px;
+    top: 50%;
+    left: 25%;
+    width: 704px;
     height: 290px;
     background-color: #35629a;
     background-color: rgba(0, 58, 128, 0.79);
@@ -67,7 +67,7 @@
 
 .keylabel{
     width: 0px;
-    height:0px;
+    height: 0px;
     position: relative;
 }
 .keylabel>span {
@@ -109,9 +109,9 @@
     width: 55px; 
 }
 .caps{
-    width:72px; 
-    font-size:12px; 
-    line-height:18px;
+    width: 72px; 
+    font-size: 12px; 
+    line-height: 18px;
 }
 .shift.left{
     width: 97px;
@@ -123,7 +123,7 @@
     width: 94px;
 }
 .home, .menu{
-    width:43px;
+    width: 43px;
 }
 .home>div, .menu>div{
     width: 20px;
@@ -135,24 +135,24 @@
     background-position: -146px -70px;
 }
 .space{
-    width:242px;
-    text-align:center;
+    width: 242px;
+    text-align: center;
 }
 .special{
     line-height: 40px;
-    font-size:13px;
+    font-size: 13px;
 }
 
 .backspace {
-    width:77px; 
+    width: 77px; 
     text-align: right; 
     font-size: 13px;
-    padding-right:7px;
+    padding-right: 7px;
     line-height: 40px;
 }
 .slash{
-    padding-right:7px;
-    width:62px;
+    padding-right: 7px;
+    width: 62px;
 }
 .enter{
     width: 87px; 
@@ -162,31 +162,31 @@
 }
 .shift.right{
     text-align: right; 
-    padding-right:7px;
+    padding-right: 7px;
     width: 104px;
 }
 .ctrl.right{
     text-align: right; 
-    padding-right:7px;
+    padding-right: 7px;
     width: 89px;
 }
 
 .alt:before {
-    content:"Alt"; 
+    content: "Alt"; 
 }
 .backspace:before {
-    content:"Backspace"; 
+    content: "Backspace"; 
 }
 .caps:before{
-    content:"Caps Lock"; 
+    content: "Caps Lock"; 
 }
 .ctrl:before{
-    content:"Ctrl"; 
+    content: "Ctrl"; 
 }.enter:before{
-    content:"Enter"; 
+    content: "Enter"; 
 }
 .shift:before{
-    content:"Shift"; 
+    content: "Shift"; 
 }
 .tab:before {
     content: "Tab"; 
@@ -210,7 +210,7 @@
     -moz-box-shadow: 0 2px 15px rgba(0,0,0,0.2);
     box-shadow: 0 2px 15px rgba(0,0,0,0.2);
     background-clip: padding-box;
-    color:grey;
+    color: grey;
 }
 .vrt-download {
     left: -72px;    
@@ -218,7 +218,7 @@
 .vrt-dropdown>li.vrt-active, .vrt-download>a>li.vrt-active{
     position: relative;
     background: #dfdfdf;
-    color:black;
+    color: black;
     display: list-item;
     text-align: -webkit-match-parent;
 }
@@ -263,7 +263,7 @@
     font-style: oblique;
 }
 .vrt-new {
-    background-color:#dfdfdf;
+    background-color: #dfdfdf;
 }
 .vrt-divider {
     border-top: 2px solid #607D8B;
@@ -304,18 +304,18 @@
     left: 336px;
 }
 #vrt-shift-key, #vrt-normal-key{
-    position:relative;
+    position: relative;
     text-align: center;
     width: 125px;
 }
 .disabled {
-    color:#686868;
-    background-color:#353639;
+    color: #686868;
+    background-color: #353639;
 }
 .disabled:hover {
-    box-shadow:0px 0px 10px #d21e23;
-    z-index:10;
-    color:#ab6262;
+    box-shadow: 0px 0px 10px #d21e23;
+    z-index: 10;
+    color: #ab6262;
 }
 .v-logo {
     background-image: url(//cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/css/logo.png);
@@ -359,7 +359,7 @@ div.v-close{
     height: 25px;
     position: absolute;
     right: -51px;
-    top:-19px;
+    top: 2px;
     width: 25px;
 }
 span.v-close{
@@ -454,10 +454,10 @@ ul.courses{
     -webkit-transform-origin: 0 0;
     -ms-transform-origin: 0 0;
     transform-origin: 0 0;
-    height:85px;
-    width:85px;
+    height: 85px;
+    width: 85px;
     left: 40px;
-    top:20px;
+    top: 20px;
     display: inline-block;
 }
 .nano {
@@ -467,10 +467,10 @@ ul.courses{
     -webkit-transform-origin: 0 0;
     -ms-transform-origin: 0 0;
     transform-origin: 0 0;
-    height:85px;
-    width:85px;
+    height: 85px;
+    width: 85px;
     left: 40px;
-    top:20px;
+    top: 20px;
     display: inline-block;
 }
 .skill{
@@ -478,7 +478,7 @@ ul.courses{
     width: 380px;
     left: 37px;
     padding-bottom: 10px;
-    border-radius:5px;    
+    border-radius: 5px;    
 }
 
 .skill.weak {
@@ -542,6 +542,14 @@ html[dir="rtl"] .v-logo {
 html[dir="rtl"] .v-big{
     right: 277px;
 }
+html[dir="rtl"] div.v-close{
+    left: -51px;
+}
+html[dir="rtl"] span.v-close{
+    margin: 2px 6px 0 0;
+    left: -10px;
+}
+
 html[dir="rtl"] ul.courses {
     right: 18px;
 }
