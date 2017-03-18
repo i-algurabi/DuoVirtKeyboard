@@ -2,7 +2,7 @@
 // @name		DuoVirtKeyboard
 // @namespace		duolingo
 // @description		A virtual keyboard for Duolingo with auto layout switching
-// @version		0.0.14
+// @version		0.0.15
 // @author		IceCube aka i.algurabi, (c) 2017
 // @include		https://*.duolingo.com/*
 // @updateURL		https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
