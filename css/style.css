@@ -19,17 +19,186 @@
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
     user-select: none; /* Non-prefixed version, currently*/
+	z-index: 1;
 }
 #virt-keyboard::selection{
     background-color: none;
     color: inherit;
 }
+
 .vrt-topbar{
     position: relative;
     width: 625px;
-    top: -52px;
+    top: -84px;
     height: 100px;
-    z-index: 99999;
+    z-index: 1;
+}
+
+.vrt-toggledropdown {
+    position: absolute;
+    top: 55px;
+    line-height: 40px;
+    width: 160px;
+    font-size: 23px;
+    background-color: #1983b2;
+    background-color: rgba(40, 168, 230, 0.58);
+    text-align: center;
+    border-radius: 5px;
+}
+.vrt-toggledropdown.vrt-main {
+    left: 0px;
+}
+.vrt-toggledropdown.vrt-secondary {
+    left: 465px;
+}
+
+.vrt-dropdown, .vrt-download {
+    text-align: left;
+    position: absolute;
+    top: 30px;
+    left: 10px;
+    z-index: 1;
+    display: none;
+    float: left;
+    min-width: 200px;
+    padding: 10px 0;
+    margin: 5px 0 0;
+    list-style: inside;
+    background-color: #fff;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    -moz-box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    background-clip: padding-box;
+    color: grey;
+}
+.vrt-download {
+    left: -72px;    
+}
+.vrt-dropdown>li.vrt-active, .vrt-download>a>li.vrt-active{
+    position: relative;
+    background: #dfdfdf;
+    color: black;
+    text-align: -webkit-match-parent;
+}
+.vrt-dropdown>li:hover, .vrt-download>a>li:hover{
+    background: #ffdfdf;
+}
+.vrt-arrow-top:after {
+    height: 0;
+    width: 0;
+    position: absolute;
+    top: -19px;
+    left: 21px;
+    content: "";
+    border: 10px solid transparent;
+    border-bottom: 10px solid #fff;
+    display: block;
+}
+.vrt-download.vrt-arrow-top:after {
+    left: 83px;
+}
+
+.vrt-data-choice {
+    padding-left: 15px;
+	display: list-item;
+    font-size: 20px;
+    font-style: oblique;
+}
+.vrt-dl-choice {
+    padding-left: 15px;
+    font-size: 20px;
+    list-style-type: none;
+}
+.vrt-dl-choice > i{
+    position: relative;
+    top: 10px;
+    font-size: 22px;
+    float: left;
+}
+.vrt-new {
+    background-color: #dfdfdf;
+}
+.vrt-divider {
+    border-top: 2px solid #607D8B;
+    margin: 9px 13px;
+    height: 1px;
+    list-style-type: none;
+}
+
+.vrt-keycodesetting {
+    position: absolute;
+    top: 65px;
+    width: 0;
+    height: 0px;
+}
+.vrt-keycodesetting.vrt-normal-key {
+    left: 164px;
+}
+.vrt-keycodesetting.vrt-shift-key {
+    left: 336px;
+}
+#vrt-shift-key, #vrt-normal-key{
+    position: relative;
+    text-align: center;
+    width: 125px;
+}
+
+.v-logo {
+    background-image: url(//cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/css/logo.png);
+    background-position: 0px 0px;
+    background-size: 45px;
+    display: inline-block;
+    height: 15px;
+    width: 45px;
+    position: relative;
+    top: 8px;
+    left: -22px;
+    background-color: #21c5f1;
+    background-color: rgba(28, 207, 246, 0.75);
+}
+.v-show {
+    background-position: 0px 30px;
+    background-color: #35d385;
+    background-color: rgba(61, 255, 35, 0.49);
+}
+.v-disabled{
+    background-position: 0px 15px;
+    background-color: #9bbed0;
+    background-color: rgba(206, 199, 199, 0.68);
+}
+.v-big{
+    background-position: 3px 71px;
+    background-size: 102px;
+    width: 40px;
+    height: 40px;
+    background-color: #CCC;
+    margin: 19px 0px -48px 277px;
+    border-radius: 40px;
+    position: relative;
+    top: 36px;
+    left: 15px;
+}
+div.v-close{
+    background: #2e2e2e;
+    border-radius: 98px;
+    cursor: pointer;
+    height: 25px;
+    position: absolute;
+    right: -51px;
+    top: 31px;
+    width: 25px;
+}
+span.v-close{
+    background-position: -260px -69px;
+    height: 12px;
+    width: 12px;    
+    background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/icon-sprite.svg);
+    display: inline-block;
+    vertical-align: middle;
+    margin: 2px 0 0 6px;
+    right: -10px;
+    top: -10px;
 }
 
 .vrt-section{
@@ -192,97 +361,6 @@
     content: "Tab"; 
 }
 
-.vrt-dropdown, .vrt-download {
-    text-align: left;
-    position: absolute;
-    top: 30px;
-    left: 10px;
-    z-index: 99999;
-    display: none;
-    float: left;
-    min-width: 200px;
-    padding: 10px 0;
-    margin: 5px 0 0;
-    list-style: inside;
-    background-color: #fff;
-    border-radius: 10px;
-    -webkit-box-shadow: 0 2px 15px rgba(0,0,0,0.2);
-    -moz-box-shadow: 0 2px 15px rgba(0,0,0,0.2);
-    box-shadow: 0 2px 15px rgba(0,0,0,0.2);
-    background-clip: padding-box;
-    color: grey;
-}
-.vrt-download {
-    left: -72px;    
-}
-.vrt-dropdown>li.vrt-active, .vrt-download>a>li.vrt-active{
-    position: relative;
-    background: #dfdfdf;
-    color: black;
-    display: list-item;
-    text-align: -webkit-match-parent;
-}
-.vrt-dropdown>li:hover, .vrt-download>a>li:hover{
-    background: #ffdfdf;
-}
-.vrt-toggledropdown {
-    position: absolute;
-    top: 20px;
-    line-height: 40px;
-    width: 160px;
-    font-size: 23px;
-    background-color: #1983b2;
-    background-color: rgba(40, 168, 230, 0.58);
-    text-align: center;
-    border-radius: 5px;
-}
-.vrt-toggledropdown.vrt-main {
-    left: 0px;
-}
-.vrt-toggledropdown.vrt-secondary {
-    left: 465px;
-}
-.vrt-arrow-top:after {
-    height: 0;
-    width: 0;
-    position: absolute;
-    top: -19px;
-    left: 21px;
-    content: "";
-    border: 10px solid transparent;
-    border-bottom: 10px solid #fff;
-    display: block;
-}
-.vrt-download.vrt-arrow-top:after {
-    left: 83px;
-}
-
-.vrt-data-choice {
-    padding-left: 15px;
-    font-size: 20px;
-    font-style: oblique;
-}
-.vrt-new {
-    background-color: #dfdfdf;
-}
-.vrt-divider {
-    border-top: 2px solid #607D8B;
-    margin: 9px 13px;
-    height: 1px;
-    list-style-type: none;
-}
-.vrt-dl-choice {
-    padding-left: 15px;
-    font-size: 20px;
-    list-style-type: none;
-}
-.vrt-dl-choice > i{
-    position: relative;
-    top: 10px;
-    font-size: 22px;
-    float: left;
-}
-
 .home>div:hover, .menu>div:hover {
     background-position: -167px -70px;
 }
@@ -291,23 +369,6 @@
     display: none;
 }
 
-.vrt-keycodesetting {
-    position: absolute;
-    top: 12px;
-    width: 0;
-    height: 0px;
-}
-.vrt-keycodesetting.vrt-normal-key {
-    left: 164px;
-}
-.vrt-keycodesetting.vrt-shift-key {
-    left: 336px;
-}
-#vrt-shift-key, #vrt-normal-key{
-    position: relative;
-    text-align: center;
-    width: 125px;
-}
 .disabled {
     color: #686868;
     background-color: #353639;
@@ -316,62 +377,6 @@
     box-shadow: 0px 0px 10px #d21e23;
     z-index: 10;
     color: #ab6262;
-}
-.v-logo {
-    background-image: url(//cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/css/logo.png);
-    background-position: 0px 0px;
-    background-size: 45px;
-    display: inline-block;
-    height: 15px;
-    width: 45px;
-    position: relative;
-    top: 8px;
-    left: -22px;
-    background-color: #21c5f1;
-    background-color: rgba(28, 207, 246, 0.75);
-}
-.v-show {
-    background-position: 0px 30px;
-    background-color: #35d385;
-    background-color: rgba(61, 255, 35, 0.49);
-}
-.v-disabled{
-    background-position: 0px 15px;
-    background-color: #9bbed0;
-    background-color: rgba(206, 199, 199, 0.68);
-}
-.v-big{
-    background-position: 3px 71px;
-    background-size: 102px;
-    width: 40px;
-    height: 40px;
-    background-color: #CCC;
-    margin: 19px 0px -48px 277px;
-    border-radius: 40px;
-    position: relative;
-    top: 0px;
-    left: 15px;
-}
-div.v-close{
-    background: #2e2e2e;
-    border-radius: 98px;
-    cursor: pointer;
-    height: 25px;
-    position: absolute;
-    right: -51px;
-    top: 2px;
-    width: 25px;
-}
-span.v-close{
-    background-position: -260px -69px;
-    height: 12px;
-    width: 12px;    
-    background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/icon-sprite.svg);
-    display: inline-block;
-    vertical-align: middle;
-    margin: 2px 0 0 6px;
-    right: -10px;
-    top: -10px;
 }
 
 .sidepanel.blue {
@@ -473,6 +478,7 @@ ul.courses{
     top: 20px;
     display: inline-block;
 }
+
 .skill{
     position: relative;
     width: 380px;
@@ -480,7 +486,6 @@ ul.courses{
     padding-bottom: 10px;
     border-radius: 5px;    
 }
-
 .skill.weak {
     top: -20px;
     background-color: rgba(255, 127, 80, 0.70);
@@ -490,19 +495,6 @@ ul.courses{
     background-color: rgba(130,221,0,0.6);
 }
 
-html[dir="rtl"] .sidepanel {
-    right: -484px;
-}
-html[dir="rtl"] .sidepanel.show {
-    right: -10px;
-}
-html[dir="rtl"] .from{
-    border-radius: 0px 30px 30px 0px;
-}
-html[dir="rtl"] .to{
-    float: left;
-    border-radius: 30px 0px 0px 30px;
-}
 html[dir="rtl"] #virt-keyboard{
     right: 25%;
 }
@@ -540,16 +532,46 @@ html[dir="rtl"] .v-logo {
     right: -166px;
 }
 html[dir="rtl"] .v-big{
-    right: 277px;
+    right: 292px;
 }
 html[dir="rtl"] div.v-close{
     left: -51px;
 }
 html[dir="rtl"] span.v-close{
-    margin: 2px 6px 0 0;
+    margin: 0px 7px 0 0;
     left: -10px;
 }
 
+html[dir="rtl"] .keylabel>span {
+    right: 0px;
+}
+html[dir="rtl"] .keylabel>span.l0, .keylabel>span.l3, .keylabel>span.l6 {
+    padding-right: 16px;
+}
+html[dir="rtl"] .keylabel>span.l1, .keylabel>span.l4, .keylabel>span.l7 {
+	padding-right: 9px;
+}
+html[dir="rtl"] .keylabel>span.l2, .keylabel>span.l5, .keylabel>span.l8 {
+	padding-right: 2px;
+}
+
+html[dir="rtl"] .home>div, .menu>div {
+	margin: 11px 7px 0px 0px;
+}
+
+html[dir="rtl"] .sidepanel {
+    right: -484px;
+}
+html[dir="rtl"] .sidepanel.show {
+    right: -10px;
+}
+html[dir="rtl"] .from{
+    border-radius: 0px 30px 30px 0px;
+}
+html[dir="rtl"] .to{
+    float: left;
+    border-radius: 30px 0px 0px 30px;
+}
 html[dir="rtl"] ul.courses {
     right: 18px;
 }
