@@ -1,13 +1,13 @@
 // ==UserScript==
-// @name		DuoVirtKeyboard
-// @namespace		duolingo
-// @description		A virtual keyboard for Duolingo with auto layout switching
-// @version		0.0.15
-// @author		IceCube aka i.algurabi, (c) 2017
-// @include		https://*.duolingo.com/*
-// @updateURL		https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
-// @downloadURL		https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.js
-// @grant		none
+// @name        DuoVirtKeyboard
+// @namespace        duolingo
+// @description        A virtual keyboard for Duolingo with auto layout switching
+// @version        0.0.16
+// @author        IceCube aka i.algurabi, (c) 2017
+// @include        https://*.duolingo.com/*
+// @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
+// @downloadURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.js
+// @grant        none
 // ==/UserScript==
 
 userInfo = {
@@ -2476,10 +2476,10 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.15",
+    version: "0.0.16",
     /* production link *
-	rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
-	* production link */
+    rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
+    * production link */
     /* test link */
     rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
     /* test link */
@@ -2515,6 +2515,8 @@ virtKeyboard = {
             console.error("Language keycodes not provided.");
             return false;
         }
+        virtKeyboard.mainlang = lang0;
+        virtKeyboard.secondlang = lang1;
         for (var keycode in basekeys[lang0]){
             var mainlabel = basekeys[lang0][keycode];
             var secondarylabel={};
@@ -2946,10 +2948,13 @@ virtKeyboard = {
             virtKeyboard.apply=false;
             $("#virt-keyboard").hide();
         });
-        $(document).on("focus", "textarea, input", function(){
+        $(document).on("focus", "textarea, input[type='text']", function(){
             if (/^\/skill/.test(location.pathname)) {
                 $(this).val($(this).attr("value"));
-                $(this)[0].innerText = $(this).attr("value");
+                try {
+                    $(this)[0].innerText = $(this).attr("value");
+                }
+                catch(e){}
                 var visible = $("#virt-keyboard:visible").length>0;
                 if (virtKeyboard.show && !visible) {
                     virtKeyboard.updatesupportedlangs();
@@ -2958,10 +2963,13 @@ virtKeyboard = {
                 }
             }
         });
-        $(document).on("focusout", "textarea, input", function(){
+        $(document).on("focusout", "textarea, input[type='text']", function(){
             if (/^\/skill/.test(location.pathname)) {
                 $(this).val($(this).attr("value"));
-                $(this)[0].innerText = $(this).attr("value");
+                try {
+                    $(this)[0].innerText = $(this).attr("value");
+                }
+                catch(e){}
                 if (!$("#virt-keyboard").hasClass("vrt-keep")){
                     $("#virt-keyboard").hide();
                 }
@@ -2971,6 +2979,12 @@ virtKeyboard = {
         $("#virt-keyboard").draggable();
     },
     preinit: function(){
+        if (!window.jQuery) {
+            setTimeout(function () {
+                virtKeyboard.preinit();
+            }, 300);
+            return;
+        }
         var oldkeys = virtKeyboard.getFromLocalStorage("keys");
         if (!oldkeys) {
             $.ajax({//get base keyboard layout
@@ -2991,23 +3005,24 @@ virtKeyboard = {
             }
             console.info("VirtKeyboard: v." + virtKeyboard.version);
             userInfo.duoState = userInfo.refresh();
-            virtKeyboard.mainlang = userInfo.duoState.user.fromLanguage||"en";
-            virtKeyboard.secondlang = userInfo.duoState.user.learningLanguage||"en";
+            virtKeyboard.mainlang = userInfo.duoState.user.learningLanguage||"en";
+            virtKeyboard.secondlang = userInfo.duoState.user.fromLanguage||"en";
             virtKeyboard.init();
         }
     }
 };
 sidepanel = {
-    version: "0.0.6",
+    version: "0.0.7",
     html: "<div class='sidepanel'>",
     init: function(){
+        if (!window.jQuery) {
+            setTimeout(function () {
+                sidepanel.init();
+            }, 300);
+            return;
+        }
         console.info("sidepanel: v." + sidepanel.version);
         $("body").append(this.html);
-        /*
-		$(document).on("mouseout",".sidepanel", function(){
-			$(".sidepanel").removeClass("expand");
-		});
-*/
         userInfo.duoState = userInfo.refresh();
         sidepanel.refresh(".sidepanel");
         window.onstorage = function(e) {
@@ -3100,7 +3115,5 @@ vrtcss.rel = "stylesheet";
 vrtcss.href = virtKeyboard.rawgit + "css/style.css";
 document.getElementsByTagName('head')[0].appendChild(script);
 document.getElementsByTagName('head')[0].appendChild(vrtcss);
-setTimeout(function () {
-    virtKeyboard.preinit();
-    sidepanel.init();
-}, 4000);
+virtKeyboard.preinit();
+sidepanel.init();
