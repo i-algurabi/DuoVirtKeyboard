@@ -403,6 +403,7 @@ span.v-close{
     overflow-y: auto;
     -webkit-transition: left 1s, right 1s;
     transition: left 1s, right 1s;
+	z-index: 1;
 }
 .sidepanel.show {
 	left: -10px;
@@ -443,7 +444,7 @@ ul.courses{
 }
 
 .skills {
-    border-radius: 40px;
+    border-radius: 25px;
     display: inline-block;
     background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/skill-icons-unlocked2.svg);
     background-size: 254px;
