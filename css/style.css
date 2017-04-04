@@ -1,7 +1,7 @@
 #virt-keyboard{
     position: absolute;
-    top: 50%;
-    left: 25%;
+    top: calc(100% - 290px);
+    left: calc(50% - 352px);
     width: 704px;
     height: 290px;
     background-color: #35629a;
@@ -496,9 +496,11 @@ ul.courses{
     background-color: rgba(130,221,0,0.6);
 }
 
+/*
 html[dir="rtl"] #virt-keyboard{
     right: 25%;
 }
+*/
 html[dir="rtl"] .vrt-dropdown, .vrt-download {
     right: 10px;
 }
