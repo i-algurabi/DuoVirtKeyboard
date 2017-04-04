@@ -439,7 +439,6 @@ li.course.active{
 }
 ul.courses{
     position: relative;
-    top: 10px;
     left: 18px;
 }
 
@@ -484,7 +483,7 @@ ul.courses{
     position: relative;
     width: 380px;
     left: 37px;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
     border-radius: 5px;    
 }
 .skill.weak {
@@ -494,6 +493,30 @@ ul.courses{
 .skill.new {
     top: -10px;
     background-color: rgba(130,221,0,0.6);
+}
+
+.lightbg {
+    color: #7de8ff;
+}
+.panel {
+    position: relative;
+    width: 494px;
+}
+.panel-border{
+    height: 20px;
+    border-radius: 10px;
+}
+.panel-upper {
+    top: 0px;
+}
+.panel-inner {
+    height: calc(100% - 40px);
+    overflow-x: hidden;
+    overflow-y: auto;
+}	
+.panel-lower {
+    top: 0px;
+    z-index: 1;
 }
 
 /*
