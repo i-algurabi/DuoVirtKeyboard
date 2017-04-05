@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        A virtual keyboard for Duolingo with auto layout switching
-// @version        0.0.17
+// @version        0.0.18
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -24,7 +24,6 @@ userInfo = {
         return result;
     },
     refresh: function(){
-		console.debug("userInfo.refresh");
         var duoStateSTR = localStorage["duo.state"];
         if (duoStateSTR){
             userInfo.firstrefresh = false;
@@ -35,7 +34,6 @@ userInfo = {
         }
     },
     enrichUser: function(params){
-		console.debug("userInfo.enrichUser");
         userInfo.needrefresh = false;
         if (!params) params = "courses,currentCourse,fromLanguage,learningLanguage";
         $.ajax({//get detailed user info
@@ -43,7 +41,6 @@ userInfo = {
             url: "//www.duolingo.com/2016-04-13/users/" + userInfo.getLoggedInUserId(),
             data: {"fields" : params}
         }).done(function (json) {
-			console.debug("AJAX: userInfo.enrichUser");
             var jsonDuoState={};
             if (!userInfo.firstrefresh) {
                 jsonDuoState = JSON.parse(localStorage["duo.state"]);
@@ -252,7 +249,7 @@ basekeys = {
                 "code": "8",
                 "name": "Backspace"
             }
-                 ],
+                ],
             "1": [{
                 "type": "tab special disabled",
                 "code": "9",
@@ -297,7 +294,7 @@ basekeys = {
                 "type": "slash",
                 "code": "220"
             }
-                 ],
+                ],
             "2": [{
                 "type": "caps special switch",
                 "code": "20",
@@ -340,7 +337,7 @@ basekeys = {
                 "code": "13",
                 "name": "Enter"
             }
-                 ],
+                ],
             "3": [{
                 "type": "shift left special switch",
                 "code": "16",
@@ -380,7 +377,7 @@ basekeys = {
                 "code": "16",
                 "name": "Shift"
             }
-                 ],
+                ],
             "4": [{
                 "type": "ctrl special disabled",
                 "code": "17",
@@ -410,7 +407,7 @@ basekeys = {
                 "code": "17",
                 "name": "Control"
             }
-                 ]
+                ]
         }
     },
     "language_names_ui": {
@@ -2682,7 +2679,6 @@ virtKeyboard = {
         }
     },
     updatecodepages: function(newlangcode, update){
-        console.debug("Configure language: [" + newlangcode + "] " + basekeys.language_names_ui[virtKeyboard.mainlang][newlangcode]);
         if(!basekeys[newlangcode]||update){
             virtKeyboard.newcodepage = true;
             virtKeyboard.newlang = newlangcode;
@@ -2915,7 +2911,7 @@ virtKeyboard = {
                 dropdownmenu.slideUp("medium");
             });
         });
-        $(".vrt-logo").on("click", function (){
+        $(".v-big").on("click", function (){
             virtKeyboard.updatesupportedlangs(true);
             var dropdownmenu = $(this).find("ul.vrt-download");
             if (dropdownmenu.is(":visible")) {
@@ -2943,8 +2939,8 @@ virtKeyboard = {
                 }
                 virtKeyboard.shift = keypressed.shiftKey;
                 virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode===20) ||
-                                     ((keypressed.keyCode > 57 || virtKeyboard.caps) &&
-                                      (virtKeyboard.shift !== (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
+                                    ((keypressed.keyCode > 57 || virtKeyboard.caps) &&
+                                    (virtKeyboard.shift !== (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
                 if (!(keypressed.keyCode === 8 || keypressed.keyCode === 32) && !(basekeys[input_lang]) || !basekeys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
                     return true;
                 }
@@ -2960,13 +2956,11 @@ virtKeyboard = {
         virtKeyboard.updateLangs(userInfo.getLangs());
     },
     init: function(){
-		console.debug("virtKeyboard.init");
         if (userInfo.firstrefresh) {
             setTimeout(function () {
-                console.info("userInfo.firstrefresh: " + userInfo.firstrefresh);
                 virtKeyboard.init();
             }, 300);
-            return;			
+            return;
         }
         virtKeyboard.mainlang = userInfo.duoState.user.learningLanguage||"en";
         virtKeyboard.secondlang = userInfo.duoState.user.fromLanguage||"en";
@@ -2980,7 +2974,12 @@ virtKeyboard = {
             virtKeyboard.show=virtKeyboard.show?false:true;
             virtKeyboard.apply=true;
             $(".v-logo").removeClass("v-disabled");
-            $(this).toggleClass("v-show");
+            if (virtKeyboard.show) {
+                if (!$(this).hasClass("v-show")) $(this).addClass("v-show");
+            }
+            else {
+                if ($(this).hasClass("v-show")) $(this).removeClass("v-show");
+            }
             virtKeyboard.saveToLocalStorage("settings",virtKeyboard);
         });
         $(document).on("click", ".v-close", function(){
@@ -3038,7 +3037,6 @@ virtKeyboard = {
                 isFixed = ($this.css('position') === 'fixed'),
                 adjX = 0, adjY = 0;
             $this.mousedown(function(ev){
-				console.debug("DRAGABLE: mousedown");
                 var pos = $this.position();
                 if (isFixed) {
                     adjX = ($w.scrollLeft()); adjY = $w.scrollTop();
@@ -3046,7 +3044,6 @@ virtKeyboard = {
                 var ox = (ev.pageX - pos.left), oy = (ev.pageY - pos.top);
                 $this.data(ns,{ x : ox, y: oy });
                 $w.on(mm, function(ev){
-					console.debug("DRAGABLE: onmousemove");
                     ev.preventDefault();
                     ev.stopPropagation();
                     if (isFixed) {
@@ -3056,7 +3053,6 @@ virtKeyboard = {
                     $this.css({left: (ev.pageX - adjX - offset.x), top: (ev.pageY - adjY - offset.y)});
                 });
                 $w.on(mu, function(){
-					console.debug("DRAGABLE: onmouseup");
                     $w.off(mm + ' ' + mu).removeData(ns);
                 });
             });
@@ -3087,16 +3083,17 @@ virtKeyboard = {
         if ($(".v-logo").length===0){
             var vKeyboardLogo = $("<span>");
             vKeyboardLogo.addClass("v-logo v-show");
-            if ($("." + userInfo.dict["topbar-brand"].split(" ").join(".")).next("div").after(vKeyboardLogo).length===0) $($("a[href='/'")[0]).next("div").after(vKeyboardLogo);
+            var topbar = $("." + userInfo.dict["topbar-brand"].split(" ").join(".")).length>0?$("." + userInfo.dict["topbar-brand"].split(" ").join(".")):$(".topbar-brand");
+            if (topbar.next("div").after(vKeyboardLogo).length===0) $($("a[href='/'")[0]).next("div").after(vKeyboardLogo);
         }
         console.info("VirtKeyboard: v." + virtKeyboard.version);
         virtKeyboard.init();
     }
 };
 sidepanel = {
-    version: "0.0.8",
-    html: "<div class='sidepanel'>",
-	hidden: true,
+    version: "0.0.9",
+    html: "<div class='sidepanel'><div class='panel panel-upper panel-border' /><div class='panel panel-inner' /><div class='panel panel-lower panel-border' /></div>",
+    hidden: true,
     init: function(){
         if (!window.jQuery) {
             setTimeout(function () {
@@ -3107,15 +3104,13 @@ sidepanel = {
         console.info("sidepanel: v." + sidepanel.version);
         $("body").append(this.html);
         userInfo.duoState = userInfo.refresh();
-        sidepanel.refresh(".sidepanel");
-        window.onstorage = function(e) {
-            console.log('The ' + e.key + ' key has been changed from ' + e.oldValue + ' to ' + e.newValue + '.');
-        };
+        sidepanel.refresh(".panel-inner");
     },
     refresh: function(activeElelment){
         $(activeElelment).html("");
         var courseslist = $("<ul class='courses'>");
         for (var course in userInfo.duoState.courses) {
+			var courseLevel = virtKeyboard.getFromLocalStorage("courseLevel")||{};
             var li = $("<li class='course'>");
             var span1 = $("<span>");
             var span2 = $("<span>");
@@ -3141,10 +3136,12 @@ sidepanel = {
                     weakspan.append(sidepanel.activeSkillsEl(weakSkills[skill].URI, prevWeak));
                 }
                 for (skill in newSkills){
-					newspan.append(sidepanel.activeSkillsEl(newSkills[skill].URI,prevNew));
+                    newspan.append(sidepanel.activeSkillsEl(newSkills[skill].URI,prevNew));
                 }
                 virtKeyboard.saveToLocalStorage("weakspan",{"html":weakspan.html()});
                 virtKeyboard.saveToLocalStorage("newspan",{"html":newspan.html()});
+				courseLevel[course] = userInfo.duoState.user.trackingProperties.level;
+				virtKeyboard.saveToLocalStorage("courseLevel",courseLevel);
             }
             else {
                 var color = ["red","blue","green"];
@@ -3163,53 +3160,62 @@ sidepanel = {
                 }
             }
             li.append(span1);
+			var levelString = (duo.l10n?duo.l10n.declared[174].toUpperCase():"LEVEL") + " " + (courseLevel[course]||"[ ]");
+			li.append($("<span class='sp-level'>" + levelString + "</span>"));
             li.append(span2);
             if (weakspan.find("span").length>0) li.append(weakspan);
             if (newspan.find("span").length>0) li.append(newspan);
             courseslist.append(li);
         }
         $(activeElelment).append(courseslist);
-        $(activeElelment).hover(
+        $("li.course").on("click", function(){
+            if ($(this).data("learningLanguage") !== userInfo.duoState.user.learningLanguage || $(this).data("fromLanguage") !== userInfo.duoState.user.fromLanguage) {
+                userInfo.switchLanguage($(this).data("fromLanguage"),$(this).data("learningLanguage"));
+            }
+        });
+        $(".sidepanel").hover(
             function(){
-				if (sidepanel.hidden) {
-					sidepanel.refresh(".sidepanel");
-					$(this).addClass("show");
-					sidepanel.hidden = false;
-				}
+                if (sidepanel.hidden) {
+                    sidepanel.refresh(".panel-inner");
+                    $(this).addClass("show");
+                    sidepanel.hidden = false;
+                }
             },
             function(){
-				if (!sidepanel.hidden){
-					$(this).removeClass("show");
-					sidepanel.hidden = true;
-				}
+                if (!sidepanel.hidden){
+                    $(this).removeClass("show");
+                    sidepanel.hidden = true;
+                }
             }
         );
-        $("li.course").on("click", function(){
-            userInfo.switchLanguage($(this).data("fromLanguage"),$(this).data("learningLanguage"));
-        });
     },
-	activeSkillsEl: function(skillURI, prevSkills){
-		var a_href = "a[href='" + skillURI + "']";
-		var zClone = $(a_href).clone();
-		var oClone = prevSkills.filter(a_href).clone();
-		var nClone = zClone.length>0?zClone:oClone;
-		for (var nclass in userInfo.dict){
-			var zzz = nClone.filter("." + userInfo.dict[nclass]);
-			if (zzz.length>0){
-				zzz.addClass(nclass);
-			}
-		}
-		nClone.addClass("micro");
-		return nClone;
-	}
+    activeSkillsEl: function(skillURI, prevSkills){
+        var a_href = "a[href='" + skillURI + "']";
+        var zClone = $(a_href).clone();
+        var oClone = prevSkills.filter(a_href).clone();
+        var nClone = zClone.length>0?zClone:oClone;
+        for (var nclass in userInfo.dict){
+            var zzz = nClone.filter("." + userInfo.dict[nclass]);
+            if (zzz.length>0){
+                zzz.addClass(nclass);
+            }
+        }
+        nClone.find("._2TMjc").addClass("lightbg");
+        nClone.addClass("micro");
+        return nClone;
+    }
 };
 
 script = document.createElement('script');
-script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
-vrtcss = document.createElement('link');
-vrtcss.rel = "stylesheet";
-vrtcss.href = virtKeyboard.rawgit + "css/style.css";
+script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
 document.getElementsByTagName('head')[0].appendChild(script);
-document.getElementsByTagName('head')[0].appendChild(vrtcss);
+cssarr = [virtKeyboard.rawgit + "css/style.css", 
+		  "//fonts.googleapis.com/icon?family=Material+Icons"];
+for (var href in cssarr){
+    var vrtcss = document.createElement('link');
+    vrtcss.rel = "stylesheet";
+    vrtcss.href = cssarr[href];
+    document.getElementsByTagName('head')[0].appendChild(vrtcss);
+}
 virtKeyboard.preinit();
 sidepanel.init();
