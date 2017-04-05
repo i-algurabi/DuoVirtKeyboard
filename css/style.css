@@ -430,7 +430,7 @@ li.course{
     width: 455px;
     background-color: #77f095;
     background-color: rgba(26, 230, 77, 0.59);
-    border-radius: 30px;
+    border-radius: 15px;
     margin: 6px 0px 6px 0px;
 }
 li.course.active{
@@ -441,7 +441,14 @@ ul.courses{
     position: relative;
     left: 18px;
 }
-
+.sp-level {
+    position: relative;
+    top: -12px;
+    left: calc(50% - 70px);
+    right: calc(50% - 70px);
+    color: rgba(38, 202, 230, 0.71);
+    color: #39aad4;
+}
 .skills {
     border-radius: 25px;
     display: inline-block;
@@ -487,11 +494,11 @@ ul.courses{
     border-radius: 5px;    
 }
 .skill.weak {
-    top: -20px;
+    top: -10px;
     background-color: rgba(255, 127, 80, 0.70);
 }
 .skill.new {
-    top: -10px;
+    top: -5px;
     background-color: rgba(130,221,0,0.6);
 }
 
@@ -532,11 +539,6 @@ ul.courses{
     z-index: 1;
 }
 
-/*
-html[dir="rtl"] #virt-keyboard{
-    right: 25%;
-}
-*/
 html[dir="rtl"] .vrt-dropdown, .vrt-download {
     right: 10px;
 }
