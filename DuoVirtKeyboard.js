@@ -3209,13 +3209,25 @@ sidepanel = {
 script = document.createElement('script');
 script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
 document.getElementsByTagName('head')[0].appendChild(script);
-cssarr = [virtKeyboard.rawgit + "css/style.css", 
-		  "//fonts.googleapis.com/icon?family=Material+Icons"];
-for (var href in cssarr){
-    var vrtcss = document.createElement('link');
-    vrtcss.rel = "stylesheet";
-    vrtcss.href = cssarr[href];
-    document.getElementsByTagName('head')[0].appendChild(vrtcss);
+var csslist = {
+	[
+		{href: virtKeyboard.rawgit + "css/style.css",
+		 dir: ["ltr","rtl"]},
+		{href: "//fonts.googleapis.com/icon?family=Material+Icons",
+		 dir: ["ltr","rtl"]},
+		{href: virtKeyboard.rawgit + "css/newduo.css",
+		 dir: ["ltr","rtl"]},
+		{href: virtKeyboard.rawgit + "css/rtl-newduo.css",
+		 dir: ["rtl"]}
+	 ]
+};
+for (var i in csslist) {
+	if (csslist[i].dir.indexOf(document.dir)!==-1){
+		var vrtcss = document.createElement('link');
+		vrtcss.rel = "stylesheet";
+		vrtcss.href = csslist[i].href;
+		document.getElementsByTagName('head')[0].appendChild(vrtcss);
+	}
 }
 virtKeyboard.preinit();
 sidepanel.init();
