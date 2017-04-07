@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        A virtual keyboard for Duolingo with auto layout switching
-// @version        0.0.18
+// @version        0.0.19
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -3110,7 +3110,7 @@ sidepanel = {
         $(activeElelment).html("");
         var courseslist = $("<ul class='courses'>");
         for (var course in userInfo.duoState.courses) {
-			var courseLevel = virtKeyboard.getFromLocalStorage("courseLevel")||{};
+            var courseLevel = virtKeyboard.getFromLocalStorage("courseLevel")||{};
             var li = $("<li class='course'>");
             var span1 = $("<span>");
             var span2 = $("<span>");
@@ -3140,8 +3140,8 @@ sidepanel = {
                 }
                 virtKeyboard.saveToLocalStorage("weakspan",{"html":weakspan.html()});
                 virtKeyboard.saveToLocalStorage("newspan",{"html":newspan.html()});
-				courseLevel[course] = userInfo.duoState.user.trackingProperties.level;
-				virtKeyboard.saveToLocalStorage("courseLevel",courseLevel);
+                courseLevel[course] = userInfo.duoState.user.trackingProperties.level;
+                virtKeyboard.saveToLocalStorage("courseLevel",courseLevel);
             }
             else {
                 var color = ["red","blue","green"];
@@ -3160,8 +3160,8 @@ sidepanel = {
                 }
             }
             li.append(span1);
-			var levelString = (duo.l10n?duo.l10n.declared[174].toUpperCase():"LEVEL") + " " + (courseLevel[course]||"[ ]");
-			li.append($("<span class='sp-level'>" + levelString + "</span>"));
+            var levelString = (duo.l10n?duo.l10n.declared[174].toUpperCase():"LEVEL") + " " + (courseLevel[course]||"[ ]");
+            li.append($("<span class='sp-level'>" + levelString + "</span>"));
             li.append(span2);
             if (weakspan.find("span").length>0) li.append(weakspan);
             if (newspan.find("span").length>0) li.append(newspan);
@@ -3210,27 +3210,28 @@ script = document.createElement('script');
 script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
 document.getElementsByTagName('head')[0].appendChild(script);
 var csslist = [
-		{
-			href: virtKeyboard.rawgit + "css/newduo.css",
-			dir: ["ltr","rtl"]
-		 },{
-			href: virtKeyboard.rawgit + "css/rtl-newduo.css",
-			dir: ["rtl"]
-		 }, {
-			href: virtKeyboard.rawgit + "css/style.css",
-			dir: ["ltr","rtl"]
-		}, {
-			href: "//fonts.googleapis.com/icon?family=Material+Icons",
-			dir: ["ltr","rtl"]
-		}
-	 ];
+        {
+            href: virtKeyboard.rawgit + "css/newduo.css",
+            dir: ["ltr","rtl","new"]
+        },{
+            href: virtKeyboard.rawgit + "css/rtl-newduo.css",
+            dir: ["rtl","new"]
+        }, {
+            href: "//fonts.googleapis.com/icon?family=Material+Icons",
+            dir: ["ltr","rtl"]
+        },{
+            href: virtKeyboard.rawgit + "css/style.css",
+            dir: ["ltr","rtl"]
+        }
+    ];
 for (var i in csslist) {
-	if (csslist[i].dir.indexOf(document.dir)!==-1){
-		var vrtcss = document.createElement('link');
-		vrtcss.rel = "stylesheet";
-		vrtcss.href = csslist[i].href;
-		document.getElementsByTagName('head')[0].appendChild(vrtcss);
-	}
+    var isApply = (((!duo.version && csslist[i].dir.indexOf("new")!==-1)||(csslist[i].dir.indexOf("new")===-1))&&csslist[i].dir.indexOf(document.dir)!==-1)
+    if (isApply){
+        var vrtcss = document.createElement('link');
+        vrtcss.rel = "stylesheet";
+        vrtcss.href = csslist[i].href;
+        document.getElementsByTagName('head')[0].appendChild(vrtcss);
+    }
 }
 virtKeyboard.preinit();
 sidepanel.init();
