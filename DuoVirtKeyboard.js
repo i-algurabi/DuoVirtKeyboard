@@ -249,7 +249,7 @@ basekeys = {
                 "code": "8",
                 "name": "Backspace"
             }
-                ],
+                 ],
             "1": [{
                 "type": "tab special disabled",
                 "code": "9",
@@ -294,7 +294,7 @@ basekeys = {
                 "type": "slash",
                 "code": "220"
             }
-                ],
+                 ],
             "2": [{
                 "type": "caps special switch",
                 "code": "20",
@@ -337,7 +337,7 @@ basekeys = {
                 "code": "13",
                 "name": "Enter"
             }
-                ],
+                 ],
             "3": [{
                 "type": "shift left special switch",
                 "code": "16",
@@ -377,7 +377,7 @@ basekeys = {
                 "code": "16",
                 "name": "Shift"
             }
-                ],
+                 ],
             "4": [{
                 "type": "ctrl special disabled",
                 "code": "17",
@@ -407,7 +407,7 @@ basekeys = {
                 "code": "17",
                 "name": "Control"
             }
-                ]
+                 ]
         }
     },
     "language_names_ui": {
@@ -2939,8 +2939,8 @@ virtKeyboard = {
                 }
                 virtKeyboard.shift = keypressed.shiftKey;
                 virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode===20) ||
-                                    ((keypressed.keyCode > 57 || virtKeyboard.caps) &&
-                                    (virtKeyboard.shift !== (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
+                                     ((keypressed.keyCode > 57 || virtKeyboard.caps) &&
+                                      (virtKeyboard.shift !== (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
                 if (!(keypressed.keyCode === 8 || keypressed.keyCode === 32) && !(basekeys[input_lang]) || !basekeys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
                     return true;
                 }
@@ -3190,18 +3190,24 @@ sidepanel = {
         );
     },
     activeSkillsEl: function(skillURI, prevSkills){
+        var color = ["red","blue","green"];
         var a_href = "a[href='" + skillURI + "']";
         var zClone = $(a_href).clone();
         var oClone = prevSkills.filter(a_href).clone();
-        var nClone = zClone.length>0?zClone:oClone;
-        for (var nclass in userInfo.dict){
-            var zzz = nClone.filter("." + userInfo.dict[nclass]);
-            if (zzz.length>0){
-                zzz.addClass(nclass);
+        var nClone = $("<span class='skills'>");
+        var i = (skillURI.length + prevSkills.length);
+        nClone.addClass(userInfo.dict[color[i%3]] + " bg-" + color[i%3]);
+        if ((zClone.length + oClone.length) > 0) {
+            nClone = zClone.length>0?zClone:oClone;
+            for (var nclass in userInfo.dict){
+                var zzz = nClone.filter("." + userInfo.dict[nclass]);
+                if (zzz.length>0){
+                    zzz.addClass(nclass);
+                }
             }
+            nClone.find("._2TMjc").addClass("lightbg");
+            nClone.addClass("micro");
         }
-        nClone.find("._2TMjc").addClass("lightbg");
-        nClone.addClass("micro");
         return nClone;
     }
 };
@@ -3210,22 +3216,22 @@ script = document.createElement('script');
 script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
 document.getElementsByTagName('head')[0].appendChild(script);
 var csslist = [
-        {
-            href: virtKeyboard.rawgit + "css/newduo.css",
-            dir: ["ltr","rtl","new"]
-        },{
-            href: virtKeyboard.rawgit + "css/rtl-newduo.css",
-            dir: ["rtl","new"]
-        }, {
-            href: "//fonts.googleapis.com/icon?family=Material+Icons",
-            dir: ["ltr","rtl"]
-        },{
-            href: virtKeyboard.rawgit + "css/style.css",
-            dir: ["ltr","rtl"]
-        }
-    ];
+    {
+        href: virtKeyboard.rawgit + "css/newduo.css",
+        dir: ["ltr","rtl","new"]
+    },{
+        href: virtKeyboard.rawgit + "css/rtl-newduo.css",
+        dir: ["rtl","new"]
+    }, {
+        href: "//fonts.googleapis.com/icon?family=Material+Icons",
+        dir: ["ltr","rtl"]
+    },{
+        href: virtKeyboard.rawgit + "css/style.css",
+        dir: ["ltr","rtl"]
+    }
+];
 for (var i in csslist) {
-    var isApply = (((!duo.version && csslist[i].dir.indexOf("new")!==-1)||(csslist[i].dir.indexOf("new")===-1))&&csslist[i].dir.indexOf(document.dir)!==-1)
+    var isApply = (((!duo.version && csslist[i].dir.indexOf("new")!==-1)||(csslist[i].dir.indexOf("new")===-1))&&csslist[i].dir.indexOf(document.dir)!==-1);
     if (isApply){
         var vrtcss = document.createElement('link');
         vrtcss.rel = "stylesheet";
