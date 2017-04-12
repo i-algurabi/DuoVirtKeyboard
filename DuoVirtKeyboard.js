@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        A virtual keyboard for Duolingo with auto layout switching
-// @version        0.0.19
+// @version        0.0.20
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -249,7 +249,7 @@ basekeys = {
                 "code": "8",
                 "name": "Backspace"
             }
-                ],
+                 ],
             "1": [{
                 "type": "tab special disabled",
                 "code": "9",
@@ -294,7 +294,7 @@ basekeys = {
                 "type": "slash",
                 "code": "220"
             }
-                ],
+                 ],
             "2": [{
                 "type": "caps special switch",
                 "code": "20",
@@ -337,7 +337,7 @@ basekeys = {
                 "code": "13",
                 "name": "Enter"
             }
-                ],
+                 ],
             "3": [{
                 "type": "shift left special switch",
                 "code": "16",
@@ -377,7 +377,7 @@ basekeys = {
                 "code": "16",
                 "name": "Shift"
             }
-                ],
+                 ],
             "4": [{
                 "type": "ctrl special disabled",
                 "code": "17",
@@ -407,7 +407,7 @@ basekeys = {
                 "code": "17",
                 "name": "Control"
             }
-                ]
+                 ]
         }
     },
     "language_names_ui": {
@@ -2531,7 +2531,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.17",
+    version: "0.0.20",
     /* production link *
     rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
     * production link */
@@ -2612,7 +2612,26 @@ virtKeyboard = {
             }
         }
     },
-    typecustomchar: function(inputf,charcode,input_lang, key){
+    typecustomchar: function(inputf,charcode, key){
+        /*
+		console.info("(virtKeyboard.caps: [" +  virtKeyboard.caps + "] && charcode [" + charcode + "]===20: " + (charcode===20) + " ): [" + (virtKeyboard.caps && charcode===20) + "]");
+        console.info("(charcode: [" + charcode + "] > 57: " + (charcode>57) + "|| virtKeyboard.caps: [" + virtKeyboard.caps + "]): [" + (charcode > 57 || virtKeyboard.caps) + "]");
+        console.info("(virtKeyboard.shift: [" + virtKeyboard.shift + "] === ((key.key: [" + key.key + "]).charCodeAt(0): [" + (key.key).charCodeAt(0) + "] !== charcode: ["+ charcode + "]): [" + (virtKeyboard.shift === ((key.key).charCodeAt(0) !== charcode)) + "]");
+        console.info("(key.key.length: [" + key.key.length + "] === String.fromCharCode(charcode).length: ["+ String.fromCharCode(charcode).length +"]): [" +(key.key.length === String.fromCharCode(charcode).length)+ "]");
+		*/
+        virtKeyboard.caps = (
+            (virtKeyboard.caps && charcode===20) ||(
+            (charcode > 57 || virtKeyboard.caps) &&
+            (virtKeyboard.shift === ((key.key).charCodeAt(0) !== charcode) &&
+            key.key.length === String.fromCharCode(charcode).length))
+        );
+        var input_lang = basekeys.supported($(inputf).attr("lang"));
+        if (input_lang === -1) {
+            input_lang = userInfo.duoState.user.learningLanguage;
+        }
+        if ((charcode !== 8 && charcode !== 32) && (!(basekeys[input_lang]) || (charcode !== 32 && !basekeys[input_lang][charcode]) || key && (key.altKey || key.ctrlKey))){
+            return false;
+        }
         var inputtext = $(inputf).val();
         var selStart = $(inputf)[0].selectionStart;
         var selEnd = $(inputf)[0].selectionEnd;
@@ -2661,6 +2680,7 @@ virtKeyboard = {
         $(inputf).blur();
         if (restore) $("#virt-keyboard").removeClass("vrt-keep");
         $(inputf).focus();
+		return true;
     },
     updatesecondary: function(){
         var divider = $("<li>");
@@ -2857,13 +2877,8 @@ virtKeyboard = {
                 return true;
             }
             if (!virtKeyboard.newcodepage) {//propogate pressed key
-                var input_lang = basekeys.supported(inputfield.attr("lang"));
-                if (input_lang === -1) {
-                    input_lang = virtKeyboard.mainlang;
-                }
                 if (inputfield) {
-                    virtKeyboard.typecustomchar(inputfield, keycode, input_lang);
-                    //$(inputfield).focus();
+                    virtKeyboard.typecustomchar(inputfield, keycode);
                 }
             }
             else {//set up new values for pressed key
@@ -2933,20 +2948,12 @@ virtKeyboard = {
                 setTimeout(function() {
                     virtkey.removeClass("virthover");
                 }, 600);
-                var input_lang = basekeys.supported($(this).attr("lang"));
-                if (input_lang === -1) {
-                    input_lang = virtKeyboard.mainlang;
-                }
                 virtKeyboard.shift = keypressed.shiftKey;
                 virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode===20) ||
-                                    ((keypressed.keyCode > 57 || virtKeyboard.caps) &&
-                                    (virtKeyboard.shift !== (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
-                if (!(keypressed.keyCode === 8 || keypressed.keyCode === 32) && !(basekeys[input_lang]) || !basekeys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
-                    return true;
-                }
-                virtKeyboard.typecustomchar(this, keypressed.keyCode, input_lang, keypressed.key);
-                keypressed.preventDefault();
-                //return false;
+                                     ((keypressed.keyCode > 57 || virtKeyboard.caps) &&
+                                      (virtKeyboard.shift !== (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
+                if (virtKeyboard.typecustomchar(this, keypressed.keyCode, keypressed)) keypressed.preventDefault();
+                //return true;
             }
         });
     },
@@ -3190,18 +3197,24 @@ sidepanel = {
         );
     },
     activeSkillsEl: function(skillURI, prevSkills){
+        var color = ["red","blue","green"];
         var a_href = "a[href='" + skillURI + "']";
         var zClone = $(a_href).clone();
         var oClone = prevSkills.filter(a_href).clone();
-        var nClone = zClone.length>0?zClone:oClone;
-        for (var nclass in userInfo.dict){
-            var zzz = nClone.filter("." + userInfo.dict[nclass]);
-            if (zzz.length>0){
-                zzz.addClass(nclass);
+        var nClone = $("<span class='skills'>");
+        var i = (skillURI.length + prevSkills.length);
+        nClone.addClass(userInfo.dict[color[i%3]] + " bg-" + color[i%3]);
+        if ((zClone.length + oClone.length) > 0) {
+            nClone = zClone.length>0?zClone:oClone;
+            for (var nclass in userInfo.dict){
+                var zzz = nClone.filter("." + userInfo.dict[nclass]);
+                if (zzz.length>0){
+                    zzz.addClass(nclass);
+                }
             }
+            nClone.find("._2TMjc").addClass("lightbg");
+            nClone.addClass("micro");
         }
-        nClone.find("._2TMjc").addClass("lightbg");
-        nClone.addClass("micro");
         return nClone;
     }
 };
@@ -3210,22 +3223,22 @@ script = document.createElement('script');
 script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
 document.getElementsByTagName('head')[0].appendChild(script);
 var csslist = [
-        {
-            href: virtKeyboard.rawgit + "css/newduo.css",
-            dir: ["ltr","rtl","new"]
-        },{
-            href: virtKeyboard.rawgit + "css/rtl-newduo.css",
-            dir: ["rtl","new"]
-        }, {
-            href: "//fonts.googleapis.com/icon?family=Material+Icons",
-            dir: ["ltr","rtl"]
-        },{
-            href: virtKeyboard.rawgit + "css/style.css",
-            dir: ["ltr","rtl"]
-        }
-    ];
+    {
+        href: virtKeyboard.rawgit + "css/newduo.css",
+        dir: ["ltr","rtl","new"]
+    },{
+        href: virtKeyboard.rawgit + "css/rtl-newduo.css",
+        dir: ["rtl","new"]
+    }, {
+        href: "//fonts.googleapis.com/icon?family=Material+Icons",
+        dir: ["ltr","rtl"]
+    },{
+        href: virtKeyboard.rawgit + "css/style.css",
+        dir: ["ltr","rtl"]
+    }
+];
 for (var i in csslist) {
-    var isApply = (((!duo.version && csslist[i].dir.indexOf("new")!==-1)||(csslist[i].dir.indexOf("new")===-1))&&csslist[i].dir.indexOf(document.dir)!==-1)
+    var isApply = (((!duo.version && csslist[i].dir.indexOf("new")!==-1)||(csslist[i].dir.indexOf("new")===-1))&&csslist[i].dir.indexOf(document.dir)!==-1);
     if (isApply){
         var vrtcss = document.createElement('link');
         vrtcss.rel = "stylesheet";
