@@ -2527,7 +2527,11 @@ basekeys = {
     "supported": function(lang){
         if (this.supported_lang.indexOf(lang)!==-1){return lang;}
         if (this.layout_map[lang]) {return this.supported_lang[this.layout_map[lang]];}
-        return -1;
+        try{
+            return userInfo.duoState.user.learningLanguage;
+        } catch(e){
+            return -1;
+        }
     }
 };
 virtKeyboard = {
@@ -2621,9 +2625,9 @@ virtKeyboard = {
 		*/
         virtKeyboard.caps = (
             (virtKeyboard.caps && charcode===20) ||(
-            (charcode > 57 || virtKeyboard.caps) &&
-            (virtKeyboard.shift === ((key.key).charCodeAt(0) !== charcode) &&
-            key.key.length === String.fromCharCode(charcode).length))
+                (charcode > 57 || virtKeyboard.caps) &&
+                (virtKeyboard.shift === ((key.key).charCodeAt(0) !== charcode) &&
+                 key.key.length === String.fromCharCode(charcode).length))
         );
         var input_lang = basekeys.supported($(inputf).attr("lang"));
         if (input_lang === -1) {
@@ -2680,7 +2684,7 @@ virtKeyboard = {
         $(inputf).blur();
         if (restore) $("#virt-keyboard").removeClass("vrt-keep");
         $(inputf).focus();
-		return true;
+        return true;
     },
     updatesecondary: function(){
         var divider = $("<li>");
@@ -2949,9 +2953,11 @@ virtKeyboard = {
                     virtkey.removeClass("virthover");
                 }, 600);
                 virtKeyboard.shift = keypressed.shiftKey;
-                virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode===20) ||
+                /*
+				virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode===20) ||
                                      ((keypressed.keyCode > 57 || virtKeyboard.caps) &&
                                       (virtKeyboard.shift !== (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length)));
+				*/
                 if (virtKeyboard.typecustomchar(this, keypressed.keyCode, keypressed)) keypressed.preventDefault();
                 //return true;
             }
@@ -3219,9 +3225,31 @@ sidepanel = {
     }
 };
 
-script = document.createElement('script');
-script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
-document.getElementsByTagName('head')[0].appendChild(script);
+if (chrome) {
+	console.info(chrome);
+    if (!chrome.extension) {
+        script = document.createElement('script');
+        script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
+        document.getElementsByTagName('head')[0].appendChild(script);
+    }
+    else {
+        duo={};
+        for (var normalScript in document.scripts) {
+            var pattern = new RegExp("window\.duo");
+            if (pattern.test(document.scripts[normalScript].text)) {
+                var splitted = document.scripts[normalScript].text.split("=");
+                if (/version/.test(splitted[0])) {
+                    duo.version = JSON.parse(splitted[1]);
+                } 
+                else {
+                    for (var a in JSON.parse(splitted[1])){
+                        duo[a] = JSON.parse(splitted[1])[a];
+                    }
+                }
+            }
+        }
+    }
+}
 var csslist = [
     {
         href: virtKeyboard.rawgit + "css/newduo.css",
@@ -3237,8 +3265,11 @@ var csslist = [
         dir: ["ltr","rtl"]
     }
 ];
+if (!window.duo) var duo=null;
+else duo=window.duo;
+
 for (var i in csslist) {
-    var isApply = (((!duo.version && csslist[i].dir.indexOf("new")!==-1)||(csslist[i].dir.indexOf("new")===-1))&&csslist[i].dir.indexOf(document.dir)!==-1);
+    var isApply = (duo && ((!duo.version && csslist[i].dir.indexOf("new")!==-1)||(csslist[i].dir.indexOf("new")===-1))&&csslist[i].dir.indexOf(document.dir)!==-1);
     if (isApply){
         var vrtcss = document.createElement('link');
         vrtcss.rel = "stylesheet";
