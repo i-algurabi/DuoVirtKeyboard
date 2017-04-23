@@ -1,18 +1,26 @@
 {
-  "manifest_version": 2,
+	"manifest_version": 2,
 
-  "name": "DuoLingo virtual keyboard",
-  "description": "This extension allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards",
-  "version": "0.0.20",
-
-  "content_scripts": [{
-	"run_at": "document_end",
-    "matches": ["https://*.duolingo.com/*"],
-    "js": ["jquery.js","DuoVirtKeyboard.js"],
-	"css": ["css/style.css"]
-  }],
-  "permissions":[
-    "tabs",
-	"https://*.duolingo.com/*"
-  ]
+	"name": "DuoLingo virtual keyboard",
+	"description": "This extension allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards",
+	"version": "0.0.21",
+	"options_ui": {
+		// Required.
+		"page": "options.html",
+		// Recommended.
+		"chrome_style": true
+	},
+	"content_scripts": [{
+			"run_at": "document_end",
+			"matches": ["https://*.duolingo.com/*"],
+			"js": ["jquery.js", "DuoVirtKeyboard.js"],
+			"css": ["css/style.css"]
+		}
+	],
+	"permissions": [
+		"tabs",
+		"storage",
+		"https://*.duolingo.com/*",
+		"https://*.cloudfront.net/*"
+	]
 }

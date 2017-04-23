@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Duo Virtual Keyboard addon</title>
+	</head>
+	<body>
+		<label style='text-align:right'>Activate keyboard
+			<input id="apply" type="checkbox">
+			</label>	
+			<fieldset id="settings">
+				<div class='showkeyboard'>
+					<label>Show keyboard on textarea: 
+						<input id="show" type="checkbox" />
+					</label>
+				</div>
+				<div class='languagemap'>
+					<label>Map languages: from 
+						<span class='from'>
+						<select>
+							<option value="volvo">Volvo</option>
+							<option value="saab">Saab</option>
+							<option value="mercedes">Mercedes</option>
+							<option value="audi" selected="selected">Audi</option>
+						</select>
+						</span>to
+						<span class='to'>
+						<select>
+							<option value="volvo">Volvo</option>
+							<option value="saab" selected="selected">Saab</option>
+							<option value="mercedes">Mercedes</option>
+							<option value="audi">Audi</option>
+						</select>
+					</span>
+					</label>
+				</div>
+			</fieldset>
+			<label>
+				<input type="checkbox" id="like" />
+  I like colors.
+			</label>
+			<div id="status">...</div>
+			<button id="save">Save</button>
+			<script src="options.js">{}</script>
+		</body>
+	</html>
