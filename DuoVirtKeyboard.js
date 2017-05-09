@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        A virtual keyboard for Duolingo with auto layout switching
-// @version        0.0.21
+// @version        0.0.22
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -421,6 +421,7 @@ basekeys = {
     },
     "language_names_ui": {
         "el": {
+            "level": "επίπεδο",
             "gu": "Gujarati",
             "ga": "Ιρλανδικά",
             "gn": "Γουαρανί (Υοπαρά)",
@@ -517,6 +518,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "en": {
+            "level": "level",
             "gu": "Gujarati",
             "ga": "Irish",
             "gn": "Guarani (Jopará)",
@@ -613,6 +615,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "vi": {
+            "level": "trình độ",
             "gu": "Gujarati",
             "ga": "Tiếng Ai-len",
             "gn": "Tiếng Guarani (Jopará)",
@@ -709,6 +712,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "it": {
+            "level": "livello",
             "gu": "Gujarati",
             "ga": "irlandese",
             "gn": "Guarani (Jopará)",
@@ -805,6 +809,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "ar": {
+            "level": "مستوى",
             "gu": "Gujarati",
             "ga": "الإيرلندية",
             "gn": "الجوارانية (اليوبارا)",
@@ -901,6 +906,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "cs": {
+            "level": "hladina",
             "gu": "Gujarati",
             "ga": "Irština",
             "gn": "Guaranština (Jopará)",
@@ -997,6 +1003,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "id": {
+            "level": "tingkat",
             "gu": "Gujarati",
             "ga": "Bahasa Irlandia",
             "gn": "Guarani (Jopará)",
@@ -1093,6 +1100,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "es": {
+            "level": "nivel",
             "gu": "Gujarati",
             "ga": "irlandés",
             "gn": "Guaraní (Jopará)",
@@ -1189,6 +1197,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "zs": {
+            "level": "水平",
             "gu": "Gujarati",
             "ga": "爱尔兰语",
             "gn": "瓜拉尼语（何帕拉语）",
@@ -1285,6 +1294,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "ru": {
+            "level": "уровень",
             "gu": "Gujarati",
             "ga": "ирландский",
             "gn": "гуарани (дёпара)",
@@ -1381,6 +1391,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "pt": {
+            "level": "nível",
             "gu": "Gujarati",
             "ga": "Irlandês",
             "gn": "Guarani (Jopará)",
@@ -1477,6 +1488,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "tr": {
+            "level": "Seviye",
             "gu": "Gujarati",
             "ga": "İrlandaca",
             "gn": "Guarani (Jopará)",
@@ -1573,6 +1585,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "ro": {
+            "level": "nivel",
             "gu": "Gujarati",
             "ga": "Irlandeză",
             "gn": "Guarani (Jopará)",
@@ -1669,6 +1682,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "pl": {
+            "level": "poziom",
             "gu": "Gujarati",
             "ga": "Irlandzki",
             "gn": "guarani (jopará)",
@@ -1765,6 +1779,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "dn": {
+            "level": "niveau",
             "gu": "Gujarati",
             "ga": "Iers",
             "gn": "Guarani (Jopará)",
@@ -1861,6 +1876,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "fr": {
+            "level": "niveau",
             "gu": "Gujarati",
             "ga": "irlandais",
             "gn": "guarani (jopará)",
@@ -1957,6 +1973,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "de": {
+            "level": "Ebene",
             "gu": "Gujarati",
             "ga": "Irisch",
             "gn": "Guarani (Jopará)",
@@ -2053,6 +2070,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "hu": {
+            "level": "szint",
             "gu": "Gujarati",
             "ga": "ír",
             "gn": "(jopará) guaraní",
@@ -2149,6 +2167,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "hi": {
+            "level": "स्तर",
             "gu": "Gujarati",
             "ga": "आयरिश भाषा",
             "gn": "गूरानी (Jopará)",
@@ -2245,6 +2264,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "ja": {
+            "level": "レベル",
             "gu": "Gujarati",
             "ga": "アイルランド語",
             "gn": "グアラニ（ジョパラ）",
@@ -2341,6 +2361,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "ko": {
+            "level": "수평",
             "gu": "Gujarati",
             "ga": "아일랜드어",
             "gn": "과라니어 (조파라)",
@@ -2437,6 +2458,7 @@ basekeys = {
             "sf": "Swedish (Finland)"
         },
         "uk": {
+            "level": "рівень",
             "gu": "Gujarati",
             "ga": "Ірландська",
             "gn": "Гуарані (йопара)",
@@ -2548,7 +2570,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.21",
+    version: "0.0.22",
     /* production link *
     rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
      * production link */
@@ -2687,7 +2709,7 @@ virtKeyboard = {
             }
         } else {
             if (charcode === 8) {
-                selStart = inputtext.length - 1;
+                selStart = selStart > 0 ? selStart - 1 : 0;
             }
             if (charcode === 32) {
                 inputs = " ";
@@ -2826,9 +2848,14 @@ virtKeyboard = {
             $(".vrt-section").append(ul);
         }
     },
-    updateBase: function (jsonObj) {
+    updateBase: function (lObject, jsonObj) {
+        debugger;
         for (var subobj in jsonObj) {
-            basekeys[subobj] = jsonObj[subobj];
+            if (typeof jsonObj[subobj] == 'object' && typeof lObject[subobj] == 'object') {
+                this.updateBase(lObject[subobj], jsonObj[subobj]);
+            } else {
+                lObject[subobj] = jsonObj[subobj];
+            }
         }
     },
     updateLangs: function (update) {
@@ -3113,18 +3140,16 @@ virtKeyboard = {
                 type: "get",
                 url: virtKeyboard.rawgit + "duo/keyboard.base.json"
             }).done(function (json) {
-                virtKeyboard.updateBase(json);
+                virtKeyboard.updateBase(basekeys, json);
             });
         } else {
-            virtKeyboard.updateBase(oldkeys);
+            virtKeyboard.updateBase(basekeys, oldkeys);
         }
         var settings = virtKeyboard.getFromLocalStorage("settings");
         if (settings) {
             settings.version = virtKeyboard.version;
             settings.rawgit = virtKeyboard.rawgit;
-            for (var eachparam in settings) {
-                virtKeyboard[eachparam] = settings[eachparam];
-            }
+            virtKeyboard.updateBase(virtKeyboard, settings);
         }
 
         if ($(".v-logo").length === 0) {
@@ -3145,7 +3170,7 @@ virtKeyboard = {
     }
 };
 sidepanel = {
-    version: "0.0.9",
+    version: "0.0.10",
     html: "<div class='sidepanel'><div class='panel panel-upper panel-border' /><div class='panel panel-inner' /><div class='panel panel-lower panel-border' /></div>",
     hidden: true,
     init: function () {
@@ -3218,7 +3243,7 @@ sidepanel = {
                 }
             }
             li.append(span1);
-            var levelString = (duo.l10n ? duo.l10n.declared[174].toUpperCase() : "LEVEL") + " " + (courseLevel[course] || "[ ]");
+            var levelString = (basekeys.language_names_ui[fromLanguage].level || "LEVEL").toUpperCase() + " " + (courseLevel[course] || "[ ]");
             li.append($("<span class='sp-level'>" + levelString + "</span>"));
             li.append(span2);
             if (weakspan.find("span").length > 0)
@@ -3281,7 +3306,7 @@ sidepanel = {
         };
         return s[t].call(e.exports, e, e.exports, r),
         e.loaded = !0,
-        e.exports
+        e.exports;
     }
     var t = window.webpackJsonp;
     window.webpackJsonp = function (i, a) {
@@ -3295,7 +3320,7 @@ sidepanel = {
             g.shift().call(null, r);
         if (a[0])
             return n[0] = 0,
-            r(0)
+            r(0);
     };
     var n = {},
     e = {
@@ -3368,32 +3393,23 @@ sidepanel = {
                 25: "5293014a"
             }
             [s] + ".js",
-            n.appendChild(i)
+            n.appendChild(i);
         }
     },
     r.m = s,
     r.c = n,
-    r.p = "/"
+    r.p = "/";
 }
-([])
+([]);
 if (chrome) {
     if (!chrome.extension) {
         script = document.createElement('script');
         script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
         document.getElementsByTagName('head')[0].appendChild(script);
     } else {
-        duo=duo||{};
+        duo = duo || {};
         for (var normalScript in document.scripts) {
-            var patternString = new RegExp("strings");
-            if (patternString.test(document.scripts[normalScript].src) && !duo.l10n) {
-                $.ajax({ //get detailed user info
-                    type: "get",
-                    url: document.scripts[normalScript].src
-                }).done(function (json) {
-                    eval(json);
-                });
-            }
-            var patternDuo = new RegExp("window\.duo");
+			var patternDuo = new RegExp("window\.duo");
             if (patternDuo.test(document.scripts[normalScript].text)) {
                 var splitted = document.scripts[normalScript].text.split("=");
                 if (/version/.test(splitted[0])) {
