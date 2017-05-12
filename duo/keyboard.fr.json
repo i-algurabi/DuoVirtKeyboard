@@ -41,6 +41,10 @@
 			"normal": "ç",
 			"shift": "9"
 		},
+		"59": {
+			"normal": ";",
+			"shift": ":"
+		},
 		"65": {
 			"normal": "q",
 			"shift": "Q"

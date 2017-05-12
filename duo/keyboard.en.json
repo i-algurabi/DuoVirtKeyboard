@@ -41,6 +41,10 @@
 			"normal": "9",
 			"shift": "("
 		},
+		"59": {
+			"normal": ";",
+			"shift": ":"
+		},
 		"65": {
 			"normal": "a",
 			"shift": "A"

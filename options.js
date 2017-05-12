@@ -28,6 +28,7 @@ function saveToLocalStorage(parameter, value) {
 	}
 	return false;
 }
+
 function getFromLocalStorage(parameter) {
 	if (window.localStorage !== undefined) {
 		var localStorage = window.localStorage;
@@ -44,5 +45,6 @@ function getFromLocalStorage(parameter) {
 	}
 	return false;
 }
+
 document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('save').addEventListener('click', save_options);

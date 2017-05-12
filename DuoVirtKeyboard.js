@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
-// @description        A virtual keyboard for Duolingo with auto layout switching
-// @version        0.0.22
+// @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
+// @version        0.0.23
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -17,11 +17,16 @@ userInfo = {
     getLangs: function () {
         this.duoState = this.refresh();
         var result = {};
-        for (var course in this.duoState.courses) {
-            result[this.duoState.courses[course].fromLanguage] = (basekeys[this.duoState.courses[course].fromLanguage] === undefined);
-            result[this.duoState.courses[course].learningLanguage] = (basekeys[this.duoState.courses[course].learningLanguage] === undefined);
+		try{
+			for (var course in this.duoState.courses) {
+				result[this.duoState.courses[course].fromLanguage] = (basekeys[this.duoState.courses[course].fromLanguage] === undefined);
+				result[this.duoState.courses[course].learningLanguage] = (basekeys[this.duoState.courses[course].learningLanguage] === undefined);
+			}
         }
-        return result;
+		catch(e){
+			//do nothing
+		}
+		return result;
     },
     refresh: function () {
         var duoStateSTR = localStorage["duo.state"];
@@ -810,14 +815,14 @@ basekeys = {
         },
         "ar": {
             "level": "مستوى",
-            "gu": "Gujarati",
+            "gu": "الغوجاراتية",
             "ga": "الإيرلندية",
             "gn": "الجوارانية (اليوبارا)",
-            "gl": "Galician",
-            "la": "Latin",
-            "tt": "Tatar",
+            "gl": "الجاليكية",
+            "la": "لاتينية",
+            "tt": "التتار",
             "tr": "التركية",
-            "lv": "Latvian",
+            "lv": "اللاتفية",
             "tl": "التاغلوغية",
             "th": "التايلنديّة",
             "te": "تيلوجو",
@@ -825,85 +830,85 @@ basekeys = {
             "yi": "الييدية",
             "dk": "الدوثراكية",
             "de": "الألمانية",
-            "db": "Dutch (Belgium)",
+            "db": "الهولندية (بلجيكا)",
             "ko": "الكوريّة",
             "da": "الدنماركية",
-            "uz": "Uzbek",
+            "uz": "الأوزبكي",
             "el": "اليونانية",
             "eo": "الإسبرانتو",
             "en": "الإنجليزية",
-            "zc": "Chinese (Cantonese)",
-            "eu": "Basque",
-            "et": "Estonian",
-            "ep": "English (Pirate)",
+            "zc": "الصينية (الكانتونية)",
+            "eu": "الباسكي",
+            "et": "الإستونية",
+            "ep": "الإنجليزية (القراصنة)",
             "es": "الإسبانية",
             "zs": "الصينية",
             "ru": "الروسية",
             "ro": "الرومانية",
-            "be": "Belarusian",
-            "bg": "Bulgarian",
-            "ms": "Malay",
+            "be": "البيلاروسية",
+            "bg": "البلغارية",
+            "ms": "لغة الملايو",
             "bn": "البنغالي",
             "ja": "اليابانية",
-            "or": "Oriya",
+            "or": "الأوريا",
             "xl": "Lolcat",
             "ca": "الكتالانية",
             "xz": "Zombie",
             "cy": "الويلزية",
             "cs": "التشيكية",
             "pt": "البرتغالية",
-            "lt": "Lithuanian",
+            "lt": "اللتوانية",
             "pa": "البنجابية",
             "pl": "البولندية",
-            "hy": "Armenian",
-            "hr": "Croatian",
+            "hy": "الأرميني",
+            "hr": "الكرواتية",
             "hv": "الفاليرية العُليا",
             "ht": "الكريولية الهايتية",
             "hu": "المجرية",
             "hi": "الهندية",
             "he": "العبرية",
-            "mb": "Malay (Brunei)",
-            "mm": "Malay (Malaysia)",
-            "ml": "Malayalam",
-            "mn": "Mongolian",
-            "mk": "Macedonian",
-            "ur": "Urdu",
-            "kk": "Kazakh",
+            "mb": "الماليزية (بروناي)",
+            "mm": "الملايو (ماليزيا)",
+            "ml": "المالايالامية",
+            "mn": "المنغولية",
+            "mk": "المقدونية",
+            "ur": "الأردية",
+            "kk": "الكازاخية",
             "uk": "الأوكرانية",
-            "mr": "Marathi",
-            "my": "Burmese",
+            "mr": "المهاراتية",
+            "my": "البورمية",
             "dn": "الهولندية",
-            "af": "Afrikaans",
+            "af": "الأفريكانية",
             "vi": "الفييتنامية",
-            "is": "Icelandic",
+            "is": "أيسلندي",
             "it": "الإيطالية",
-            "kn": "Kannada",
+            "kn": "الكانادا",
             "zt": "الصينية (التقليدية)",
-            "as": "Assamese",
+            "as": "الأسامية",
             "ar": "العربية",
-            "zu": "Zulu",
-            "az": "Azeri",
+            "zu": "الزولو",
+            "az": "اذربيجان",
             "id": "الإندونيسية",
-            "nn": "Norwegian (Nynorsk)",
+            "nn": "النرويجية (نينورسك)",
             "no": "النرويجية",
             "nb": "النرويجية",
-            "ne": "Nepali",
+            "ne": "النيبالية",
             "fr": "الفرنسية",
-            "fa": "Farsi",
-            "fi": "Finnish",
-            "fo": "Faroese",
-            "ka": "Georgian",
-            "ss": "Swedish (Sweden)",
-            "sq": "Albanian",
+            "fa": "الفارسية",
+            "fi": "اللغة الفنلندية",
+            "fo": "جزر فارو",
+            "ka": "الجورجية",
+            "ss": "السويدية (السويد)",
+            "sq": "الألبانية",
             "sw": "السواحيلية",
             "sv": "السويدية",
-            "km": "Khmer",
+            "km": "الخمير",
             "kl": "الكلينجون",
-            "sk": "Slovak",
+            "sk": "السلوفاكية",
             "sn": "السِّندَرين",
-            "sl": "Slovenian",
-            "ky": "Kyrgyz",
-            "sf": "Swedish (Finland)"
+            "sl": "سلوفيني",
+            "ky": "قيرغيزستان",
+            "sf": "السويدية (فنلندا)"
         },
         "cs": {
             "level": "hladina",
@@ -1295,14 +1300,14 @@ basekeys = {
         },
         "ru": {
             "level": "уровень",
-            "gu": "Gujarati",
+            "gu": "гуджарати",
             "ga": "ирландский",
             "gn": "гуарани (дёпара)",
-            "gl": "Galician",
-            "la": "Latin",
-            "tt": "Tatar",
+            "gl": "Галицкая",
+            "la": "латинский",
+            "tt": "татарский",
             "tr": "турецкий",
-            "lv": "Latvian",
+            "lv": "Латышский",
             "tl": "Тагалог",
             "th": "тайский",
             "te": "телугу",
@@ -1310,14 +1315,14 @@ basekeys = {
             "yi": "идиш",
             "dk": "дотракийский",
             "de": "немецкий",
-            "db": "Dutch (Belgium)",
+            "db": "Голландский (Бельгия)",
             "ko": "корейский",
             "da": "датский",
-            "uz": "Uzbek",
+            "uz": "узбекский ",
             "el": "греческий",
             "eo": "эсперанто",
             "en": "английский",
-            "zc": "Chinese (Cantonese)",
+            "zc": "Китайский (кантонский)",
             "eu": "Basque",
             "et": "Estonian",
             "ep": "English (Pirate)",
@@ -2570,13 +2575,13 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.22",
-    /* production link *
-    rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/60f6714af55c5b9da53c09b776edbe58ea6f74b8/",
-     * production link */
-    /* test link */
+    version: "0.0.23",
+    /* production link */
+    rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/184963ca/",
+    /* production link */
+    /* test link *
     rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
-    /* test link */
+    * test link */
     show: true,
     apply: true,
     shift: false,
@@ -2621,7 +2626,7 @@ virtKeyboard = {
             var updatekey = "." + keycode;
             $(updatekey).html("");
             var span0 = $("<span>");
-            if (lang1 && lang1 !== lang0 && basekeys[lang1]) {
+            if (lang1 && lang1 !== lang0 && basekeys[lang1] && basekeys[lang1][keycode]) {
                 secondarylabel = basekeys[lang1][keycode];
                 var span2 = $("<span>");
                 if (secondarylabel.normal !== mainlabel.normal) {
@@ -2654,21 +2659,25 @@ virtKeyboard = {
         }
     },
     typecustomchar: function (inputf, charcode, key) {
-        /*
-        console.info("(virtKeyboard.caps: [" +  virtKeyboard.caps + "] && charcode [" + charcode + "]===20: " + (charcode===20) + " ): [" + (virtKeyboard.caps && charcode===20) + "]");
-        console.info("(charcode: [" + charcode + "] > 57: " + (charcode>57) + "|| virtKeyboard.caps: [" + virtKeyboard.caps + "]): [" + (charcode > 57 || virtKeyboard.caps) + "]");
-        console.info("(virtKeyboard.shift: [" + virtKeyboard.shift + "] === ((key.key: [" + key.key + "]).charCodeAt(0): [" + (key.key).charCodeAt(0) + "] !== charcode: ["+ charcode + "]): [" + (virtKeyboard.shift === ((key.key).charCodeAt(0) !== charcode)) + "]");
-        console.info("(key.key.length: [" + key.key.length + "] === String.fromCharCode(charcode).length: ["+ String.fromCharCode(charcode).length +"]): [" +(key.key.length === String.fromCharCode(charcode).length)+ "]");
-         */
+		/*
         virtKeyboard.caps = (
             (virtKeyboard.caps && charcode === 20) || (
                 (charcode > 57 || virtKeyboard.caps) && key &&
                 (virtKeyboard.shift === ((key.key).charCodeAt(0) !== charcode) &&
                     key.key.length === String.fromCharCode(charcode).length)));
+		*/
         var input_lang = basekeys.supported($(inputf).attr("lang"));
         if (input_lang === -1) {
             input_lang = userInfo.duoState.user.learningLanguage;
         }
+		/*
+		console.info("virtKeyboard.caps: [" + virtKeyboard.caps + "]");
+		console.info("charcode: [" + charcode + "]");
+		console.info("virtKeyboard.shift: [" + virtKeyboard.shift + "]");
+		console.info("key.key: [" + key.key + "]");
+		console.info("$(inputf).attr('lang'): [" + $(inputf).attr("lang") + "]");
+		console.info("input_lang: [" + input_lang + "]");
+		*/
         if ((charcode !== 8 && charcode !== 32) && (!(basekeys[input_lang]) || (charcode !== 32 && !basekeys[input_lang][charcode]) || key && (key.altKey || key.ctrlKey))) {
             return false;
         }
@@ -2735,7 +2744,7 @@ virtKeyboard = {
         $(".vrt-dropdown.vrt-secondary").addClass("vrt-settings");
         $(".vrt-dropdown.vrt-secondary").append(divider);
         for (var langcode in basekeys.language_names_ui[virtKeyboard.mainlang]) {
-            if (basekeys.supported_lang.indexOf(langcode) === -1) {
+            if (langcode!=="level" && basekeys.supported_lang.indexOf(langcode) === -1) {
                 var langname = basekeys.language_names_ui[virtKeyboard.mainlang][langcode];
                 var newentry = $("<li>");
                 newentry.addClass("vrt-data-choice vrt-new");
@@ -2849,7 +2858,6 @@ virtKeyboard = {
         }
     },
     updateBase: function (lObject, jsonObj) {
-        debugger;
         for (var subobj in jsonObj) {
             if (typeof jsonObj[subobj] == 'object' && typeof lObject[subobj] == 'object') {
                 this.updateBase(lObject[subobj], jsonObj[subobj]);
@@ -2863,7 +2871,11 @@ virtKeyboard = {
             update = {};
         }
         for (var lcode in update) {
-            if (basekeys.supported_lang.indexOf(lcode) !== -1 && update[lcode]) {
+			/*
+			console.info("basekeys.supported_lang: " + basekeys.supported_lang);
+			console.info("Language [" + lcode + "] is supported: " + basekeys.supported_lang.indexOf(lcode));
+			*/
+            if (basekeys.supported_lang.indexOf(lcode) !== -1) {
                 $.ajax({ //get language layout
                     type: "get",
                     url: virtKeyboard.rawgit + "duo/keyboard." + lcode + ".json"
@@ -3017,9 +3029,15 @@ virtKeyboard = {
         });
     },
     completeInit: function () {
+		if (Object.keys(userInfo.getLangs()).length===0 || basekeys.supported_lang.length===0){
+            setTimeout(function () {
+                virtKeyboard.completeInit();
+            }, 300);
+            return;			
+		}
+		virtKeyboard.updateLangs(userInfo.getLangs());
         virtKeyboard.drawKeyboard();
         virtKeyboard.updatesupportedlangs();
-        virtKeyboard.updateLangs(userInfo.getLangs());
     },
     init: function () {
         if (userInfo.firstrefresh) {
@@ -3135,12 +3153,13 @@ virtKeyboard = {
         };
         userInfo.duoState = userInfo.refresh();
         var oldkeys = virtKeyboard.getFromLocalStorage("keys");
-        if (!oldkeys) {
+        if (!oldkeys || oldkeys.supported_lang.length === 0) {
             $.ajax({ //get base keyboard layout
                 type: "get",
                 url: virtKeyboard.rawgit + "duo/keyboard.base.json"
             }).done(function (json) {
                 virtKeyboard.updateBase(basekeys, json);
+				virtKeyboard.saveToLocalStorage("keys", basekeys);
             });
         } else {
             virtKeyboard.updateBase(basekeys, oldkeys);
@@ -3401,12 +3420,14 @@ sidepanel = {
     r.p = "/";
 }
 ([]);
+var chrome = chrome || {"extension": false};
 if (chrome) {
     if (!chrome.extension) {
         script = document.createElement('script');
         script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
         document.getElementsByTagName('head')[0].appendChild(script);
-    } else {
+    } 
+	else {
         duo = duo || {};
         for (var normalScript in document.scripts) {
 			var patternDuo = new RegExp("window\.duo");
@@ -3423,6 +3444,7 @@ if (chrome) {
         }
     }
 }
+
 var csslist = [{
         href: virtKeyboard.rawgit + "css/newduo.css",
         dir: ["ltr", "rtl", "new"]
@@ -3438,10 +3460,12 @@ var csslist = [{
     }
 ];
 
-if (!window.duo)
+if (!window.duo){
     var duo = null;
-else
+}
+else {
     duo = window.duo;
+}
 
 for (var i in csslist) {
     var isApply = (duo && ((!duo.version && csslist[i].dir.indexOf("new") !== -1) || (csslist[i].dir.indexOf("new") === -1)) && csslist[i].dir.indexOf(document.dir) !== -1);
