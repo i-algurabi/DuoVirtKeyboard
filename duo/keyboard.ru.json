@@ -41,6 +41,10 @@
 			"normal": "9",
 			"shift": "("
 		},
+		"59": {
+			"normal": "ж",
+			"shift": "Ж"
+		},
 		"65": {
 			"normal": "ф",
 			"shift": "Ф"
