@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.23
+// @version        0.0.24
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -423,6 +423,17 @@ basekeys = {
                 }
             ]
         }
+    },
+    "dublicate":{
+        "Semicolon":"186",
+        "Comma":"188",
+        "Period":"190",
+        "Slash":"191",
+        "Backquote":"192",
+        "BracketLeft":"219",
+        "Backslash":"220",
+        "BracketRight":"221",
+        "Quote":"222"
     },
     "language_names_ui": {
         "el": {
@@ -2575,9 +2586,9 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    version: "0.0.23",
+    version: "0.0.24",
     /* production link */
-    rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/184963ca/",
+    rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/5498316c/",
     /* production link */
     /* test link *
     rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
@@ -2659,25 +2670,17 @@ virtKeyboard = {
         }
     },
     typecustomchar: function (inputf, charcode, key) {
-		/*
-        virtKeyboard.caps = (
-            (virtKeyboard.caps && charcode === 20) || (
-                (charcode > 57 || virtKeyboard.caps) && key &&
-                (virtKeyboard.shift === ((key.key).charCodeAt(0) !== charcode) &&
-                    key.key.length === String.fromCharCode(charcode).length)));
-		*/
         var input_lang = basekeys.supported($(inputf).attr("lang"));
         if (input_lang === -1) {
             input_lang = userInfo.duoState.user.learningLanguage;
         }
-		/*
-		console.info("virtKeyboard.caps: [" + virtKeyboard.caps + "]");
-		console.info("charcode: [" + charcode + "]");
-		console.info("virtKeyboard.shift: [" + virtKeyboard.shift + "]");
-		console.info("key.key: [" + key.key + "]");
-		console.info("$(inputf).attr('lang'): [" + $(inputf).attr("lang") + "]");
-		console.info("input_lang: [" + input_lang + "]");
-		*/
+		if (basekeys.dublicate) {
+            charcode = basekeys.dublicate[key.originalEvent.code]||charcode;
+        }
+		if (charcode===0) {
+			console.error("Couldn't assosiate a key. [keyboard.originalEvent.code: " + key.originalEvent.code + "]");
+			return false;
+		}
         if ((charcode !== 8 && charcode !== 32) && (!(basekeys[input_lang]) || (charcode !== 32 && !basekeys[input_lang][charcode]) || key && (key.altKey || key.ctrlKey))) {
             return false;
         }
@@ -3015,6 +3018,7 @@ virtKeyboard = {
         });
         $(document).on("keydown", "textarea, input", function (keypressed) {
             if (virtKeyboard.apply && /^\/skill/.test(location.pathname)) {
+                if (keypressed.originalEvent) console.info("keypressed.event.code" + keypressed.originalEvent.code);
                 //getting code for input language
                 var virtkey = $("." + keypressed.keyCode).parent();
                 virtkey.addClass("virthover");

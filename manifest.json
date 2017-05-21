@@ -3,13 +3,15 @@
 
 	"name": "DuoLingo virtual keyboard",
 	"description": "This extension allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards",
-	"version": "0.0.23",
+	"version": "0.0.24",
+	/*
 	"options_ui": {
 		// Required.
 		"page": "options.html",
 		// Recommended.
 		"chrome_style": true
 	},
+	*/
 	"content_scripts": [{
 			"run_at": "document_end",
 			"matches": ["https://*.duolingo.com/*"],
