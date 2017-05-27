@@ -2588,7 +2588,7 @@ basekeys = {
 virtKeyboard = {
     version: "0.0.25",
     /* production link */
-    rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/5498316c/",
+    rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/da728cf2/",
     /* production link */
     /* test link *
     rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
