@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.25
+// @version        0.0.26
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -17,16 +17,16 @@ userInfo = {
     getLangs: function () {
         this.duoState = this.refresh();
         var result = {};
-		try{
-			for (var course in this.duoState.courses) {
-				result[this.duoState.courses[course].fromLanguage] = (basekeys[this.duoState.courses[course].fromLanguage] === undefined);
-				result[this.duoState.courses[course].learningLanguage] = (basekeys[this.duoState.courses[course].learningLanguage] === undefined);
-			}
+        try{
+            for (var course in this.duoState.courses) {
+                result[this.duoState.courses[course].fromLanguage] = (basekeys[this.duoState.courses[course].fromLanguage] === undefined);
+                result[this.duoState.courses[course].learningLanguage] = (basekeys[this.duoState.courses[course].learningLanguage] === undefined);
+            }
         }
-		catch(e){
-			//do nothing
-		}
-		return result;
+        catch(e){
+            //do nothing
+        }
+        return result;
     },
     refresh: function () {
         var duoStateSTR = localStorage["duo.state"];
@@ -220,207 +220,207 @@ basekeys = {
     "base": {
         "raw": {
             "0": [{
-                    "type": "keylabel",
-                    "code": "192"
-                }, {
-                    "type": "keylabel",
-                    "code": "49"
-                }, {
-                    "type": "keylabel",
-                    "code": "50"
-                }, {
-                    "type": "keylabel",
-                    "code": "51"
-                }, {
-                    "type": "keylabel",
-                    "code": "52"
-                }, {
-                    "type": "keylabel",
-                    "code": "53"
-                }, {
-                    "type": "keylabel",
-                    "code": "54"
-                }, {
-                    "type": "keylabel",
-                    "code": "55"
-                }, {
-                    "type": "keylabel",
-                    "code": "56"
-                }, {
-                    "type": "keylabel",
-                    "code": "57"
-                }, {
-                    "type": "keylabel",
-                    "code": "48"
-                }, {
-                    "type": "keylabel",
-                    "code": "189"
-                }, {
-                    "type": "keylabel",
-                    "code": "187"
-                }, {
-                    "type": "backspace",
-                    "code": "8",
-                    "name": "Backspace"
-                }
+                "type": "keylabel",
+                "code": "192"
+            }, {
+                "type": "keylabel",
+                "code": "49"
+            }, {
+                "type": "keylabel",
+                "code": "50"
+            }, {
+                "type": "keylabel",
+                "code": "51"
+            }, {
+                "type": "keylabel",
+                "code": "52"
+            }, {
+                "type": "keylabel",
+                "code": "53"
+            }, {
+                "type": "keylabel",
+                "code": "54"
+            }, {
+                "type": "keylabel",
+                "code": "55"
+            }, {
+                "type": "keylabel",
+                "code": "56"
+            }, {
+                "type": "keylabel",
+                "code": "57"
+            }, {
+                "type": "keylabel",
+                "code": "48"
+            }, {
+                "type": "keylabel",
+                "code": "189"
+            }, {
+                "type": "keylabel",
+                "code": "187"
+            }, {
+                "type": "backspace",
+                "code": "8",
+                "name": "Backspace"
+            }
             ],
             "1": [{
-                    "type": "tab special disabled",
-                    "code": "9",
-                    "name": "Tab"
-                }, {
-                    "type": "keylabel",
-                    "code": "81"
-                }, {
-                    "type": "keylabel",
-                    "code": "87"
-                }, {
-                    "type": "keylabel",
-                    "code": "69"
-                }, {
-                    "type": "keylabel",
-                    "code": "82"
-                }, {
-                    "type": "keylabel",
-                    "code": "84"
-                }, {
-                    "type": "keylabel",
-                    "code": "89"
-                }, {
-                    "type": "keylabel",
-                    "code": "85"
-                }, {
-                    "type": "keylabel",
-                    "code": "73"
-                }, {
-                    "type": "keylabel",
-                    "code": "79"
-                }, {
-                    "type": "keylabel",
-                    "code": "80"
-                }, {
-                    "type": "keylabel",
-                    "code": "219"
-                }, {
-                    "type": "keylabel",
-                    "code": "221"
-                }, {
-                    "type": "slash",
-                    "code": "220"
-                }
+                "type": "tab special disabled",
+                "code": "9",
+                "name": "Tab"
+            }, {
+                "type": "keylabel",
+                "code": "81"
+            }, {
+                "type": "keylabel",
+                "code": "87"
+            }, {
+                "type": "keylabel",
+                "code": "69"
+            }, {
+                "type": "keylabel",
+                "code": "82"
+            }, {
+                "type": "keylabel",
+                "code": "84"
+            }, {
+                "type": "keylabel",
+                "code": "89"
+            }, {
+                "type": "keylabel",
+                "code": "85"
+            }, {
+                "type": "keylabel",
+                "code": "73"
+            }, {
+                "type": "keylabel",
+                "code": "79"
+            }, {
+                "type": "keylabel",
+                "code": "80"
+            }, {
+                "type": "keylabel",
+                "code": "219"
+            }, {
+                "type": "keylabel",
+                "code": "221"
+            }, {
+                "type": "slash",
+                "code": "220"
+            }
             ],
             "2": [{
-                    "type": "caps special switch",
-                    "code": "20",
-                    "name": "CapsLock"
-                }, {
-                    "type": "keylabel",
-                    "code": "65"
-                }, {
-                    "type": "keylabel",
-                    "code": "83"
-                }, {
-                    "type": "keylabel",
-                    "code": "68"
-                }, {
-                    "type": "keylabel",
-                    "code": "70"
-                }, {
-                    "type": "keylabel",
-                    "code": "71"
-                }, {
-                    "type": "keylabel",
-                    "code": "72"
-                }, {
-                    "type": "keylabel",
-                    "code": "74"
-                }, {
-                    "type": "keylabel",
-                    "code": "75"
-                }, {
-                    "type": "keylabel",
-                    "code": "76"
-                }, {
-                    "type": "keylabel",
-                    "code": "186"
-                }, {
-                    "type": "keylabel",
-                    "code": "222"
-                }, {
-                    "type": "enter special disabled",
-                    "code": "13",
-                    "name": "Enter"
-                }
+                "type": "caps special switch",
+                "code": "20",
+                "name": "CapsLock"
+            }, {
+                "type": "keylabel",
+                "code": "65"
+            }, {
+                "type": "keylabel",
+                "code": "83"
+            }, {
+                "type": "keylabel",
+                "code": "68"
+            }, {
+                "type": "keylabel",
+                "code": "70"
+            }, {
+                "type": "keylabel",
+                "code": "71"
+            }, {
+                "type": "keylabel",
+                "code": "72"
+            }, {
+                "type": "keylabel",
+                "code": "74"
+            }, {
+                "type": "keylabel",
+                "code": "75"
+            }, {
+                "type": "keylabel",
+                "code": "76"
+            }, {
+                "type": "keylabel",
+                "code": "186"
+            }, {
+                "type": "keylabel",
+                "code": "222"
+            }, {
+                "type": "enter special disabled",
+                "code": "13",
+                "name": "Enter"
+            }
             ],
             "3": [{
-                    "type": "shift left special switch",
-                    "code": "16",
-                    "name": "Shift"
-                }, {
-                    "type": "keylabel",
-                    "code": "90"
-                }, {
-                    "type": "keylabel",
-                    "code": "88"
-                }, {
-                    "type": "keylabel",
-                    "code": "67"
-                }, {
-                    "type": "keylabel",
-                    "code": "86"
-                }, {
-                    "type": "keylabel",
-                    "code": "66"
-                }, {
-                    "type": "keylabel",
-                    "code": "78"
-                }, {
-                    "type": "keylabel",
-                    "code": "77"
-                }, {
-                    "type": "keylabel",
-                    "code": "188"
-                }, {
-                    "type": "keylabel",
-                    "code": "190"
-                }, {
-                    "type": "keylabel",
-                    "code": "191"
-                }, {
-                    "type": "shift right special disabled",
-                    "code": "16",
-                    "name": "Shift"
-                }
+                "type": "shift left special switch",
+                "code": "16",
+                "name": "Shift"
+            }, {
+                "type": "keylabel",
+                "code": "90"
+            }, {
+                "type": "keylabel",
+                "code": "88"
+            }, {
+                "type": "keylabel",
+                "code": "67"
+            }, {
+                "type": "keylabel",
+                "code": "86"
+            }, {
+                "type": "keylabel",
+                "code": "66"
+            }, {
+                "type": "keylabel",
+                "code": "78"
+            }, {
+                "type": "keylabel",
+                "code": "77"
+            }, {
+                "type": "keylabel",
+                "code": "188"
+            }, {
+                "type": "keylabel",
+                "code": "190"
+            }, {
+                "type": "keylabel",
+                "code": "191"
+            }, {
+                "type": "shift right special disabled",
+                "code": "16",
+                "name": "Shift"
+            }
             ],
             "4": [{
-                    "type": "ctrl special disabled",
-                    "code": "17",
-                    "name": "Control"
-                }, {
-                    "type": "home special",
-                    "code": "91",
-                    "name": "Meta"
-                }, {
-                    "type": "alt special disabled",
-                    "code": "18",
-                    "name": "Alt"
-                }, {
-                    "type": "space",
-                    "code": "32",
-                    "name": " "
-                }, {
-                    "type": "alt special disabled",
-                    "code": "18",
-                    "name": "Alt"
-                }, {
-                    "type": "menu special",
-                    "code": "93",
-                    "name": "ContextMenu"
-                }, {
-                    "type": "ctrl right special disabled",
-                    "code": "17",
-                    "name": "Control"
-                }
+                "type": "ctrl special disabled",
+                "code": "17",
+                "name": "Control"
+            }, {
+                "type": "home special",
+                "code": "91",
+                "name": "Meta"
+            }, {
+                "type": "alt special disabled",
+                "code": "18",
+                "name": "Alt"
+            }, {
+                "type": "space",
+                "code": "32",
+                "name": " "
+            }, {
+                "type": "alt special disabled",
+                "code": "18",
+                "name": "Alt"
+            }, {
+                "type": "menu special",
+                "code": "93",
+                "name": "ContextMenu"
+            }, {
+                "type": "ctrl right special disabled",
+                "code": "17",
+                "name": "Control"
+            }
             ]
         }
     },
@@ -2572,27 +2572,28 @@ basekeys = {
         }
     },
     "supported": function (lang) {
-        if (this.supported_lang.indexOf(lang) !== -1) {
-            return lang;
-        }
-        if (this.layout_map[lang]) {
-            return this.supported_lang[this.layout_map[lang]];
-        }
+        result = lang;
         try {
-            return userInfo.duoState.user.learningLanguage;
+            result = result||userInfo.duoState.user.learningLanguage;
+            if (this.layout_map[result]) {
+                result = this.supported_lang[this.layout_map[result]];
+            }
         } catch (e) {
-            return -1;
+            result = -1;
+        }
+        finally {
+            return result;
         }
     }
 };
 virtKeyboard = {
-    version: "0.0.25",
+    version: "0.0.26",
     /* production link */
     rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/da728cf2/",
     /* production link */
     /* test link *
-    rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
-    * test link */
+     rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
+     * test link */
     show: true,
     apply: true,
     shift: false,
@@ -2670,53 +2671,57 @@ virtKeyboard = {
         }
     },
     typecustomchar: function (inputf, charcode, key) {
-        var input_lang = basekeys.supported($(inputf).attr("lang"));
+        console.info("typecustomchar: inputf {" + inputf + "}\n\t charcode {"+ charcode +"}\n\tkey {"+key+"}");
+        jq_inputf = $(inputf);
+        var input_lang = basekeys.supported(jq_inputf.attr("lang"));
         if (input_lang === -1) {
             input_lang = userInfo.duoState.user.learningLanguage;
         }
         if (basekeys.dublicate && key && key.originalEvent) {
             charcode = basekeys.dublicate[key.originalEvent.code]||charcode;
         }
-		if (charcode===0) {
-			console.error("Couldn't assosiate a key. [keyboard.originalEvent.code: " + key.originalEvent.code + "]");
-			return false;
-		}
+        if (charcode===0) {
+            console.error("Couldn't assosiate a key. [keyboard.originalEvent.code: " + key.originalEvent.code + "]");
+            return false;
+        }
         if ((charcode !== 8 && charcode !== 32) && (!(basekeys[input_lang]) || (charcode !== 32 && !basekeys[input_lang][charcode]) || key && (key.altKey || key.ctrlKey))) {
             return false;
         }
-        var inputtext = $(inputf).val();
-        var selStart = $(inputf)[0].selectionStart;
-        var selEnd = $(inputf)[0].selectionEnd;
+        var inputtext = jq_inputf.val();
+        var selStart = jq_inputf[0].selectionStart;
+        var selEnd = jq_inputf[0].selectionEnd;
         if (selStart === undefined) {
             selStart = selEnd = inputtext.length;
         }
         var inputs = "";
         if (basekeys[input_lang][charcode]) {
             var changecase = "";
+            shift_left = $(".shift.left");
             if (virtKeyboard.shift) {
-                if (!$(".shift.left").hasClass("hover")) {
-                    $(".shift.left").addClass("hover");
+                if (!shift_left.hasClass("hover")) {
+                    shift_left.addClass("hover");
                 }
                 inputs = basekeys[input_lang][charcode].shift;
                 changecase = "toLowerCase";
             } else {
-                if ($(".shift.left").hasClass("hover")) {
-                    $(".shift.left").removeClass("hover");
+                if (shift_left.hasClass("hover")) {
+                    shift_left.removeClass("hover");
                 }
                 inputs = basekeys[input_lang][charcode].normal;
                 changecase = "toUpperCase";
             }
+            jq_caps = $(".caps");
             if (virtKeyboard.caps) {
                 try { //try to change case
                     inputs = inputs[changecase]();
                 } catch (e) { /*do nothing*/
                 }
-                if (!$(".caps").hasClass("hover")) {
-                    $(".caps").addClass("hover");
+                if (!jq_caps.hasClass("hover")) {
+                    jq_caps.addClass("hover");
                 }
             } else {
-                if ($(".caps").hasClass("hover")) {
-                    $(".caps").removeClass("hover");
+                if (jq_caps.hasClass("hover")) {
+                    jq_caps.removeClass("hover");
                 }
             }
         } else {
@@ -2728,24 +2733,26 @@ virtKeyboard = {
             }
         }
         var z = inputtext.slice(0, selStart) + inputs + inputtext.slice(selEnd);
-        $(inputf).focus();
-        $(inputf).val(z);
-        $(inputf).attr("value", z);
-        $(inputf)[0].selectionStart = $(inputf)[0].selectionEnd = selStart + inputs.length;
-        var restore = !$("#virt-keyboard").hasClass("vrt-keep");
+        jq_inputf.focus();
+        jq_inputf.val(z);
+        jq_inputf.attr("value", z);
+        jq_inputf[0].selectionStart = jq_inputf[0].selectionEnd = selStart + inputs.length;
+        virt_keyboard = $("#virt-keyboard");
+        var restore = !virt_keyboard.hasClass("vrt-keep");
         if (restore)
-            $("#virt-keyboard").addClass("vrt-keep");
-        $(inputf).blur();
+            virt_keyboard.addClass("vrt-keep");
+        jq_inputf.blur();
         if (restore)
-            $("#virt-keyboard").removeClass("vrt-keep");
-        $(inputf).focus();
+            virt_keyboard.removeClass("vrt-keep");
+        jq_inputf.focus();
         return true;
     },
     updatesecondary: function () {
         var divider = $("<li>");
         divider.addClass("vrt-divider vrt-new");
-        $(".vrt-dropdown.vrt-secondary").addClass("vrt-settings");
-        $(".vrt-dropdown.vrt-secondary").append(divider);
+        jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
+        jq_dd_sec.addClass("vrt-settings");
+        jq_dd_sec.append(divider);
         for (var langcode in basekeys.language_names_ui[virtKeyboard.mainlang]) {
             if (langcode!=="level" && basekeys.supported_lang.indexOf(langcode) === -1) {
                 var langname = basekeys.language_names_ui[virtKeyboard.mainlang][langcode];
@@ -2753,7 +2760,7 @@ virtKeyboard = {
                 newentry.addClass("vrt-data-choice vrt-new");
                 newentry.data("language", langcode);
                 newentry[0].textContent = langname;
-                $(".vrt-dropdown.vrt-secondary").append(newentry);
+                jq_dd_sec.append(newentry);
             }
         }
     },
@@ -2838,7 +2845,8 @@ virtKeyboard = {
         }
     },
     drawKeyboard: function () {
-        $(".vrt-section").html("");
+        jq_vrt_section = $(".vrt-section");
+        jq_vrt_section.html("");
         var baseraws = basekeys.base.raw;
         for (var i in baseraws) {
             var virtkeyraw = baseraws[i];
@@ -2857,7 +2865,7 @@ virtKeyboard = {
                 }
                 ul.append(li.append(keyhtml));
             }
-            $(".vrt-section").append(ul);
+            jq_vrt_section.append(ul);
         }
     },
     updateBase: function (lObject, jsonObj) {
@@ -2873,61 +2881,73 @@ virtKeyboard = {
         if (!update) {
             update = {};
         }
+        jq_ml = $("#vrt-mainlang").data("language");
+        jq_sl = $("#vrt-secondarylang").data("language");
+
         for (var lcode in update) {
-			/*
-			console.info("basekeys.supported_lang: " + basekeys.supported_lang);
-			console.info("Language [" + lcode + "] is supported: " + basekeys.supported_lang.indexOf(lcode));
-			*/
+            /*
+             console.info("basekeys.supported_lang: " + basekeys.supported_lang);
+             console.info("Language [" + lcode + "] is supported: " + basekeys.supported_lang.indexOf(lcode));
+             */
             if (basekeys.supported_lang.indexOf(lcode) !== -1) {
                 $.ajax({ //get language layout
                     type: "get",
                     url: virtKeyboard.rawgit + "duo/keyboard." + lcode + ".json"
                 }).done(function (json) {
                     basekeys[json.lang] = json.keysmap;
-                    if (basekeys[$("#vrt-mainlang").data("language")] && basekeys[$("#vrt-secondarylang").data("language")]) {
-                        virtKeyboard.fillKeyboard($("#vrt-mainlang").data("language"), $("#vrt-secondarylang").data("language"));
+                    if (basekeys[jq_ml] && basekeys[jq_sl]) {
+                        virtKeyboard.fillKeyboard(jq_ml, jq_sl);
                     }
                     virtKeyboard.saveToLocalStorage("keys", basekeys);
                 });
             }
         }
-        virtKeyboard.fillKeyboard($("#vrt-mainlang").data("language"), $("#vrt-secondarylang").data("language"));
+        virtKeyboard.fillKeyboard(jq_ml, jq_sl);
         virtKeyboard.virtKeyOnClick();
     },
     virtKeyOnClick: function () {
-        $("#virt-keyboard").on("click", ".key", function () {
+        virt_keyboard = $("#virt-keyboard");
+        jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
+        jq_dd_sec_new = $(".vrt-dropdown.vrt-secondary > li.vrt-new");
+        jq_ks = $(".vrt-keycodesetting");
+        jq_ml = $("#vrt-mainlang").data("language");
+        jq_sl = $("#vrt-secondarylang").data("language");
+        virt_tdd = $(".vrt-toggledropdown");
+        virt_keyboard.on("click", ".key", function () {
             var inputfield = $("textarea");
             var keycode = $(this).find("div").data("keycode");
             var keyname = $(this).find("div").data("name");
             if ($(this).hasClass("home")) {
-                if (!$(".home").hasClass("switch")) {
-                    $(".home").addClass("switch");
+                jq_home = $(".home");
+                if (!jq_home.hasClass("switch")) {
+                    jq_home.addClass("switch");
                 }
-                if (!$(".vrt-dropdown.vrt-secondary").hasClass("vrt-settings")) {
+                if (!jq_dd_sec.hasClass("vrt-settings")) {
                     virtKeyboard.updatesecondary();
                 } else {
                     virtKeyboard.newcodepage = false;
-                    $(".vrt-keycodesetting").hide();
-                    $(".vrt-dropdown.vrt-secondary").removeClass("vrt-settings");
-                    $(".vrt-dropdown.vrt-secondary").removeClass("vrt-update");
-                    $(".vrt-dropdown.vrt-secondary > li.vrt-new").remove();
+                    jq_ks.hide();
+                    jq_dd_sec.removeClass("vrt-settings");
+                    jq_dd_sec.removeClass("vrt-update");
+                    jq_dd_sec_new.remove();
                     virtKeyboard.saveToLocalStorage("keys", basekeys);
                     virtKeyboard.updatesupportedlangs();
                 }
             }
             if ($(this).hasClass("menu")) {
-                if (!$(".menu").hasClass("switch")) {
-                    $(".menu").addClass("switch");
+                jq_menu = $(".menu");
+                if (!jq_menu.hasClass("switch")) {
+                    jq_menu.addClass("switch");
                 }
-                if (!$(".vrt-dropdown.vrt-secondary").hasClass("vrt-settings")) {
-                    $(".vrt-dropdown.vrt-secondary").addClass("vrt-update");
+                if (!jq_dd_sec.hasClass("vrt-settings")) {
+                    jq_dd_sec.addClass("vrt-update");
                     virtKeyboard.updatesecondary();
                 } else {
                     virtKeyboard.newcodepage = false;
-                    $(".vrt-keycodesetting").hide();
-                    $(".vrt-dropdown.vrt-secondary").removeClass("vrt-settings");
-                    $(".vrt-dropdown.vrt-secondary").removeClass("vrt-update");
-                    $(".vrt-dropdown.vrt-secondary > li.vrt-new").remove();
+                    jq_ks.hide();
+                    jq_dd_sec.removeClass("vrt-settings");
+                    jq_dd_sec.removeClass("vrt-update");
+                    jq_dd_sec_new.remove();
                     virtKeyboard.saveToLocalStorage("keys", basekeys);
                     virtKeyboard.updatesupportedlangs();
                 }
@@ -2941,14 +2961,15 @@ virtKeyboard = {
                     virtKeyboard.caps = virtKeyboard.caps ? false : true;
                 }
                 var keypressed = jQuery.Event({
-                        "type": "keypress",
-                        "keyCode": keycode,
-                        "which": keycode,
-                        "shiftKey": virtKeyboard.shift,
-                        "key": keyname
-                    });
-                $(inputfield).trigger(keypressed);
-                $(inputfield).focus();
+                    "type": "keypress",
+                    "keyCode": keycode,
+                    "which": keycode,
+                    "shiftKey": virtKeyboard.shift,
+                    "key": keyname
+                });
+                jq_if=$(inputfield);
+                jq_if.trigger(keypressed);
+                jq_if.focus();
                 return true;
             }
             if (!virtKeyboard.newcodepage) { //propogate pressed key
@@ -2962,7 +2983,7 @@ virtKeyboard = {
                     basekeys.supported_lang.push(virtKeyboard.newlang);
                 }
                 if (!basekeys[virtKeyboard.newlang]) {
-                    basekeys[virtKeyboard.newlang] = JSON.parse(JSON.stringify(basekeys[$("#vrt-mainlang").data("language")]));
+                    basekeys[virtKeyboard.newlang] = JSON.parse(JSON.stringify(basekeys[jq_ml]));
                 }
                 if (nfield.val() !== "") {
                     basekeys[virtKeyboard.newlang][keycode].normal = nfield.val();
@@ -2970,36 +2991,36 @@ virtKeyboard = {
                 if (sfield.val() !== "") {
                     basekeys[virtKeyboard.newlang][keycode].shift = sfield.val();
                 }
-                virtKeyboard.fillKeyboard($("#vrt-mainlang").data("language"), virtKeyboard.newlang);
+                virtKeyboard.fillKeyboard(jq_ml, virtKeyboard.newlang);
             }
         });
-        $("#virt-keyboard").on("click", ".vrt-data-choice", function () {
+        virt_keyboard.on("click", ".vrt-data-choice", function () {
             if (!$(this).hasClass("vrt-active") && !$(this).hasClass("vrt-new")) {
                 $(this).addClass("vrt-active").siblings().removeClass("vrt-active");
             }
             $(this).parent().data("language", $(this).data("language"));
             $(this).parent().parent().find("span.vrt-langspan")[0].textContent = $(this)[0].textContent;
-            if ($(".vrt-dropdown.vrt-secondary").hasClass("vrt-settings")) {
+            if (jq_dd_sec.hasClass("vrt-settings")) {
                 virtKeyboard.updatecodepages($(this).data("language"), $(this).parent().hasClass("vrt-update"));
             }
-            virtKeyboard.fillKeyboard($("#vrt-mainlang").data("language"), $("#vrt-secondarylang").data("language"));
+            virtKeyboard.fillKeyboard(jq_ml,jq_sl);
             $(this).parent().off("mouseleave");
             $(this).parent().slideUp("medium");
         });
-        $(".vrt-toggledropdown").on("click", function () {
+        virt_tdd.on("click", function () {
             var dropdownmenu = $(this).find("ul.vrt-dropdown");
             if (dropdownmenu.is(":visible")) {
                 dropdownmenu.slideUp("medium");
-                $(".vrt-toggledropdown").off("mouseleave");
+                virt_tdd.off("mouseleave");
             } else {
-                $(".vrt-toggledropdown").on("mouseleave", function () {
+                virt_tdd.on("mouseleave", function () {
                     dropdownmenu.slideUp("medium");
                 });
                 dropdownmenu.slideDown("medium");
             }
             dropdownmenu.off("mouseleave");
             dropdownmenu.on("mouseleave", function () {
-                $(".vrt-toggledropdown").off("mouseleave");
+                virt_tdd.off("mouseleave");
                 dropdownmenu.slideUp("medium");
             });
         });
@@ -3017,7 +3038,7 @@ virtKeyboard = {
             });
         });
         $(document).on("keydown", "textarea, input", function (keypressed) {
-            if (virtKeyboard.apply && /^\/skill/.test(location.pathname)) {
+            if (virtKeyboard.apply && (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname))) {
                 //if (keypressed.originalEvent) console.info("keypressed.event.code" + keypressed.originalEvent.code);
                 //getting code for input language
                 var virtkey = $("." + keypressed.keyCode).parent();
@@ -3033,13 +3054,13 @@ virtKeyboard = {
         });
     },
     completeInit: function () {
-		if (Object.keys(userInfo.getLangs()).length===0 || basekeys.supported_lang.length===0){
+        if (Object.keys(userInfo.getLangs()).length===0 || basekeys.supported_lang.length===0){
             setTimeout(function () {
                 virtKeyboard.completeInit();
             }, 300);
-            return;			
-		}
-		virtKeyboard.updateLangs(userInfo.getLangs());
+            return;
+        }
+        virtKeyboard.updateLangs(userInfo.getLangs());
         virtKeyboard.drawKeyboard();
         virtKeyboard.updatesupportedlangs();
     },
@@ -3052,16 +3073,21 @@ virtKeyboard = {
         }
         virtKeyboard.mainlang = userInfo.duoState.user.learningLanguage || "en";
         virtKeyboard.secondlang = userInfo.duoState.user.fromLanguage || "en";
+        jq_vkbd = $("#virt-keyboard");
+        jq_logo = $(".v-logo");
         $("body").append(virtKeyboard.body);
-        $("#virt-keyboard").hover(function () {
-            $("#virt-keyboard").addClass("vrt-keep");
-        }, function () {
-            $("#virt-keyboard").removeClass("vrt-keep");
-        });
+        jq_vkbd.hover(
+            function () {
+                jq_vkbd.addClass("vrt-keep");
+                },
+            function () {
+                jq_vkbd.removeClass("vrt-keep");
+            }
+        );
         $(document).on("click", ".v-logo", function () {
             virtKeyboard.show = virtKeyboard.show ? false : true;
             virtKeyboard.apply = true;
-            $(".v-logo").removeClass("v-disabled");
+            jq_logo.removeClass("v-disabled");
             if (virtKeyboard.show) {
                 if (!$(this).hasClass("v-show"))
                     $(this).addClass("v-show");
@@ -3073,14 +3099,14 @@ virtKeyboard = {
         });
         $(document).on("click", ".v-close", function () {
             virtKeyboard.show = false;
-            $(".v-logo").removeClass("v-show");
-            $(".v-logo").addClass("v-disabled");
+            jq_logo.removeClass("v-show");
+            jq_logo.addClass("v-disabled");
             virtKeyboard.apply = false;
-            $("#virt-keyboard").hide();
+            jq_vkbd.hide();
             virtKeyboard.saveToLocalStorage("settings", virtKeyboard);
         });
         $(document).on("focus", "textarea, input[type='text']", function () {
-            if (/^\/skill/.test(location.pathname)) {
+            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname)) {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
@@ -3089,23 +3115,23 @@ virtKeyboard = {
                 if (virtKeyboard.show && !visible) {
                     virtKeyboard.updatesupportedlangs();
                     virtKeyboard.fillKeyboard($(this).attr("lang"));
-                    $("#virt-keyboard").show("slow");
+                    jq_vkbd.show("slow");
                 }
             }
         });
         $(document).on("focusout", "textarea, input[type='text']", function () {
-            if (/^\/skill/.test(location.pathname)) {
+            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname)) {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
                 } catch (e) {}
-                if (!$("#virt-keyboard").hasClass("vrt-keep")) {
-                    $("#virt-keyboard").hide();
+                if (!jq_vkbd.hasClass("vrt-keep")) {
+                    jq_vkbd.hide();
                 }
             }
         });
         virtKeyboard.completeInit();
-        $("#virt-keyboard").draggable();
+        jq_vkbd.draggable();
     },
     preinit: function () {
         if (!window.jQuery) {
@@ -3116,14 +3142,14 @@ virtKeyboard = {
         }
         $.fn.draggable = function () {
             var $this = this,
-            ns = 'draggable_' + (Math.random() + '').replace('.', ''),
-            mm = 'mousemove.' + ns,
-            mu = 'mouseup.' + ns,
-            $w = $(window),
-            rtl = $("html").attr("dir") === "rtl",
-            isFixed = ($this.css('position') === 'fixed'),
-            adjX = 0,
-            adjY = 0;
+                ns = 'draggable_' + (Math.random() + '').replace('.', ''),
+                mm = 'mousemove.' + ns,
+                mu = 'mouseup.' + ns,
+                $w = $(window),
+                rtl = $("html").attr("dir") === "rtl",
+                isFixed = ($this.css('position') === 'fixed'),
+                adjX = 0,
+                adjY = 0;
             $this.mousedown(function (ev) {
                 var pos = $this.position();
                 if (isFixed) {
@@ -3131,7 +3157,7 @@ virtKeyboard = {
                     adjY = $w.scrollTop();
                 }
                 var ox = (ev.pageX - pos.left),
-                oy = (ev.pageY - pos.top);
+                    oy = (ev.pageY - pos.top);
                 $this.data(ns, {
                     x: ox,
                     y: oy
@@ -3163,7 +3189,7 @@ virtKeyboard = {
                 url: virtKeyboard.rawgit + "duo/keyboard.base.json"
             }).done(function (json) {
                 virtKeyboard.updateBase(basekeys, json);
-				virtKeyboard.saveToLocalStorage("keys", basekeys);
+                virtKeyboard.saveToLocalStorage("keys", basekeys);
             });
         } else {
             virtKeyboard.updateBase(basekeys, oldkeys);
@@ -3186,7 +3212,8 @@ virtKeyboard = {
             }
             var topbar = $("." + userInfo.dict["topbar-brand"].split(" ").join(".")).length > 0 ? $("." + userInfo.dict["topbar-brand"].split(" ").join(".")) : $(".topbar-brand");
             if (topbar.next("div").after(vKeyboardLogo).length === 0)
-                $($("a[href='/'")[0]).next("div").after(vKeyboardLogo);
+                str_href = "a[href='/'";
+                $($(str_href)[0]).next("div").after(vKeyboardLogo);
         }
         console.info("VirtKeyboard: v." + virtKeyboard.version);
         virtKeyboard.init();
@@ -3229,7 +3256,7 @@ sidepanel = {
             var weakSkills = userInfo.getWeakendSkills(fromLanguage, learningLanguage)[learningLanguage + "<" + fromLanguage];
             var newSkills = userInfo.getNewSkills(fromLanguage, learningLanguage)[learningLanguage + "<" + fromLanguage];
             var skill,
-            nClone;
+                nClone;
             if (learningLanguage === userInfo.duoState.user.learningLanguage &&
                 fromLanguage === userInfo.duoState.user.fromLanguage) {
                 var prevWeak = $(virtKeyboard.getFromLocalStorage("weakspan").html) || $("");
@@ -3283,18 +3310,18 @@ sidepanel = {
         });
         $(".sidepanel").hover(
             function () {
-            if (sidepanel.hidden) {
-                sidepanel.refresh(".panel-inner");
-                $(this).addClass("show");
-                sidepanel.hidden = false;
-            }
-        },
+                if (sidepanel.hidden) {
+                    sidepanel.refresh(".panel-inner");
+                    $(this).addClass("show");
+                    sidepanel.hidden = false;
+                }
+            },
             function () {
-            if (!sidepanel.hidden) {
-                $(this).removeClass("show");
-                sidepanel.hidden = true;
-            }
-        });
+                if (!sidepanel.hidden) {
+                    $(this).removeClass("show");
+                    sidepanel.hidden = true;
+                }
+            });
     },
     activeSkillsEl: function (skillURI, prevSkills) {
         var color = ["red", "blue", "green"];
@@ -3328,27 +3355,27 @@ sidepanel = {
             loaded: !1
         };
         return s[t].call(e.exports, e, e.exports, r),
-        e.loaded = !0,
-        e.exports;
+            e.loaded = !0,
+            e.exports;
     }
     var t = window.webpackJsonp;
     window.webpackJsonp = function (i, a) {
         for (var c, f, d = 0, g = []; d < i.length; d++)
             f = i[d],
             e[f] && g.push.apply(g, e[f]),
-            e[f] = 0;
+                e[f] = 0;
         for (c in a)
             s[c] = a[c];
         for (t && t(i, a); g.length; )
             g.shift().call(null, r);
         if (a[0])
             return n[0] = 0,
-            r(0);
+                r(0);
     };
     var n = {},
-    e = {
-        0: 0
-    };
+        e = {
+            0: 0
+        };
     r.e = function (s, t) {
         if (0 === e[s])
             return t.call(null, r);
@@ -3357,71 +3384,71 @@ sidepanel = {
         else {
             e[s] = [t];
             var n = document.getElementsByTagName("head")[0],
-            i = document.createElement("script");
+                i = document.createElement("script");
             i.type = "text/javascript",
-            i.charset = "utf-8",
-            i.async = !0,
-            i.src = r.p + "" + ({
-                    1: "js/vendor",
-                    2: "js/app",
-                    3: "strings/zh-TW",
-                    4: "strings/zh-CN",
-                    5: "strings/vi",
-                    6: "strings/uk",
-                    7: "strings/tr",
-                    8: "strings/ru",
-                    9: "strings/ro",
-                    10: "strings/pt",
-                    11: "strings/pl",
-                    12: "strings/nl-NL",
-                    13: "strings/ko",
-                    14: "strings/ja",
-                    15: "strings/it",
-                    16: "strings/id",
-                    17: "strings/hu",
-                    18: "strings/hi",
-                    19: "strings/fr",
-                    20: "strings/es",
-                    21: "strings/en",
-                    22: "strings/el",
-                    23: "strings/de",
-                    24: "strings/cs",
-                    25: "strings/ar"
-                }
-                    [s] || s) + "-" + {
-                1: "dc221740",
-                2: "bd21b823",
-                3: "1496ee5d",
-                4: "3bd0e77f",
-                5: "f4bf9b65",
-                6: "a2b896ec",
-                7: "a57279d4",
-                8: "7358872c",
-                9: "a72b1a76",
-                10: "d31c8206",
-                11: "cd94eafc",
-                12: "b7995df2",
-                13: "688e6d65",
-                14: "8561a8d7",
-                15: "7b389202",
-                16: "cba322e8",
-                17: "f30670c9",
-                18: "3cfba715",
-                19: "60fd521f",
-                20: "59f590f4",
-                21: "830e44b4",
-                22: "0cccc05f",
-                23: "a011bfdb",
-                24: "b0a7ffee",
-                25: "5293014a"
-            }
-            [s] + ".js",
-            n.appendChild(i);
+                i.charset = "utf-8",
+                i.async = !0,
+                i.src = r.p + "" + ({
+                        1: "js/vendor",
+                        2: "js/app",
+                        3: "strings/zh-TW",
+                        4: "strings/zh-CN",
+                        5: "strings/vi",
+                        6: "strings/uk",
+                        7: "strings/tr",
+                        8: "strings/ru",
+                        9: "strings/ro",
+                        10: "strings/pt",
+                        11: "strings/pl",
+                        12: "strings/nl-NL",
+                        13: "strings/ko",
+                        14: "strings/ja",
+                        15: "strings/it",
+                        16: "strings/id",
+                        17: "strings/hu",
+                        18: "strings/hi",
+                        19: "strings/fr",
+                        20: "strings/es",
+                        21: "strings/en",
+                        22: "strings/el",
+                        23: "strings/de",
+                        24: "strings/cs",
+                        25: "strings/ar"
+                    }
+                        [s] || s) + "-" + {
+                        1: "dc221740",
+                        2: "bd21b823",
+                        3: "1496ee5d",
+                        4: "3bd0e77f",
+                        5: "f4bf9b65",
+                        6: "a2b896ec",
+                        7: "a57279d4",
+                        8: "7358872c",
+                        9: "a72b1a76",
+                        10: "d31c8206",
+                        11: "cd94eafc",
+                        12: "b7995df2",
+                        13: "688e6d65",
+                        14: "8561a8d7",
+                        15: "7b389202",
+                        16: "cba322e8",
+                        17: "f30670c9",
+                        18: "3cfba715",
+                        19: "60fd521f",
+                        20: "59f590f4",
+                        21: "830e44b4",
+                        22: "0cccc05f",
+                        23: "a011bfdb",
+                        24: "b0a7ffee",
+                        25: "5293014a"
+                    }
+                        [s] + ".js",
+                n.appendChild(i);
         }
     },
-    r.m = s,
-    r.c = n,
-    r.p = "/";
+        r.m = s,
+        r.c = n,
+        r.p = "/";
 }
 ([]);
 var chrome = chrome || {"extension": false};
@@ -3430,11 +3457,11 @@ if (chrome) {
         script = document.createElement('script');
         script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js";
         document.getElementsByTagName('head')[0].appendChild(script);
-    } 
-	else {
+    }
+    else {
         duo = duo || {};
         for (var normalScript in document.scripts) {
-			var patternDuo = new RegExp("window\.duo");
+            var patternDuo = new RegExp("window\.duo");
             if (patternDuo.test(document.scripts[normalScript].text)) {
                 var splitted = document.scripts[normalScript].text.split("=");
                 if (/version/.test(splitted[0])) {
@@ -3450,18 +3477,18 @@ if (chrome) {
 }
 
 var csslist = [{
-        href: virtKeyboard.rawgit + "css/newduo.css",
-        dir: ["ltr", "rtl", "new"]
-    }, {
-        href: virtKeyboard.rawgit + "css/rtl-newduo.css",
-        dir: ["rtl", "new"]
-    }, {
-        href: "//fonts.googleapis.com/icon?family=Material+Icons",
-        dir: ["ltr", "rtl"]
-    }, {
-        href: virtKeyboard.rawgit + "css/style.css",
-        dir: ["ltr", "rtl"]
-    }
+    href: virtKeyboard.rawgit + "css/newduo.css",
+    dir: ["ltr", "rtl", "new"]
+}, {
+    href: virtKeyboard.rawgit + "css/rtl-newduo.css",
+    dir: ["rtl", "new"]
+}, {
+    href: "//fonts.googleapis.com/icon?family=Material+Icons",
+    dir: ["ltr", "rtl"]
+}, {
+    href: virtKeyboard.rawgit + "css/style.css",
+    dir: ["ltr", "rtl"]
+}
 ];
 
 if (!window.duo){
