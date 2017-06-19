@@ -1,5 +1,5 @@
 {
-    "supported_lang": ["en", "ru", "ar"],
+    "supported_lang": ["en", "ru", "ar", "sf"],
     "layout_map": {
         "fr": "0"
     },
