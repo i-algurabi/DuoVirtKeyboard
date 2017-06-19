@@ -11,24 +11,24 @@
 // ==/UserScript==
 
 userInfo = {
-    duoState: null,
-    firstrefresh: true,
-    needrefresh: false,
-    getLangs: function () {
+    "duoState": null,
+    "firstrefresh": true,
+    "needrefresh": false,
+    "getLangs": function () {
         this.duoState = this.refresh();
         var result = {};
-        try{
+        try {
             for (var course in this.duoState.courses) {
                 result[this.duoState.courses[course].fromLanguage] = (basekeys[this.duoState.courses[course].fromLanguage] === undefined);
                 result[this.duoState.courses[course].learningLanguage] = (basekeys[this.duoState.courses[course].learningLanguage] === undefined);
             }
         }
-        catch(e){
+        catch (e) {
             //do nothing
         }
         return result;
     },
-    refresh: function () {
+    "refresh": function () {
         var duoStateSTR = localStorage["duo.state"];
         if (duoStateSTR) {
             userInfo.firstrefresh = false;
@@ -37,7 +37,7 @@ userInfo = {
             userInfo.enrichUser();
         }
     },
-    enrichUser: function (params) {
+    "enrichUser": function (params) {
         userInfo.needrefresh = false;
         if (!params)
             params = "courses,currentCourse,fromLanguage,learningLanguage";
@@ -86,7 +86,7 @@ userInfo = {
             return jsonDuoState;
         });
     },
-    getCookie: function (name, mime) {
+    "getCookie": function (name) {
         var cookies = document.cookie.split(';');
         for (var i in cookies) {
             if (cookies[i].indexOf(name) === 1) {
@@ -95,14 +95,14 @@ userInfo = {
         }
         return "";
     },
-    getLoggedInUserId: function () {
+    "getLoggedInUserId": function () {
         var e = userInfo.getCookie("auth_tkt") || "";
         var t = e.match(/[0-9a-f]{40}(\d+)!/);
         if (t)
             return parseInt(t[1], 10);
         //throw Error("auth_tkt missing");
     },
-    getWeakendSkills: function (fromLanguage, learningLanguage) {
+    "getWeakendSkills": function (fromLanguage, learningLanguage) {
         this.duoState = this.refresh();
         var result = {};
         for (var skill in this.duoState.skills) {
@@ -121,7 +121,7 @@ userInfo = {
         }
         return result;
     },
-    getNewSkills: function (fromLanguage, learningLanguage) {
+    "getNewSkills": function (fromLanguage, learningLanguage) {
         this.duoState = this.refresh();
         var result = {};
         for (var skill in this.duoState.skills) {
@@ -140,7 +140,7 @@ userInfo = {
         }
         return result;
     },
-    switchLanguage: function (fromLanguage, learningLanguage) {
+    "switchLanguage": function (fromLanguage, learningLanguage) {
         userInfo.needrefresh = (userInfo.duoState && userInfo.duoState.courses && (!userInfo.duoState.courses[learningLanguage + "<" + fromLanguage] || !userInfo.duoState.courses[learningLanguage + "<" + fromLanguage].fluency));
         $.ajax({ //switch language
             type: "POST",
@@ -149,13 +149,15 @@ userInfo = {
                 from_language: fromLanguage,
                 learning_language: learningLanguage
             }
-        }).done(function () {
-            if (userInfo.needrefresh && !duo.version)
-                userInfo.enrichUser();
-            document.location.href = document.location.protocol + "//" + document.location.hostname;
-        });
+        }).done(
+            function () {
+                if (userInfo.needrefresh && !duo.version)
+                    userInfo.enrichUser();
+                document.location.href = document.location.protocol + "//" + document.location.hostname;
+            }
+        );
     },
-    dict: {
+    "dict": {
         "circle": "_3hKMG",
         "circle-hoverable": "_1z_vo _3hKMG",
         "blue": "_2VAWl",
@@ -424,16 +426,16 @@ basekeys = {
             ]
         }
     },
-    "dublicate":{
-        "Semicolon":"186",
-        "Comma":"188",
-        "Period":"190",
-        "Slash":"191",
-        "Backquote":"192",
-        "BracketLeft":"219",
-        "Backslash":"220",
-        "BracketRight":"221",
-        "Quote":"222"
+    "dublicate": {
+        "Semicolon": "186",
+        "Comma": "188",
+        "Period": "190",
+        "Slash": "191",
+        "Backquote": "192",
+        "BracketLeft": "219",
+        "Backslash": "220",
+        "BracketRight": "221",
+        "Quote": "222"
     },
     "language_names_ui": {
         "el": {
@@ -2574,36 +2576,34 @@ basekeys = {
     "supported": function (lang) {
         result = lang;
         try {
-            result = result||userInfo.duoState.user.learningLanguage;
+            result = result || userInfo.duoState.user.learningLanguage;
             if (this.layout_map[result]) {
                 result = this.supported_lang[this.layout_map[result]];
             }
         } catch (e) {
             result = -1;
         }
-        finally {
-            return result;
-        }
+        return result;
     }
 };
 virtKeyboard = {
-    version: "0.0.26",
+    "version": "0.0.26",
     /* production link */
-    rawgit: "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/da728cf2/",
+    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/dcbcbae9/",
     /* production link */
     /* test link *
      rawgit: "https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/",
      * test link */
-    show: true,
-    apply: true,
-    shift: false,
-    caps: false,
-    newcodepage: false,
-    newlang: "",
-    mainlang: "",
-    secondlang: "",
-    body: "<div id='virt-keyboard' class='vrt-hidden'><header class='vrt-topbar'><div class='vrt-toggledropdown vrt-main'><span class='vrt-langspan vrt-main'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-main' id='vrt-mainlang' data-language='en'></ul></div><div class='vrt-keycodesetting vrt-normal-key vrt-hidden'><input id='vrt-normal-key' placeholder='Regular character' /></div><div class='v-logo v-big'><ul class='vrt-download vrt-arrow-top'></ul></div><div class='vrt-keycodesetting vrt-shift-key vrt-hidden'><input id='vrt-shift-key' placeholder='Shift character' /></div><div class='vrt-toggledropdown vrt-secondary'><span class='vrt-langspan vrt-secondary'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-secondary' id='vrt-secondarylang' data-language='en'></ul></div><div class='v-close'><span class='v-close'></span></div></header><div class='vrt-section'></div></div>",
-    saveToLocalStorage: function (parameter, value) {
+    "show": true,
+    "apply": true,
+    "shift": false,
+    "caps": false,
+    "newcodepage": false,
+    "newlang": "",
+    "mainlang": "",
+    "secondlang": "",
+    "body": "<div id='virt-keyboard' class='vrt-hidden'><header class='vrt-topbar'><div class='vrt-toggledropdown vrt-main'><span class='vrt-langspan vrt-main'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-main' id='vrt-mainlang' data-language='en'></ul></div><div class='vrt-keycodesetting vrt-normal-key vrt-hidden'><input id='vrt-normal-key' placeholder='Regular character' /></div><div class='v-logo v-big'><ul class='vrt-download vrt-arrow-top'></ul></div><div class='vrt-keycodesetting vrt-shift-key vrt-hidden'><input id='vrt-shift-key' placeholder='Shift character' /></div><div class='vrt-toggledropdown vrt-secondary'><span class='vrt-langspan vrt-secondary'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-secondary' id='vrt-secondarylang' data-language='en'></ul></div><div class='v-close'><span class='v-close'></span></div></header><div class='vrt-section'></div></div>",
+    "saveToLocalStorage": function (parameter, value) {
         if (window.localStorage !== undefined) {
             var localStorage = window.localStorage;
             localStorage["keyboard." + parameter] = JSON.stringify(value);
@@ -2611,7 +2611,7 @@ virtKeyboard = {
         }
         return false;
     },
-    getFromLocalStorage: function (parameter) {
+    "getFromLocalStorage": function (parameter) {
         if (window.localStorage !== undefined) {
             var localStorage = window.localStorage;
             var param = localStorage["keyboard." + parameter];
@@ -2620,7 +2620,7 @@ virtKeyboard = {
         }
         return false;
     },
-    fillKeyboard: function (lang0, lang1) {
+    "fillKeyboard": function (lang0, lang1) {
         if (!lang0)
             lang0 = virtKeyboard.mainlang;
         if (!lang1)
@@ -2670,17 +2670,17 @@ virtKeyboard = {
             }
         }
     },
-    typecustomchar: function (inputf, charcode, key) {
-        console.info("typecustomchar: inputf {" + inputf + "}\n\t charcode {"+ charcode +"}\n\tkey {"+key+"}");
+    "typecustomchar": function (inputf, charcode, key) {
+        console.info("typecustomchar: inputf {" + inputf + "}\n\t charcode {" + charcode + "}\n\tkey {" + key + "}");
         jq_inputf = $(inputf);
         var input_lang = basekeys.supported(jq_inputf.attr("lang"));
         if (input_lang === -1) {
             input_lang = userInfo.duoState.user.learningLanguage;
         }
         if (basekeys.dublicate && key && key.originalEvent) {
-            charcode = basekeys.dublicate[key.originalEvent.code]||charcode;
+            charcode = basekeys.dublicate[key.originalEvent.code] || charcode;
         }
-        if (charcode===0) {
+        if (charcode === 0) {
             console.error("Couldn't assosiate a key. [keyboard.originalEvent.code: " + key.originalEvent.code + "]");
             return false;
         }
@@ -2747,14 +2747,14 @@ virtKeyboard = {
         jq_inputf.focus();
         return true;
     },
-    updatesecondary: function () {
+    "updatesecondary": function () {
         var divider = $("<li>");
         divider.addClass("vrt-divider vrt-new");
         jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
         jq_dd_sec.addClass("vrt-settings");
         jq_dd_sec.append(divider);
         for (var langcode in basekeys.language_names_ui[virtKeyboard.mainlang]) {
-            if (langcode!=="level" && basekeys.supported_lang.indexOf(langcode) === -1) {
+            if (langcode !== "level" && basekeys.supported_lang.indexOf(langcode) === -1) {
                 var langname = basekeys.language_names_ui[virtKeyboard.mainlang][langcode];
                 var newentry = $("<li>");
                 newentry.addClass("vrt-data-choice vrt-new");
@@ -2764,14 +2764,14 @@ virtKeyboard = {
             }
         }
     },
-    updatecodepages: function (newlangcode, update) {
+    "updatecodepages": function (newlangcode, update) {
         if (!basekeys[newlangcode] || update) {
             virtKeyboard.newcodepage = true;
             virtKeyboard.newlang = newlangcode;
             $(".vrt-keycodesetting").show();
         }
     },
-    getlanguagename: function (langcode, ui_main) {
+    "getlanguagename": function (langcode, ui_main) {
         if (!ui_main)
             ui_main = virtKeyboard.mainlang;
         var ui_langs = basekeys.language_names_ui[ui_main];
@@ -2779,7 +2779,7 @@ virtKeyboard = {
         langname[0] = langname[0].toUpperCase();
         return langname.join("");
     },
-    updatesupportedlangs: function (isDL) {
+    "updatesupportedlangs": function (isDL) {
         var ddclass = isDL ? ".vrt-download" : ".vrt-dropdown";
         var dchclass = isDL ? "vrt-dl-choice" : "vrt-data-choice";
         if (isDL) {
@@ -2844,7 +2844,7 @@ virtKeyboard = {
             }
         }
     },
-    drawKeyboard: function () {
+    "drawKeyboard": function () {
         jq_vrt_section = $(".vrt-section");
         jq_vrt_section.html("");
         var baseraws = basekeys.base.raw;
@@ -2868,7 +2868,7 @@ virtKeyboard = {
             jq_vrt_section.append(ul);
         }
     },
-    updateBase: function (lObject, jsonObj) {
+    "updateBase": function (lObject, jsonObj) {
         for (var subobj in jsonObj) {
             if (typeof jsonObj[subobj] == 'object' && typeof lObject[subobj] == 'object') {
                 this.updateBase(lObject[subobj], jsonObj[subobj]);
@@ -2877,7 +2877,7 @@ virtKeyboard = {
             }
         }
     },
-    updateLangs: function (update) {
+    "updateLangs": function (update) {
         if (!update) {
             update = {};
         }
@@ -2905,7 +2905,7 @@ virtKeyboard = {
         virtKeyboard.fillKeyboard(jq_ml, jq_sl);
         virtKeyboard.virtKeyOnClick();
     },
-    virtKeyOnClick: function () {
+    "virtKeyOnClick": function () {
         virt_keyboard = $("#virt-keyboard");
         jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
         jq_dd_sec_new = $(".vrt-dropdown.vrt-secondary > li.vrt-new");
@@ -2967,7 +2967,7 @@ virtKeyboard = {
                     "shiftKey": virtKeyboard.shift,
                     "key": keyname
                 });
-                jq_if=$(inputfield);
+                jq_if = $(inputfield);
                 jq_if.trigger(keypressed);
                 jq_if.focus();
                 return true;
@@ -3003,7 +3003,7 @@ virtKeyboard = {
             if (jq_dd_sec.hasClass("vrt-settings")) {
                 virtKeyboard.updatecodepages($(this).data("language"), $(this).parent().hasClass("vrt-update"));
             }
-            virtKeyboard.fillKeyboard(jq_ml,jq_sl);
+            virtKeyboard.fillKeyboard(jq_ml, jq_sl);
             $(this).parent().off("mouseleave");
             $(this).parent().slideUp("medium");
         });
@@ -3053,8 +3053,8 @@ virtKeyboard = {
             }
         });
     },
-    completeInit: function () {
-        if (Object.keys(userInfo.getLangs()).length===0 || basekeys.supported_lang.length===0){
+    "completeInit": function () {
+        if (Object.keys(userInfo.getLangs()).length === 0 || basekeys.supported_lang.length === 0) {
             setTimeout(function () {
                 virtKeyboard.completeInit();
             }, 300);
@@ -3064,7 +3064,7 @@ virtKeyboard = {
         virtKeyboard.drawKeyboard();
         virtKeyboard.updatesupportedlangs();
     },
-    init: function () {
+    "init": function () {
         if (userInfo.firstrefresh) {
             setTimeout(function () {
                 virtKeyboard.init();
@@ -3079,7 +3079,7 @@ virtKeyboard = {
         jq_vkbd.hover(
             function () {
                 jq_vkbd.addClass("vrt-keep");
-                },
+            },
             function () {
                 jq_vkbd.removeClass("vrt-keep");
             }
@@ -3110,7 +3110,8 @@ virtKeyboard = {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
-                } catch (e) {}
+                } catch (e) {
+                }
                 var visible = $("#virt-keyboard:visible").length > 0;
                 if (virtKeyboard.show && !visible) {
                     virtKeyboard.updatesupportedlangs();
@@ -3124,7 +3125,8 @@ virtKeyboard = {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
-                } catch (e) {}
+                } catch (e) {
+                }
                 if (!jq_vkbd.hasClass("vrt-keep")) {
                     jq_vkbd.hide();
                 }
@@ -3133,7 +3135,7 @@ virtKeyboard = {
         virtKeyboard.completeInit();
         jq_vkbd.draggable();
     },
-    preinit: function () {
+    "preinit": function () {
         if (!window.jQuery) {
             setTimeout(function () {
                 virtKeyboard.preinit();
@@ -3211,19 +3213,20 @@ virtKeyboard = {
                 vKeyboardLogo.addClass("v-disabled");
             }
             var topbar = $("." + userInfo.dict["topbar-brand"].split(" ").join(".")).length > 0 ? $("." + userInfo.dict["topbar-brand"].split(" ").join(".")) : $(".topbar-brand");
-            if (topbar.next("div").after(vKeyboardLogo).length === 0)
+            if (topbar.next("div").after(vKeyboardLogo).length === 0) {
                 str_href = "a[href='/'";
                 $($(str_href)[0]).next("div").after(vKeyboardLogo);
+            }
         }
         console.info("VirtKeyboard: v." + virtKeyboard.version);
         virtKeyboard.init();
     }
 };
 sidepanel = {
-    version: "0.0.10",
-    html: "<div class='sidepanel'><div class='panel panel-upper panel-border' /><div class='panel panel-inner' /><div class='panel panel-lower panel-border' /></div>",
-    hidden: true,
-    init: function () {
+    "version": "0.0.10",
+    "html": "<div class='sidepanel'><div class='panel panel-upper panel-border' /><div class='panel panel-inner' /><div class='panel panel-lower panel-border' /></div>",
+    "hidden": true,
+    "init": function () {
         if (!window.jQuery) {
             setTimeout(function () {
                 sidepanel.init();
@@ -3235,7 +3238,7 @@ sidepanel = {
         userInfo.duoState = userInfo.refresh();
         sidepanel.refresh(".panel-inner");
     },
-    refresh: function (activeElelment) {
+    "refresh": function (activeElelment) {
         $(activeElelment).html("");
         var courseslist = $("<ul class='courses'>");
         for (var course in userInfo.duoState.courses) {
@@ -3323,7 +3326,7 @@ sidepanel = {
                 }
             });
     },
-    activeSkillsEl: function (skillURI, prevSkills) {
+    "activeSkillsEl": function (skillURI, prevSkills) {
         var color = ["red", "blue", "green"];
         var a_href = "a[href='" + skillURI + "']";
         var zClone = $(a_href).clone();
@@ -3345,6 +3348,7 @@ sidepanel = {
         return nClone;
     }
 };
+
 !function (s) {
     function r(t) {
         if (n[t])
@@ -3358,6 +3362,7 @@ sidepanel = {
             e.loaded = !0,
             e.exports;
     }
+
     var t = window.webpackJsonp;
     window.webpackJsonp = function (i, a) {
         for (var c, f, d = 0, g = []; d < i.length; d++)
@@ -3366,7 +3371,7 @@ sidepanel = {
                 e[f] = 0;
         for (c in a)
             s[c] = a[c];
-        for (t && t(i, a); g.length; )
+        for (t && t(i, a); g.length;)
             g.shift().call(null, r);
         if (a[0])
             return n[0] = 0,
@@ -3449,9 +3454,9 @@ sidepanel = {
         r.m = s,
         r.c = n,
         r.p = "/";
-}
-([]);
+}([]);
 var chrome = chrome || {"extension": false};
+duo = window.duo || {};
 if (chrome) {
     if (!chrome.extension) {
         script = document.createElement('script');
@@ -3459,47 +3464,48 @@ if (chrome) {
         document.getElementsByTagName('head')[0].appendChild(script);
     }
     else {
-        duo = duo || {};
         for (var normalScript in document.scripts) {
             var patternDuo = new RegExp("window\.duo");
             if (patternDuo.test(document.scripts[normalScript].text)) {
                 var splitted = document.scripts[normalScript].text.split("=");
+                var jprs1 = JSON.parse(splitted[1]);
                 if (/version/.test(splitted[0])) {
-                    duo.version = JSON.parse(splitted[1]);
+                    duo.version = jprs1;
                 } else {
-                    for (var a in JSON.parse(splitted[1])) {
-                        duo[a] = JSON.parse(splitted[1])[a];
-                    }
+                    virtKeyboard.updateBase(duo, jprs1);
                 }
             }
         }
     }
 }
 
-var csslist = [{
-    href: virtKeyboard.rawgit + "css/newduo.css",
-    dir: ["ltr", "rtl", "new"]
-}, {
-    href: virtKeyboard.rawgit + "css/rtl-newduo.css",
-    dir: ["rtl", "new"]
-}, {
-    href: "//fonts.googleapis.com/icon?family=Material+Icons",
-    dir: ["ltr", "rtl"]
-}, {
-    href: virtKeyboard.rawgit + "css/style.css",
-    dir: ["ltr", "rtl"]
-}
+var csslist = [
+    {
+        "href": virtKeyboard.rawgit + "css/newduo.css",
+        "dir": ["ltr", "rtl", "new"]
+    },
+    {
+        "href": virtKeyboard.rawgit + "css/rtl-newduo.css",
+        "dir": ["rtl", "new"]
+    },
+    {
+        "href": "//fonts.googleapis.com/icon?family=Material+Icons",
+        "dir": ["ltr", "rtl"]
+    },
+    {
+        "href": virtKeyboard.rawgit + "css/style.css",
+        "dir": ["ltr", "rtl"]
+    }
 ];
-
-if (!window.duo){
-    var duo = null;
-}
-else {
-    duo = window.duo;
-}
-
 for (var i in csslist) {
-    var isApply = (duo && ((!duo.version && csslist[i].dir.indexOf("new") !== -1) || (csslist[i].dir.indexOf("new") === -1)) && csslist[i].dir.indexOf(document.dir) !== -1);
+    var isApply = (duo && ( //duo is not null and
+            (!duo.version && //it's not the new duo version
+            csslist[i].dir.indexOf("new") !== -1) //and my custom css for new version
+            || //or
+            (csslist[i].dir.indexOf("new") === -1) //it's not my custom css for new version
+        ) && //and
+        csslist[i].dir.indexOf(document.dir) !== -1 //the html layout direction matches the css direction
+    );
     if (isApply) {
         var vrtcss = document.createElement('link');
         vrtcss.rel = "stylesheet";
