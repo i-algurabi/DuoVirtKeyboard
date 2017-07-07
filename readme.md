@@ -3,7 +3,7 @@
 **DuoVirtKeyboard** is an extension that allows you to use a virtual onscreen keyboard with customizable layouts. Adding
  automatic keyboard layout switching to both virtual and physical keyboards
 
-Current version: **0.0.28**
+Current version: **0.0.29**
 
 # Table of Content
 
