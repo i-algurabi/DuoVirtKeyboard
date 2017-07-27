@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.29
+// @version        0.0.31
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -2440,8 +2440,8 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    "version": "0.0.30",
-    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/05827f86/",
+    "version": "0.0.31",
+    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/6063bbf6/",
     "show": true,
     "apply": true,
     "shift": false,
@@ -2455,6 +2455,14 @@ virtKeyboard = {
         if (window.localStorage !== undefined) {
             var localStorage = window.localStorage;
             localStorage["keyboard." + parameter] = JSON.stringify(value);
+            return true;
+        }
+        return false;
+    },
+    "clearLocalStorage": function(parameter){
+        if (window.localStorage !== undefined) {
+            var localStorage = window.localStorage;
+            localStorage.removeItem("keyboard." + parameter);
             return true;
         }
         return false;
@@ -2987,6 +2995,20 @@ virtKeyboard = {
             }, 300);
             return;
         }
+        var settings = virtKeyboard.getFromLocalStorage("settings");
+        if (settings) {
+            console.info("Local version is:" + settings.version);
+            console.info("Remote version is:" + virtKeyboard.version);
+            if (settings.version != virtKeyboard.version){
+                virtKeyboard.clearLocalStorage("keys");
+                virtKeyboard.clearLocalStorage("weakspan");
+                virtKeyboard.clearLocalStorage("newspan");
+                //virtKeyboard.clearLocalStorage("courseLevel");
+            }
+            settings.version = virtKeyboard.version;
+            settings.rawgit = virtKeyboard.rawgit;
+            virtKeyboard.updateBase(virtKeyboard, settings);
+        }
         $.fn.draggable = function () {
             var $this = this, ns = 'draggable_' + (Math.random() + '').replace('.', ''), mm = 'mousemove.' + ns,
                 mu = 'mouseup.' + ns, $w = $(window), rtl = $("html").attr("dir") === "rtl",
@@ -3025,12 +3047,6 @@ virtKeyboard = {
         } else {
             virtKeyboard.updateBase(basekeys, oldkeys);
         }
-        var settings = virtKeyboard.getFromLocalStorage("settings");
-        if (settings) {
-            settings.version = virtKeyboard.version;
-            settings.rawgit = virtKeyboard.rawgit;
-            virtKeyboard.updateBase(virtKeyboard, settings);
-        }
         if ($(".v-logo").length === 0) {
             var vKeyboardLogo = $("<span>");
             vKeyboardLogo.addClass("v-logo");
@@ -3047,11 +3063,12 @@ virtKeyboard = {
             }
         }
         console.info("VirtKeyboard: v." + virtKeyboard.version);
+        virtKeyboard.saveToLocalStorage("settings", virtKeyboard);
         virtKeyboard.init();
     }
 };
 sidepanel = {
-    "version": "0.0.10",
+    "version": "0.0.11",
     "html": "<div class='sidepanel'><div class='panel panel-upper panel-border'></div><div class='panel panel-inner'></div><div class='panel panel-lower panel-border'></div></div>",
     "hidden": true,
     "init": function () {
@@ -3069,6 +3086,16 @@ sidepanel = {
     "refresh": function (activeElelment) {
         $(activeElelment).html("");
         var courseslist = $("<ul class='courses'>");
+        if (!userInfo.duoState) {
+            userInfo.duoState = {
+                courses:{},
+                user:{
+                    "learningLanguage":"",
+                    "fromLanguage":""
+                }
+            };
+            userInfo.refresh();
+        }
         for (var course in userInfo.duoState.courses) {
             var courseLevel = virtKeyboard.getFromLocalStorage("courseLevel") || {};
             var li = $("<li class='course'>");
