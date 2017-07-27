@@ -1,9 +1,9 @@
 <img align="right" src="https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/62162d01/css/logo.png" />
 
-**DuoVirtKeyboard** is an extension that allows you to use a virtual onscreen keyboard with customizable layouts. Adding
+[**DuoVirtKeyboard**](https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.js) is an extension that allows you to use a virtual onscreen keyboard with customizable layouts. Adding
  automatic keyboard layout switching to both virtual and physical keyboards
 
-Current version: **0.0.29**
+Current version: **0.0.31**
 
 # Table of Content
 
