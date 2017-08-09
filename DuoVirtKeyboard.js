@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.33
+// @version        0.0.34
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -2463,7 +2463,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    "version": "0.0.33",
+    "version": "0.0.34",
     "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/c79d097d/",
     "show": true,
     "apply": true,
@@ -2918,7 +2918,7 @@ virtKeyboard = {
         });
         $(document).on("keydown", "textarea, input", function (keypressed) {
             userInfo.fixcss(document.dir);
-            if (virtKeyboard.apply && (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname))) {
+            if (virtKeyboard.apply && (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname))) {
                 var virtkey = $("." + keypressed.keyCode).parent();
                 virtkey.addClass("virthover");
                 setTimeout(function () {
@@ -2981,7 +2981,7 @@ virtKeyboard = {
             virtKeyboard.saveToLocalStorage("settings", virtKeyboard);
         });
         $(document).on("focus", "textarea, input[type='text']", function () {
-            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname)) {
+            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname)) {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
@@ -2997,7 +2997,7 @@ virtKeyboard = {
             }
         });
         $(document).on("focusout", "textarea, input[type='text']", function () {
-            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname)) {
+            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname)) {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
