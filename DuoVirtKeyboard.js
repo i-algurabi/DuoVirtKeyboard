@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.32
+// @version        0.0.34
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -10,6 +10,7 @@
 // @grant        none
 // ==/UserScript==
 userInfo = {
+    "documentdir":"",
     "duoState": null,
     "firstrefresh": true,
     "needrefresh": false,
@@ -144,6 +145,28 @@ userInfo = {
                 userInfo.enrichUser();
             document.location.href = document.location.protocol + "//" + document.location.hostname;
         });
+    },
+    "fixcss": function(documentdir){
+        console.info("fixcss("+documentdir+")");
+        if (documentdir===userInfo.documentdir){return;}
+        userInfo.documentdir = documentdir;
+        for (var i in csslist) {
+            console.info("duo: "+duo);
+            console.info("(!duo.version && csslist[i].dir.indexOf(new) !== -1): "+(!duo.version && csslist[i].dir.indexOf("new") !== -1));
+            console.info("(csslist[i].dir.indexOf(new) === -1): "+(csslist[i].dir.indexOf("new") === -1));
+            console.info("csslist[i].dir.indexOf(documentdir) !== -1: "+csslist[i].dir.indexOf(documentdir) !== -1);
+            var isApply = (duo && (
+                (!duo.version && csslist[i].dir.indexOf("new") !== -1) ||
+                 (csslist[i].dir.indexOf("new") === -1)
+            ) && csslist[i].dir.indexOf(documentdir) !== -1);
+            console.info("isApply: "+isApply+"\thref:" + csslist[i].href);
+            if (isApply) {
+                var vrtcss = document.createElement('link');
+                vrtcss.rel = "stylesheet";
+                vrtcss.href = csslist[i].href;
+                document.getElementsByTagName('head')[0].appendChild(vrtcss);
+            }
+        }
     },
     "dict": {
         "circle": "_3hKMG",
@@ -2440,7 +2463,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    "version": "0.0.32",
+    "version": "0.0.34",
     "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/c79d097d/",
     "show": true,
     "apply": true,
@@ -2894,7 +2917,8 @@ virtKeyboard = {
             });
         });
         $(document).on("keydown", "textarea, input", function (keypressed) {
-            if (virtKeyboard.apply && (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname))) {
+            userInfo.fixcss(document.dir);
+            if (virtKeyboard.apply && (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname))) {
                 var virtkey = $("." + keypressed.keyCode).parent();
                 virtkey.addClass("virthover");
                 setTimeout(function () {
@@ -2957,7 +2981,7 @@ virtKeyboard = {
             virtKeyboard.saveToLocalStorage("settings", virtKeyboard);
         });
         $(document).on("focus", "textarea, input[type='text']", function () {
-            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname)) {
+            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname)) {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
@@ -2973,7 +2997,7 @@ virtKeyboard = {
             }
         });
         $(document).on("focusout", "textarea, input[type='text']", function () {
-            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname)) {
+            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname)) {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
@@ -3279,8 +3303,10 @@ sidepanel = {
         }
     }, r.m = s, r.c = n, r.p = "/";
 }([]);
+
 var chrome = chrome || {"extension": false};
 duo = window.duo || {};
+
 if (chrome) {
     if (!chrome.extension) {
         script = document.createElement('script');
@@ -3302,6 +3328,7 @@ if (chrome) {
         }
     }
 }
+
 var csslist = [{
     "href": virtKeyboard.rawgit + "css/newduo.css",
     "dir": ["ltr", "rtl", "new"]
@@ -3311,16 +3338,12 @@ var csslist = [{
 }, {
     "href": "//fonts.googleapis.com/icon?family=Material+Icons",
     "dir": ["ltr", "rtl"]
-}, {"href": virtKeyboard.rawgit + "css/style.css", "dir": ["ltr", "rtl"]}];
-for (var i in csslist) {
-    document.dir = document.dir == ""?"ltr":document.dir;
-    var isApply = (duo && ((!duo.version && csslist[i].dir.indexOf("new") !== -1) || (csslist[i].dir.indexOf("new") === -1)) && csslist[i].dir.indexOf(document.dir) !== -1);
-    if (isApply) {
-        var vrtcss = document.createElement('link');
-        vrtcss.rel = "stylesheet";
-        vrtcss.href = csslist[i].href;
-        document.getElementsByTagName('head')[0].appendChild(vrtcss);
-    }
-}
+}, {
+    "href": virtKeyboard.rawgit + "css/style.css", 
+    "dir": ["ltr", "rtl"]
+}];
+
+var documentdir = document.dir?document.dir:"ltr"
+userInfo.fixcss(documentdir);
 virtKeyboard.preinit();
 sidepanel.init();
