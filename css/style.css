@@ -621,7 +621,7 @@ ul.courses {
 .practice{
     width: 96%;
     position: relative;
-    left: 2%;
+    margin: 3%;
     bottom: -6%;
 }
 
