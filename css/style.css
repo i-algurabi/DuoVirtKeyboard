@@ -618,6 +618,13 @@ ul.courses {
     z-index: 1;
 }
 
+.practice{
+    width: 96%;
+    position: relative;
+    left: 2%;
+    bottom: -6%;
+}
+
 html[dir="rtl"] .vrt-dropdown, .vrt-download {
     right: 10px;
 }
