@@ -1,6 +1,6 @@
 <img align="right" src="https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/62162d01/css/logo.png" />
 
-[**DuoVirtKeyboard**](https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.js) is an extension that allows you to use a virtual onscreen keyboard with customizable layouts. Adding
+[**DuoVirtKeyboard**](https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.user.js) is an extension that allows you to use a virtual onscreen keyboard with customizable layouts. Adding
  automatic keyboard layout switching to both virtual and physical keyboards
 
 Current version: **0.0.34**
@@ -32,7 +32,7 @@ The script is tested to work under Chrome 58.0.3029.110 and FF53.0.2
 To use this userscript first you need to install a [TamperMonkey](https://tampermonkey.net/) addon for you browser.
 After instaling it, go to TamperMonkey Dashboard, paste URL
 
-    https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.js 
+    https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.user.js
 
 and click Import, to import this userscript.
 
@@ -62,3 +62,4 @@ the course you clicked on.
 **DuoVirtKeyboard** started in summer 2016 with code refactoring of 
 [Dinar aka Lifeshade's](https://github.com/Lifeshade/duolingo) userscript.
 
+OnScreen keyboard design inspired by [Attila's Hajzer](https://codepen.io/attilahajzer) codepen [HTML and CSS keyboard](https://codepen.io/attilahajzer/pen/kydqJ)

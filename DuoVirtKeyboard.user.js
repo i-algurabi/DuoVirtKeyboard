@@ -6,7 +6,7 @@
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
-// @downloadURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.js
+// @downloadURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.user.js
 // @grant        none
 // ==/UserScript==
 userInfo = {
@@ -2464,9 +2464,16 @@ basekeys = {
 };
 virtKeyboard = {
     "version": "0.0.34",
-    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/c79d097d/",
+    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/6b9f85e76f103907fb6a1f3c30a886291fc38478/",
     "show": true,
     "apply": true,
+    "checklocation": function(){
+        return (/^\/skill/.test(location.pathname) ||
+            /^\/bigtest/.test(location.pathname) ||
+            /^\/practice/.test(location.pathname) ||
+            /^\/DuoVirtKeyboard/.test(location.pathname)
+        )
+    },
     "shift": false,
     "caps": false,
     "newcodepage": false,
@@ -2918,7 +2925,7 @@ virtKeyboard = {
         });
         $(document).on("keydown", "textarea, input", function (keypressed) {
             userInfo.fixcss(document.dir);
-            if (virtKeyboard.apply && (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname))) {
+            if (virtKeyboard.apply && virtKeyboard.checklocation()) {
                 var virtkey = $("." + keypressed.keyCode).parent();
                 virtkey.addClass("virthover");
                 setTimeout(function () {
@@ -2981,7 +2988,7 @@ virtKeyboard = {
             virtKeyboard.saveToLocalStorage("settings", virtKeyboard);
         });
         $(document).on("focus", "textarea, input[type='text']", function () {
-            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname)) {
+            if (virtKeyboard.checklocation()) {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
@@ -2997,7 +3004,7 @@ virtKeyboard = {
             }
         });
         $(document).on("focusout", "textarea, input[type='text']", function () {
-            if (/^\/skill/.test(location.pathname) || /^\/bigtest/.test(location.pathname) || /^\/practice/.test(location.pathname)) {
+            if (virtKeyboard.checklocation()) {
                 $(this).val($(this).attr("value"));
                 try {
                     $(this)[0].innerText = $(this).attr("value");
@@ -3092,7 +3099,7 @@ virtKeyboard = {
     }
 };
 sidepanel = {
-    "version": "0.0.11",
+    "version": "0.0.12",
     "html": "<div class='sidepanel'><div class='panel panel-upper panel-border'></div><div class='panel panel-inner'></div><div class='panel panel-lower panel-border'></div></div>",
     "hidden": true,
     "init": function () {
@@ -3148,6 +3155,19 @@ sidepanel = {
                 for (skill in newSkills) {
                     newspan.append(sidepanel.activeSkillsEl(newSkills[skill].URI, prevNew));
                 }
+                //Add general practice button to weakspan
+                practiceArr = $("a[href='/practice']");
+                for (bigtest in practiceArr){
+                    if(practiceArr[bigtest] && practiceArr[bigtest].attributes)
+                        weakspan.append(sidepanel.activeSkillsEl(practiceArr[bigtest].attributes.href.value, prevWeak, "practice"));
+                }
+                //Add shortcuts to bigtest section to newspan
+                practiceArr = $("a[href*='/bigtest']");
+                for (bigtest in practiceArr){
+                    if(practiceArr[bigtest] && practiceArr[bigtest].attributes)
+                        newspan.append(sidepanel.activeSkillsEl(practiceArr[bigtest].attributes.href.value, prevNew, "practice"));
+                }
+
                 virtKeyboard.saveToLocalStorage("weakspan", {"html": weakspan.html()});
                 virtKeyboard.saveToLocalStorage("newspan", {"html": newspan.html()});
                 courseLevel[course] = userInfo.duoState.user.trackingProperties.level;
@@ -3197,7 +3217,8 @@ sidepanel = {
             }
         });
     },
-    "activeSkillsEl": function (skillURI, prevSkills) {
+    "activeSkillsEl": function (skillURI, prevSkills, class2add) {
+        if (!class2add) class2add="micro";
         var color = ["red", "blue", "green"];
         var a_href = "a[href='" + skillURI + "']";
         var zClone = $(a_href).clone();
@@ -3214,7 +3235,7 @@ sidepanel = {
                 }
             }
             nClone.find("._2TMjc").addClass("lightbg");
-            nClone.addClass("micro");
+            nClone.addClass(class2add);
         }
         return nClone;
     }
