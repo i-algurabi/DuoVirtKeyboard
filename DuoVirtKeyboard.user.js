@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.35
+// @version        0.0.36
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
@@ -2463,8 +2463,8 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    "version": "0.0.35",
-    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/493bfef4a9eda423cfe65a03af9dd753f94f405b/",
+    "version": "0.0.36",
+    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/6de245f8deeb9d0467f4e4b458b322c245f12ac5/",
     "show": true,
     "apply": true,
     "checklocation": function(){
@@ -3090,7 +3090,10 @@ virtKeyboard = {
             var topbar = $("." + userInfo.dict["topbar-brand"].split(" ").join(".")).length > 0 ? $("." + userInfo.dict["topbar-brand"].split(" ").join(".")) : $(".topbar-brand");
             if (topbar.next("div").after(vKeyboardLogo).length === 0) {
                 var str_href = "a[href='/'";
-                $($(str_href)[0]).next("div").after(vKeyboardLogo);
+                if ($($(str_href)[0]).next("div").after(vKeyboardLogo).length === 0){
+                    vKeyboardLogo.addClass("v-logoOnTop");
+                    $("#root").after(vKeyboardLogo).length
+                };
             }
         }
         console.info("VirtKeyboard: v." + virtKeyboard.version);
