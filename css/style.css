@@ -685,6 +685,10 @@ html[dir="rtl"] .v-logo {
     right: -166px;
 }
 
+html[dir="rtl"] .v-logoOnTop {
+    right: 3%;
+}
+
 html[dir="rtl"] .v-big {
     right: 292px;
 }
