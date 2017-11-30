@@ -168,6 +168,11 @@
     width: 125px;
 }
 
+.v-logoOnTop{
+    position: fixed;
+    top: 1%;
+    right: 3%;
+}
 .v-logo {
     background-image: url(logo.png);
     background-position: 0px 0px;
@@ -753,8 +758,4 @@ html[dir="rtl"] .vrt-dl-choice {
 
 html[dir="rtl"] .vrt-dl-choice > i {
     float: right;
-}
-
-._2Pbs9 {
-    direction: ltr;
 }
