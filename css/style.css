@@ -168,11 +168,6 @@
     width: 125px;
 }
 
-.v-logoOnTop{
-    position: fixed;
-    top: 1%;
-    right: 3%;
-}
 .v-logo {
     background-image: url(logo.png);
     background-position: 0px 0px;
@@ -209,6 +204,12 @@
     position: relative;
     top: 36px;
     left: 15px;
+}
+
+.v-logoOnTop{
+    position: fixed;
+    top: 1%;
+    left: 3%;
 }
 
 div.v-close {
