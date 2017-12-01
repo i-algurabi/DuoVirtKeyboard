@@ -2432,7 +2432,6 @@
                     if (!$(".shift.left").hasClass("hover")) {
                         $(".shift.left").addClass("hover")
                     }
-                    ;
                     inputs = keys[input_lang][charcode].shift;
                     changecase = "toLowerCase";
                 }
@@ -2440,7 +2439,6 @@
                     if ($(".shift.left").hasClass("hover")) {
                         $(".shift.left").removeClass("hover")
                     }
-                    ;
                     inputs = keys[input_lang][charcode].normal;
                     changecase = "toUpperCase";
                 }
@@ -2453,13 +2451,11 @@
                     if (!$(".caps").hasClass("hover")) {
                         $(".caps").addClass("hover")
                     }
-                    ;
                 }
                 else {
                     if ($(".caps").hasClass("hover")) {
                         $(".caps").removeClass("hover")
                     }
-                    ;
                 }
             }
             else {
@@ -2499,8 +2495,8 @@
             }
         },
         updatesupportedlangs: function (keys, isDL) {
-            var ddclass = isDL ? ".vrt-download" : ".vrt-dropdown"
-            var dchclass = isDL ? "vrt-dl-choice" : "vrt-data-choice"
+            var ddclass = isDL ? ".vrt-download" : ".vrt-dropdown";
+            var dchclass = isDL ? "vrt-dl-choice" : "vrt-data-choice";
             isDL ? $(ddclass + " > a").remove() : $(ddclass + " > li").remove();
             var secondlang = $("#text-input, #word-input").attr("lang") || virtKeyboard.mainlang;
             var namednodes = {
@@ -2515,7 +2511,7 @@
                     code: "en"
                 }
             };
-            var ui_langs = (basekeys.language_names_ui[virtKeyboard.mainlang] ? basekeys.language_names_ui[virtKeyboard.mainlang] : basekeys.language_names_ui.en)
+            var ui_langs = (basekeys.language_names_ui[virtKeyboard.mainlang] ? basekeys.language_names_ui[virtKeyboard.mainlang] : basekeys.language_names_ui.en);
             for (var i in keys.supported_lang) {
                 var langcode = keys.supported_lang[i];
                 var newentry = $("<li>");
@@ -2548,7 +2544,7 @@
                     var temp = {
                         "lang": langcode,
                         "keysmap": keys[langcode]
-                    }
+                    };
                     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(temp));
                     a_link.attr("href", dataStr);
                     a_link.attr("download", "keyboard." + langcode + ".json");
@@ -2573,7 +2569,7 @@
             var baseraws = keys.base.raw;
             for (var i in baseraws) {
                 var virtkeyraw = baseraws[i];
-                var ul = $("<ul>")
+                var ul = $("<ul>");
                 ul.addClass("row");
                 ul.addClass(i);
                 for (var n in virtkeyraw) {
@@ -2692,10 +2688,10 @@
                     if ($(this).hasClass("special")) {
                         $(this).toggleClass("hover");
                         if ($(this).hasClass("shift") && $(this).hasClass("left")) {
-                            virtKeyboard.shift = virtKeyboard.shift ? false : true;
+                            virtKeyboard.shift = !virtKeyboard.shift;
                         }
                         if ($(this).hasClass("caps")) {
-                            virtKeyboard.caps = virtKeyboard.caps ? false : true;
+                            virtKeyboard.caps = !virtKeyboard.caps;
                         }
 
                         /*.bind("mouseleave", function () {
@@ -2798,7 +2794,7 @@
                     input_lang = virtKeyboard.mainlang;
                 }
                 virtKeyboard.shift = keypressed.shiftKey;
-                virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode === 20) || ((keypressed.keyCode > 57 || virtKeyboard.caps) && !virtKeyboard.shift === (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length))
+                virtKeyboard.caps = ((virtKeyboard.caps && keypressed.keyCode === 20) || ((keypressed.keyCode > 57 || virtKeyboard.caps) && !virtKeyboard.shift === (keypressed.key === String.fromCharCode(keypressed.keyCode)) && keypressed.key.length === String.fromCharCode(keypressed.keyCode).length));
                 if (!(basekeys[input_lang]) || !basekeys[input_lang][keypressed.keyCode] || keypressed.altKey || keypressed.ctrlKey || keypressed.keyCode < 32) {
                     return true;
                 }

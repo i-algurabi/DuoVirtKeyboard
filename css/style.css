@@ -56,7 +56,7 @@
 }
 
 .vrt-toggledropdown.vrt-main {
-    left: 0px;
+    left: 0;
 }
 
 .vrt-toggledropdown.vrt-secondary {
@@ -131,7 +131,7 @@
 
 .vrt-dl-choice > i {
     position: relative;
-    top: 0px;
+    top: 0;
     font-size: 20px;
     float: left;
 }
@@ -151,7 +151,7 @@
     position: absolute;
     top: 65px;
     width: 0;
-    height: 0px;
+    height: 0;
 }
 
 .vrt-keycodesetting.vrt-normal-key {
@@ -170,7 +170,7 @@
 
 .v-logo {
     background-image: url(logo.png);
-    background-position: 0px 0px;
+    background-position: 0 0;
     background-size: 45px;
     display: inline-block;
     height: 15px;
@@ -183,13 +183,13 @@
 }
 
 .v-show {
-    background-position: 0px 30px;
+    background-position: 0 30px;
     background-color: #35d385;
     background-color: rgba(61, 255, 35, 0.49);
 }
 
 .v-disabled {
-    background-position: 0px 15px;
+    background-position: 0 15px;
     background-color: #9bbed0;
     background-color: rgba(206, 199, 199, 0.68);
 }
@@ -199,7 +199,7 @@
     width: 40px;
     height: 40px;
     background: #CCC 3px 71px;
-    margin: 19px 0px -48px 277px;
+    margin: 19px 0 -48px 277px;
     border-radius: 40px;
     position: relative;
     top: 36px;
@@ -248,7 +248,7 @@ span.v-close {
     display: block;
     background-color: #333;
     text-align: left;
-    padding: 0px 4px 0px 4px;
+    padding: 0 4px 0 4px;
     line-height: 20px;
     border-radius: 2px;
     float: left;
@@ -259,25 +259,25 @@ span.v-close {
 }
 
 .key:hover {
-    box-shadow: 0px 0px 10px #c2e1e6;
+    box-shadow: 0 0 10px #c2e1e6;
     z-index: 10;
     color: #00b7d4;
 }
 
 .key.virthover, .key.switch.hover {
-    box-shadow: 0px 0px 25px #c2e1e6;
+    box-shadow: 0 0 25px #c2e1e6;
     z-index: 10;
     color: #00b7d4;
 }
 
 .keylabel {
-    width: 0px;
-    height: 0px;
+    width: 0;
+    height: 0;
     position: relative;
 }
 
 .keylabel > span {
-    top: 0px;
+    top: 0;
     left: -2px;
     width: 20px;
     max-width: 20px;
@@ -286,7 +286,7 @@ span.v-close {
 }
 
 .keylabel > span.l0, .keylabel > span.l3, .keylabel > span.l6 {
-    padding-left: 0px;
+    padding-left: 0;
     text-align: left;
 }
 
@@ -346,7 +346,7 @@ span.v-close {
     height: 20px;
     background-size: 1000px;
     vertical-align: top;
-    margin: 11px 0px 0px 7px;
+    margin: 11px 0 0 7px;
     background: url(//d7mj4aqfscim2.cloudfront.net/images/icon-sprite_mv_07abea0df11480e804b8accecc1c101a.svg) -146px -70px;
 }
 
@@ -376,7 +376,7 @@ span.v-close {
 .enter {
     width: 87px;
     text-align: right;
-    padding-left: 0px;
+    padding-left: 0;
     padding-right: 7px;
 }
 
@@ -434,7 +434,7 @@ span.v-close {
 }
 
 .disabled:hover {
-    box-shadow: 0px 0px 10px #d21e23;
+    box-shadow: 0 0 10px #d21e23;
     z-index: 10;
     color: #ab6262;
 }
@@ -480,7 +480,7 @@ span.v-close {
     position: relative;
     display: inline-block;
     background-size: 380px;
-    border-radius: 30px 0px 0px 30px;
+    border-radius: 30px 0 0 30px;
 }
 
 .to {
@@ -490,7 +490,7 @@ span.v-close {
     float: right;
     display: inline-block;
     background-size: 380px;
-    border-radius: 0px 30px 30px 0px;
+    border-radius: 0 30px 30px 0;
 }
 
 li.course {
@@ -499,7 +499,7 @@ li.course {
     background-color: #77f095;
     background-color: rgba(26, 230, 77, 0.59);
     border-radius: 15px;
-    margin: 6px 0px 6px 0px;
+    margin: 6px 0 6px 0;
 }
 
 li.course.active {
@@ -511,15 +511,16 @@ ul.courses {
     position: relative;
     left: 18px;
 }
+
 .sp-level {
     position: relative;
     font-weight: bolder;
     top: -12px;
     left: calc(50% - 70px);
     right: calc(50% - 70px);
-    color: rgba(38, 202, 230, 0.71);
-    color: #39aad4;
-    background-color: #86dea0;
+    color: #0a628399;
+    color: #0a6283;
+    background-color: #63b4a3;
     border-radius: 9px;
     padding-right: 9px;
     padding-left: 9px;
@@ -528,7 +529,7 @@ ul.courses {
 .sp-version {
     font-size: 9px;
     float: right;
-    padding: 0px 20px;
+    padding: 0 20px;
     color: #5c79ea;
 }
 
@@ -537,7 +538,7 @@ ul.courses {
     display: inline-block;
     background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/skill-icons-unlocked2.svg);
     background-size: 254px;
-    margin: 6px 3px 0px 9px;
+    margin: 6px 3px 0 9px;
     height: 25px;
     width: 25px;
 }
@@ -597,8 +598,8 @@ ul.courses {
     -webkit-transform-origin: 0 0;
     -ms-transform-origin: 0 0;
     transform-origin: -125px 220px;
-    margin: 0px 0px 0px 10px;
-    padding: 10px 0px 0px 0px;
+    margin: 0 0 0 10px;
+    padding: 10px 0 0 0;
     width: 35px;
     height: 35px;
     border-radius: 20px;
@@ -615,7 +616,7 @@ ul.courses {
 }
 
 .panel-upper {
-    top: 0px;
+    top: 0;
 }
 
 .panel-inner {
@@ -625,7 +626,7 @@ ul.courses {
 }
 
 .panel-lower {
-    top: 0px;
+    top: 0;
     z-index: 1;
 }
 
@@ -637,7 +638,7 @@ ul.courses {
     text-align: center;
     font-weight: 900;
     font-size: large;
-    background-color: #daf5a3;
+    background-color: #86c99a;
     border-radius: 25px;
 }
 
@@ -650,7 +651,7 @@ html[dir="rtl"] .vrt-download {
 }
 
 html[dir="rtl"] .vrt-toggledropdown.vrt-main {
-    right: 0px;
+    right: 0;
 }
 
 html[dir="rtl"] .vrt-toggledropdown.vrt-secondary {
@@ -699,12 +700,12 @@ html[dir="rtl"] div.v-close {
 }
 
 html[dir="rtl"] span.v-close {
-    margin: 0px 7px 0 0;
+    margin: 0 7px 0 0;
     left: -10px;
 }
 
 html[dir="rtl"] .keylabel > span {
-    right: 0px;
+    right: 0;
 }
 
 html[dir="rtl"] .keylabel > span.l0, .keylabel > span.l3, .keylabel > span.l6 {
@@ -720,7 +721,7 @@ html[dir="rtl"] .keylabel > span.l2, .keylabel > span.l5, .keylabel > span.l8 {
 }
 
 html[dir="rtl"] .home > div, .menu > div {
-    margin: 11px 7px 0px 0px;
+    margin: 11px 7px 0 0;
 }
 
 html[dir="rtl"] .sidepanel {
@@ -732,12 +733,12 @@ html[dir="rtl"] .sidepanel.show {
 }
 
 html[dir="rtl"] .from {
-    border-radius: 0px 30px 30px 0px;
+    border-radius: 0 30px 30px 0;
 }
 
 html[dir="rtl"] .to {
     float: left;
-    border-radius: 30px 0px 0px 30px;
+    border-radius: 30px 0 0 30px;
 }
 
 html[dir="rtl"] ul.courses {
@@ -746,15 +747,15 @@ html[dir="rtl"] ul.courses {
 
 html[dir="rtl"] .sp-version {
     float: left;
-    padding: 0px 0px 0px 20px;
+    padding: 0 0 0 20px;
 }
 
 html[dir="rtl"] .micro {
-    right: 0px;
+    right: 0;
 }
 
 html[dir="rtl"] .nano {
-    right: 0px;
+    right: 0;
 }
 
 html[dir="rtl"] .skill {
@@ -763,11 +764,11 @@ html[dir="rtl"] .skill {
 
 html[dir="rtl"] .lightbg {
     transform-origin: 125px 220px;
-    margin: 0px 10px 0px 0px;
+    margin: 0 10px 0 0;
 }
 
 html[dir="rtl"] .vrt-dl-choice {
-    padding: 0px 12px 6px 0px;
+    padding: 0 12px 6px 0;
     text-align: right;
 }
 

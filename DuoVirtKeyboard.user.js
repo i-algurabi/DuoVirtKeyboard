@@ -2464,7 +2464,7 @@ basekeys = {
 };
 virtKeyboard = {
     "version": "0.0.38",
-    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/01e51c4d118d950c93558c5c5ca17fb99cfd342a/",
+    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/cbff70b7d3cb8e1003f1f0136b15fe71cf4826cf/",
     "show": true,
     "apply": true,
     "checklocation": function(){
@@ -2753,7 +2753,7 @@ virtKeyboard = {
     },
     "updateBase": function (lObject, jsonObj) {
         for (var subobj in jsonObj) {
-            if (typeof jsonObj[subobj] == 'object' && typeof lObject[subobj] == 'object') {
+            if (typeof jsonObj[subobj] === 'object' && typeof lObject[subobj] === 'object') {
                 this.updateBase(lObject[subobj], jsonObj[subobj]);
             } else {
                 lObject[subobj] = jsonObj[subobj];
@@ -2785,11 +2785,6 @@ virtKeyboard = {
     },
     "virtKeyOnClick": function () {
         var virt_keyboard = $("#virt-keyboard");
-        var jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
-        var jq_dd_sec_new = $(".vrt-dropdown.vrt-secondary > li.vrt-new");
-        var jq_ks = $(".vrt-keycodesetting");
-        var jq_ml = $("#vrt-mainlang").data("language");
-        var jq_sl = $("#vrt-secondarylang").data("language");
         var virt_tdd = $(".vrt-toggledropdown");
         virt_keyboard.on("click", ".key", function () {
             var inputfield = $("textarea");
@@ -2859,7 +2854,6 @@ virtKeyboard = {
                 }
             } else {
                 var jq_ml = $("#vrt-mainlang").data("language");
-                var jq_sl = $("#vrt-secondarylang").data("language");
                 var nfield = $("#vrt-normal-key");
                 var sfield = $("#vrt-shift-key");
                 if (basekeys.supported_lang.indexOf(virtKeyboard.newlang) === -1) {
@@ -2957,7 +2951,6 @@ virtKeyboard = {
         }
         virtKeyboard.mainlang = userInfo.duoState.user.learningLanguage || "en";
         virtKeyboard.secondlang = userInfo.duoState.user.fromLanguage || "en";
-        var jq_logo = $(".v-logo");
         $("body").append(virtKeyboard.body);
         $("#virt-keyboard").hover(function () {
             $("#virt-keyboard").addClass("vrt-keep");
@@ -3030,7 +3023,7 @@ virtKeyboard = {
         if (settings) {
             console.info("Local version is:" + settings.version);
             console.info("Remote version is:" + virtKeyboard.version);
-            if (settings.version != virtKeyboard.version){
+            if (settings.version !== virtKeyboard.version){
                 virtKeyboard.clearLocalStorage("keys");
                 virtKeyboard.clearLocalStorage("weakspan");
                 virtKeyboard.clearLocalStorage("newspan");
@@ -3092,8 +3085,8 @@ virtKeyboard = {
                 var str_href = "a[href='/'";
                 if ($($(str_href)[0]).next("div").after(vKeyboardLogo).length === 0){
                     vKeyboardLogo.addClass("v-logoOnTop");
-                    $("#root").after(vKeyboardLogo).length
-                };
+                    $("#root").after(vKeyboardLogo);
+                }
             }
         }
         console.info("VirtKeyboard: v." + virtKeyboard.version);
@@ -3159,14 +3152,14 @@ sidepanel = {
                     newspan.append(sidepanel.activeSkillsEl(newSkills[skill].URI, prevNew));
                 }
                 //Add general practice button to weakspan
-                practiceArr = $("a[href='/practice']");
+                var practiceArr = $("a[href='/practice']");
                 //for (bigtest in practiceArr){
                     if(practiceArr[0] && practiceArr[0].attributes)
                         weakspan.append(sidepanel.activeSkillsEl(practiceArr[0].attributes.href.value, prevWeak, "practice"));
                 //}
                 //Add shortcuts to bigtest section to newspan
                 practiceArr = $("a[href*='/bigtest']");
-                for (bigtest in practiceArr){
+                for (var bigtest in practiceArr){
                     if(practiceArr[bigtest] && practiceArr[bigtest].attributes)
                         newspan.append(sidepanel.activeSkillsEl(practiceArr[bigtest].attributes.href.value, prevNew, "practice"));
                 }
@@ -3367,7 +3360,7 @@ var csslist = [{
     "dir": ["ltr", "rtl"]
 }];
 
-var documentdir = document.dir?document.dir:"ltr"
+var documentdir = document.dir?document.dir:"ltr";
 userInfo.fixcss(documentdir);
 virtKeyboard.preinit();
 sidepanel.init();
