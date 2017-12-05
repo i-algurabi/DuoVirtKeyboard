@@ -2,11 +2,11 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.38
+// @version        0.0.38.beta.001
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
-// @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
-// @downloadURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.user.js
+// @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/develop/DuoVirtKeyboard.meta
+// @downloadURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/develop/DuoVirtKeyboard.user.js
 // @grant        none
 // ==/UserScript==
 userInfo = {
@@ -2454,7 +2454,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    "version": "0.0.38",
+    "version": "0.0.38.beta.001",
     "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/da9d0ac0a3f3d56d2ebd12e9295ef8108d3e5c0b/",
     "show": true,
     "apply": true,
@@ -3147,13 +3147,11 @@ sidepanel = {
                 for (skill in newSkills) {
                     newspan.append(sidepanel.activeSkillsEl(newSkills[skill].URI, prevNew));
                 }
-                //Add general practice button to weakspan
+                /*Add general practice button to weakspan*/
                 var practiceArr = $("a[href='/practice']");
-                //for (bigtest in practiceArr){
                 if(practiceArr[0] && practiceArr[0].attributes)
                     weakspan.append(sidepanel.activeSkillsEl(practiceArr[0].attributes.href.value, prevWeak, "practice"));
-                //}
-                //Add shortcuts to bigtest section to newspan
+                /*Add shortcuts to bigtest section to newspan*/
                 practiceArr = $("a[href*='/bigtest']");
                 for (var bigtest in practiceArr){
                     if(practiceArr[bigtest] && practiceArr[bigtest].attributes)
