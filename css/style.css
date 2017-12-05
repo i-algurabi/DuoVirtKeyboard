@@ -688,7 +688,7 @@ html[dir="rtl"] .v-logo {
 }
 
 html[dir="rtl"] .v-logoOnTop {
-    right: 3%;
+    right: calc(50% + 30px);
 }
 
 html[dir="rtl"] .v-big {
@@ -774,4 +774,8 @@ html[dir="rtl"] .vrt-dl-choice {
 
 html[dir="rtl"] .vrt-dl-choice > i {
     float: right;
+}
+
+html[dir="rtl"] ._3ImDE, ._2hYEZ{
+    direction: ltr;
 }
