@@ -2455,7 +2455,7 @@ basekeys = {
 };
 virtKeyboard = {
     "version": "0.0.38",
-    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/cea817b4928463631843a7267d5ad2bd127d4842/",
+    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/da9d0ac0a3f3d56d2ebd12e9295ef8108d3e5c0b/",
     "show": true,
     "apply": true,
     "checklocation": function(){
