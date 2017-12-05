@@ -32,7 +32,7 @@ The script is tested to work under Chrome 58.0.3029.110 and FF53.0.2
 To use this userscript first you need to install a [TamperMonkey](https://tampermonkey.net/) addon for you browser.
 After instaling it, go to TamperMonkey Dashboard, paste URL
 
-    https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.user.js
+    https://rawgit.com/i-algurabi/DuoVirtKeyboard/develop/DuoVirtKeyboard.user.js
 
 and click Import, to import this userscript.
 

@@ -94,13 +94,14 @@ userInfo = {
                 fromLanguage = this.duoState.skills[skill].fromLanguage;
             if (!learningLanguage)
                 learningLanguage = this.duoState.skills[skill].learningLanguage;
+			var courseid = "DUOLINGO_"+ learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
             var willreturn = (fromLanguage === this.duoState.skills[skill].fromLanguage) && (learningLanguage === this.duoState.skills[skill].learningLanguage) && (this.duoState.skills[skill].finishedLessons === this.duoState.skills[skill].lessons);
             if (willreturn && this.duoState.skills[skill].strength && this.duoState.skills[skill].strength < 1) {
-                if (!result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]) {
-                    result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage] = {};
+                if (!result[courseid]) {
+                    result[courseid] = {};
                 }
                 this.duoState.skills[skill].URI = "/skill/" + this.duoState.skills[skill].learningLanguage + "/" + this.duoState.skills[skill].urlName;
-                result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage][this.duoState.skills[skill].name] = this.duoState.skills[skill];
+                result[courseid][this.duoState.skills[skill].name] = this.duoState.skills[skill];
             }
         }
         return result;
@@ -113,13 +114,14 @@ userInfo = {
                 fromLanguage = this.duoState.skills[skill].fromLanguage;
             if (!learningLanguage)
                 learningLanguage = this.duoState.skills[skill].learningLanguage;
+			var courseid = "DUOLINGO_"+ learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
             var willreturn = (fromLanguage === this.duoState.skills[skill].fromLanguage) && (learningLanguage === this.duoState.skills[skill].learningLanguage);
             if (willreturn && this.duoState.skills[skill].accessible && this.duoState.skills[skill].finishedLessons < this.duoState.skills[skill].lessons) {
-                if (!result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage]) {
-                    result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage] = {};
+                if (!result[courseid]) {
+                    result[courseid] = {};
                 }
                 this.duoState.skills[skill].URI = "/skill/" + this.duoState.skills[skill].learningLanguage + "/" + this.duoState.skills[skill].urlName;
-                result[this.duoState.skills[skill].learningLanguage + "<" + this.duoState.skills[skill].fromLanguage][this.duoState.skills[skill].name] = this.duoState.skills[skill];
+                result[courseid][this.duoState.skills[skill].name] = this.duoState.skills[skill];
             }
         }
         return result;
@@ -3128,14 +3130,15 @@ sidepanel = {
             span2.addClass(userInfo.dict.flag + " to flag");
             var fromLanguage = userInfo.duoState.courses[course].fromLanguage;
             var learningLanguage = userInfo.duoState.courses[course].learningLanguage;
+            var courseid = userInfo.duoState.courses[course].id;
             li.data("fromLanguage", fromLanguage);
             li.data("learningLanguage", learningLanguage);
             span1.addClass(userInfo.dict[fromLanguage] + " flag-svg-small flag-" + fromLanguage);
             span2.addClass(userInfo.dict[learningLanguage] + " flag-svg-small flag-" + learningLanguage);
             var weakspan = $("<div class='skill weak'>");
             var newspan = $("<div class='skill new'>");
-            var weakSkills = userInfo.getWeakendSkills(fromLanguage, learningLanguage)[learningLanguage + "<" + fromLanguage];
-            var newSkills = userInfo.getNewSkills(fromLanguage, learningLanguage)[learningLanguage + "<" + fromLanguage];
+            var weakSkills = userInfo.getWeakendSkills(fromLanguage, learningLanguage)[courseid];
+            var newSkills = userInfo.getNewSkills(fromLanguage, learningLanguage)[courseid];
             var skill, nClone;
             if (learningLanguage === userInfo.duoState.user.learningLanguage && fromLanguage === userInfo.duoState.user.fromLanguage) {
                 var prevWeak = $(virtKeyboard.getFromLocalStorage("weakspan").html) || $("");
