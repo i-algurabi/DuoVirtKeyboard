@@ -206,10 +206,10 @@
     left: 15px;
 }
 
-.v-logoOnTop{
+.v-logoOnTop {
     position: fixed;
-    top: 1%;
-    left: 3%;
+    top: 3px;
+    left: calc(50% - 30px);
     z-index: 999;
 }
 
