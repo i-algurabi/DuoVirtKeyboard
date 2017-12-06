@@ -2,7 +2,7 @@
 function save_options() {
     settings.apply = document.getElementById('apply').checked;
     settings.show = document.getElementById('show').checked;
-    saveToLocalStorage("settings", settings)
+    saveToLocalStorage("settings", settings);
     // Update status to let user know options were saved.
     var status = document.getElementById('status');
     status.textContent = 'Options saved.';
@@ -34,7 +34,7 @@ function getFromLocalStorage(parameter) {
         var localStorage = window.localStorage;
         var status = document.getElementById('status');
         var str = "";
-        for (z in localStorage) {
+        for (var z in localStorage) {
             str += z + ":" + localStorage[z];
         }
         status.textContent = str;

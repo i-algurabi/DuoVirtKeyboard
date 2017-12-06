@@ -9,19 +9,16 @@
     </head>
     <body>
     <div>
-        <select id="languagelist" onchange="updatePlaceHolder">
+        <select id="languagelist" onchange="updatePlaceHolder()">
             <option value="en"><span id="en">English</span></option>
             <option value="ru"><span id="ru">Russian</span></option>
             <option value="fr"><span id="fr">French</span></option>
             <option value="ar"><span id="ar">Arabic</span></option>
         </select>
     </div>
-    <div id="my-text-input" class="hidden">
-            <input placeholder="Введите на французском" id="word-input" name="word-input" size="30" type="text" lang="fr" />
-        </div>
+    <textarea data-test="challenge-translate-input" class="_7q434 _1qCW5 _2fPEB _3_NyK _1Juqt _3WbPm" data-gramm="false" dir="ltr" placeholder="Écrire en français" lang="fr"></textarea>
     </body>
     <script>
         languagelist=document.getElementById("languagelist");
-        languagelist.onc
     </script>
 </html>
