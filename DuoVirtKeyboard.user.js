@@ -5,6 +5,7 @@
 // @version        0.0.38.beta.001
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
+// @include        https://i-algurabi.github.io/DuoVirtKeyboard/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/develop/DuoVirtKeyboard.meta
 // @downloadURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/develop/DuoVirtKeyboard.user.js
 // @grant        none
@@ -3320,7 +3321,6 @@ sidepanel = {
 
 var chrome = chrome || {"extension": false};
 duo = window.duo || {};
-
 if (chrome) {
     if (!chrome.extension) {
         script = document.createElement('script');
@@ -3342,7 +3342,6 @@ if (chrome) {
         }
     }
 }
-
 var csslist = [{
     "href": virtKeyboard.rawgit + "css/newduo.css",
     "dir": ["ltr", "rtl", "new"]
@@ -3356,8 +3355,8 @@ var csslist = [{
     "href": virtKeyboard.rawgit + "css/style.css",
     "dir": ["ltr", "rtl"]
 }];
-
 var documentdir = document.dir?document.dir:"ltr";
+
 userInfo.fixcss(documentdir);
 virtKeyboard.preinit();
 sidepanel.init();

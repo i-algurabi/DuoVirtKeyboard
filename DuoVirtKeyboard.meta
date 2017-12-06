@@ -5,6 +5,7 @@
 // @version        0.0.38.beta.001
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
+// @include        https://i-algurabi.github.io/DuoVirtKeyboard/*
 // @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.meta
 // @downloadURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/master/DuoVirtKeyboard.user.js
 // @grant        none
