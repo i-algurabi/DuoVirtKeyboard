@@ -9032,7 +9032,10 @@ textarea {
     font-style: normal;
     font-weight: 300;
     src: url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.eot);
-    src: url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.eot#iefix) format("embedded-opentype"), url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.woff2) format("woff2"), url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.woff) format("woff"), url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.svg#museo_sans_rounded300) format("svg");
+    src: url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.eot#iefix) format("embedded-opentype"),
+         url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.woff2) format("woff2"),
+         url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.woff) format("woff"),
+         url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.svg#museo_sans_rounded300) format("svg");
 }
 
 @font-face {
