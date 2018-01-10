@@ -8,17 +8,42 @@
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     </head>
     <body>
-    <div>
-        <select id="languagelist" onchange="updatePlaceHolder()">
-            <option value="en"><span id="en">English</span></option>
-            <option value="ru"><span id="ru">Russian</span></option>
-            <option value="fr"><span id="fr">French</span></option>
-            <option value="ar"><span id="ar">Arabic</span></option>
-        </select>
-    </div>
-    <textarea data-test="challenge-translate-input" class="_7q434 _1qCW5 _2fPEB _3_NyK _1Juqt _3WbPm" data-gramm="false" dir="ltr" placeholder="Écrire en français" lang="fr"></textarea>
+        <div>
+            <select id="languagelist" onchange="updatePlaceHolder()">
+                <option value="en"><span id="en">English</span></option>
+                <option value="ru"><span id="ru">Russian</span></option>
+                <option value="fr"><span id="fr">French</span></option>
+                <option value="ar"><span id="ar">Arabic</span></option>
+                <option value="es"><span id="es">Spanish</span></option>
+            </select>
+        </div>
+        <div style="position: relative;" class="_1gcJT _3JyHj">
+            <textarea placeholder="Введите на русском" class="_1qCW5" style="min-height: 300px; min-width: 100%;" lang="ru"></textarea>
+        </div>
     </body>
     <script>
-        languagelist=document.getElementById("languagelist");
+        var placeholders={
+            "ru":"Введите на русском",
+            "en":"Type in English",
+            "fr":"Écrire en français",
+            "ar":"أدخِل باللغة العربية",
+            "es":"Escribe en español"
+        };
+        var languagelist=$("#languagelist")[0];
+        var options = languagelist.getElementsByTagName("option");
+        for (x in options){
+            if (options[x].value && basekeys.supported_lang.indexOf(options[x].value)===-1) {
+                basekeys.supported_lang.push(options[x].value);
+            }
+        };
+        function updatePlaceHolder(){
+            var languagelist=$("#languagelist")[0]
+            var lang = languagelist.selectedOptions[0].value;
+            var options = languagelist.getElementsByTagName("option");
+            $("textarea")[0].placeholder=placeholders[lang];
+            for (x in options){
+                options[x].innerText = basekeys.language_names_ui[lang][options[x].value].toUpperCase();
+            };
+        };
     </script>
 </html>

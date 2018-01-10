@@ -2,12 +2,12 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.39
+// @version        0.0.40
 // @author        IceCube aka i.algurabi, (c) 2017
 // @include        https://*.duolingo.com/*
 // @include        https://i-algurabi.github.io/DuoVirtKeyboard/*
-// @updateURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/develop/DuoVirtKeyboard.meta
-// @downloadURL        https://rawgit.com/i-algurabi/DuoVirtKeyboard/develop/DuoVirtKeyboard.user.js
+// @updateURL        https://i-algurabi.github.io/DuoVirtKeyboard/DuoVirtKeyboard.meta
+// @downloadURL        https://i-algurabi.github.io/DuoVirtKeyboard/DuoVirtKeyboard.user.js
 // @grant        none
 // ==/UserScript==
 userInfo = {
@@ -29,21 +29,36 @@ userInfo = {
         return result;
     },
     "refresh": function () {
+        userInfo.firstrefresh = false;
         var duoStateSTR = localStorage["duo.state"];
         if (duoStateSTR) {
-            userInfo.firstrefresh = false;
+            virtKeyboard.saveToLocalStorage("duo.state",duoStateSTR);
             return JSON.parse(localStorage["duo.state"]);
         } else {
-            userInfo.enrichUser();
+            loggedInUser = userInfo.getLoggedInUserId();
+            if (loggedInUser){ result = userInfo.enrichUser(loggedInUser);}
+            else {result = virtKeyboard.getFromLocalStorage("duo.state");}
+            if (!result) {
+                result = {
+                    courses:{},
+                    user:{
+                        "learningLanguage":"",
+                        "fromLanguage":""
+                    }
+                };
+                virtKeyboard.saveToLocalStorage("duo.state",result);
+            }
+            return result;
         }
     },
-    "enrichUser": function (params) {
+    "enrichUser": function (loggedInUser, params) {
         userInfo.needrefresh = false;
         if (!params)
             params = "courses,currentCourse,fromLanguage,learningLanguage";
+        userInfo.firstrefresh = false;
         $.ajax({
             type: "get",
-            url: "//www.duolingo.com/2016-04-13/users/" + userInfo.getLoggedInUserId(),
+            url: "//www.duolingo.com/2016-04-13/users/" + loggedInUser,
             data: {"fields": params}
         }).done(function (json) {
             var jsonDuoState = {};
@@ -68,7 +83,6 @@ userInfo = {
                 virtKeyboard.updateBase(jsonDuoState.skills, json.currentCourse.skills);
             }
             localStorage["duo.state"] = JSON.stringify(jsonDuoState);
-            userInfo.firstrefresh = false;
             return jsonDuoState;
         });
     },
@@ -95,7 +109,7 @@ userInfo = {
                 fromLanguage = this.duoState.skills[skill].fromLanguage;
             if (!learningLanguage)
                 learningLanguage = this.duoState.skills[skill].learningLanguage;
-			var courseid = "DUOLINGO_"+ learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
+            var courseid = "DUOLINGO_"+ learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
             var willreturn = (fromLanguage === this.duoState.skills[skill].fromLanguage) && (learningLanguage === this.duoState.skills[skill].learningLanguage) && (this.duoState.skills[skill].finishedLessons === this.duoState.skills[skill].lessons);
             if (willreturn && this.duoState.skills[skill].strength && this.duoState.skills[skill].strength < 1) {
                 if (!result[courseid]) {
@@ -115,7 +129,7 @@ userInfo = {
                 fromLanguage = this.duoState.skills[skill].fromLanguage;
             if (!learningLanguage)
                 learningLanguage = this.duoState.skills[skill].learningLanguage;
-			var courseid = "DUOLINGO_"+ learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
+            var courseid = "DUOLINGO_"+ learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
             var willreturn = (fromLanguage === this.duoState.skills[skill].fromLanguage) && (learningLanguage === this.duoState.skills[skill].learningLanguage);
             if (willreturn && this.duoState.skills[skill].accessible && this.duoState.skills[skill].finishedLessons < this.duoState.skills[skill].lessons) {
                 if (!result[courseid]) {
@@ -2457,8 +2471,8 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    "version": "0.0.39",
-    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/da9d0ac0a3f3d56d2ebd12e9295ef8108d3e5c0b/",
+    "version": "0.0.40",
+    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/f48a6a108b8668cf1a200225dcf3a5f85eb2d324/",
     "show": true,
     "apply": true,
     "checklocation": function(){
