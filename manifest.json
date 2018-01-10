@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "0.0.39-beta.002",
+  "version": "0.0.40",
   "name": "DuoLingo virtual keyboard",
   "icons": {
     "128": "css/logo.png"
