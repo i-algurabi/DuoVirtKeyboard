@@ -8382,6 +8382,7 @@ html[dir=rtl] ._3Lwfw {
     }
 }
 
+/*noinspection CssInvalidPropertyValue*/
 .zmu4B p {
     -webkit-box-orient: vertical;
     color: #3c3c3c;
@@ -9033,9 +9034,9 @@ textarea {
     font-weight: 300;
     src: url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.eot);
     src: url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.eot#iefix) format("embedded-opentype"),
-         url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.woff2) format("woff2"),
-         url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.woff) format("woff"),
-         url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.svg#museo_sans_rounded300) format("svg");
+    url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.woff2) format("woff2"),
+    url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.woff) format("woff"),
+    url(//d35aaqx5ub95lt.cloudfront.net/fonts/museosansrounded-300-webfont.svg#museo_sans_rounded300) format("svg");
 }
 
 @font-face {
@@ -9064,6 +9065,7 @@ textarea {
 }
 
 @media (min-width: 700px) {
+    /*noinspection CssInvalidPropertyValue,CssInvalidPropertyValue,CssInvalidPropertyValue*/
     *, :after, :before {
         -webkit-user-select: auto;
         -moz-user-select: auto;
@@ -9072,6 +9074,7 @@ textarea {
     }
 }
 
+/*noinspection CssInvalidPropertyValue,CssInvalidPropertyValue,CssInvalidPropertyValue*/
 input, textarea {
     -webkit-user-select: auto;
     -moz-user-select: auto;
@@ -9266,7 +9269,6 @@ select {
     white-space: nowrap;
     width: 100%;
 }
-
 
 ._2Pbs9[dir="rtl"] {
     direction: ltr;

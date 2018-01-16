@@ -14,7 +14,6 @@ function save_options() {
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
 function restore_options() {
-    // Use default value color = 'red' and likesColor = true.
     var settings = getFromLocalStorage("settings");
     document.getElementById('apply').checked = settings.apply;
     document.getElementById('show').checked = settings.show;

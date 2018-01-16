@@ -345,10 +345,19 @@ span.v-close {
 .home > div, .menu > div {
     width: 20px;
     height: 20px;
-    background-size: 1000px;
     vertical-align: top;
+    background: url(//d7mj4aqfscim2.cloudfront.net/images/icon-sprite_mv_07abea0df11480e804b8accecc1c101a.svg);
     margin: 11px 0 0 7px;
-    background: url(//d7mj4aqfscim2.cloudfront.net/images/icon-sprite_mv_07abea0df11480e804b8accecc1c101a.svg) -146px -70px;
+}
+
+.home > div {
+    background-size: 1000px !important;
+    background-position: -146px -70px;
+}
+
+.menu > div {
+    background-size: 800px !important;
+    background-position: -526px -35px;
 }
 
 .space {
@@ -421,8 +430,20 @@ span.v-close {
     content: "Tab";
 }
 
-.home > div:hover, .menu > div:hover {
+.home > div:hover {
     background-position: -167px -70px;
+}
+
+.home.hover > div {
+    background-position: -167px -70px;
+}
+
+.menu > div:hover {
+    background-position: -507px -35px;
+}
+
+.menu.hover > div {
+    background-position: -507px -35px;
 }
 
 .vrt-hidden {
@@ -721,9 +742,11 @@ html[dir="rtl"] .keylabel > span.l2, .keylabel > span.l5, .keylabel > span.l8 {
     padding-right: 2px;
 }
 
+/*
 html[dir="rtl"] .home > div, .menu > div {
     margin: 11px 7px 0 0;
 }
+*/
 
 html[dir="rtl"] .sidepanel {
     right: -484px;
@@ -777,6 +800,6 @@ html[dir="rtl"] .vrt-dl-choice > i {
     float: right;
 }
 
-html[dir="rtl"] ._3ImDE, ._2hYEZ{
+html[dir="rtl"] ._3ImDE, ._2hYEZ {
     direction: ltr;
 }
