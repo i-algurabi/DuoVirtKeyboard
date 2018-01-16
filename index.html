@@ -1,49 +1,55 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8"/>
-        <title>HTML and CSS Keyboard</title>
-        <link rel="stylesheet" href="css/style.css"/>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    </head>
-    <body>
-        <div>
-            <select id="languagelist" onchange="updatePlaceHolder()">
-                <option value="en"><span id="en">English</span></option>
-                <option value="ru"><span id="ru">Russian</span></option>
-                <option value="fr"><span id="fr">French</span></option>
-                <option value="ar"><span id="ar">Arabic</span></option>
-                <option value="es"><span id="es">Spanish</span></option>
-            </select>
-        </div>
-        <div style="position: relative;" class="_1gcJT _3JyHj">
-            <textarea placeholder="Введите на русском" class="_1qCW5" style="min-height: 300px; min-width: 100%;" lang="ru"></textarea>
-        </div>
-    </body>
-    <script>
-        var placeholders={
-            "ru":"Введите на русском",
-            "en":"Type in English",
-            "fr":"Écrire en français",
-            "ar":"أدخِل باللغة العربية",
-            "es":"Escribe en español"
-        };
-        var languagelist=$("#languagelist")[0];
+<head>
+    <meta charset="UTF-8"/>
+    <title>HTML and CSS Keyboard</title>
+    <link rel="stylesheet" href="css/style.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script -->
+</head>
+<body>
+<div>
+    <select id="languagelist" onchange="updatePlaceHolders()">
+        <option value="en" selected="selected">ENGLISH</option>
+        <option value="ru">RUSSIAN</option>
+        <option value="fr">FRENCH</option>
+        <option value="ar">ARABIC</option>
+        <option value="es">SPANISH</option>
+    </select>
+</div>
+<div style="position: relative;" class="_1gcJT _3JyHj">
+    <textarea placeholder="Enter in English" class="_1qCW5" style="min-height: 300px; min-width: 100%;"
+              lang="en"></textarea>
+</div>
+</body>
+<script>
+    var placeholders = {
+        "ru": "Введите на русском",
+        "en": "Type in English",
+        "fr": "Écrire en français",
+        "ar": "أدخِل باللغة العربية",
+        "es": "Escribe en español"
+    };
+    var languagelist = $("#languagelist")[0];
+    var options = languagelist.getElementsByTagName("option");
+    for (var x in options) {
+        if (options[x].value && basekeys.supported_lang.indexOf(options[x].value) === -1) {
+            basekeys.supported_lang.push(options[x].value);
+        }
+    }
+    updatePlaceHolders();
+    virtKeyboard.preinit();
+
+    function updatePlaceHolders() {
+        var languagelist = $("#languagelist")[0];
+        var lang = languagelist.selectedOptions[0].value;
         var options = languagelist.getElementsByTagName("option");
-        for (x in options){
-            if (options[x].value && basekeys.supported_lang.indexOf(options[x].value)===-1) {
-                basekeys.supported_lang.push(options[x].value);
-            }
-        };
-        function updatePlaceHolder(){
-            var languagelist=$("#languagelist")[0]
-            var lang = languagelist.selectedOptions[0].value;
-            var options = languagelist.getElementsByTagName("option");
-            $("textarea")[0].placeholder=placeholders[lang];
-            for (x in options){
-                options[x].innerText = basekeys.language_names_ui[lang][options[x].value].toUpperCase();
-            };
-        };
-    </script>
+        var textarea = $("textarea")[0];
+        textarea.placeholder = placeholders[lang];
+        textarea.lang(lang);
+        for (var x in options) {
+            if (options[x].value) options[x].innerText = basekeys.language_names_ui[lang][options[x].value].toUpperCase();
+        }
+    }
+</script>
 </html>

@@ -264,7 +264,7 @@
           "name": "Alt"
         },
         {
-          "type": "menu special",
+          "type": "menu special fixmain",
           "code": "93",
           "name": "ContextMenu"
         },
