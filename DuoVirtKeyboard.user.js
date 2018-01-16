@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.41.001
+// @version        0.0.41.002
 // @author        IceCube aka i.algurabi, (c) 2018
 // @include        https://*.duolingo.com/*
 // @include        https://i-algurabi.github.io/DuoVirtKeyboard/*
@@ -2484,7 +2484,7 @@ basekeys = {
     }
 };
 virtKeyboard = {
-    "version": "0.0.41.001",
+    "version": "0.0.41.002",
     "rawgit": "https://i-algurabi.github.io/DuoVirtKeyboard/",
     "show": true,
     "apply": true,
@@ -2531,11 +2531,11 @@ virtKeyboard = {
         console.debug("fillKeyboard(" + lang0 + "," + lang1 + ")");
         if (!lang0) {
             lang0 = virtKeyboard.mainlang;
-            virtKeyboard.mainlang = lang0;
         }
         if (!lang1) {
             lang1 = (lang0 === virtKeyboard.secondlang) ? virtKeyboard.mainlang : virtKeyboard.secondlang;
         }
+        virtKeyboard.mainlang = lang0;
         virtKeyboard.secondlang = lang1;
         if (!(lang0 && lang1)) {
             console.error("Language keycodes not provided.");
