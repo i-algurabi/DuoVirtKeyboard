@@ -169,7 +169,7 @@
 }
 
 .v-logo {
-    background-image: url("./images/logo.png");
+    background-image: url("../images/logo.png");
     background-position: 0 0;
     background-size: 45px;
     display: inline-block;
