@@ -555,12 +555,19 @@ ul.courses {
     color: #5c79ea;
 }
 
+.item-box {
+    display: inline-block;
+    width: 60px;
+}
+
 .skills {
     border-radius: 25px;
     display: inline-block;
     background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/skill-icons-unlocked2.svg);
     background-size: 254px;
     margin: 6px 3px 0 9px;
+    position: relative;
+    left: 20px;
     height: 25px;
     width: 25px;
 }
@@ -591,6 +598,18 @@ ul.courses {
     left: 40px;
     top: 20px;
     display: inline-block;
+}
+
+.name {
+    font-size: 75%;
+    top: -6px;
+    left: 25%;
+    display: block;
+    position: relative;
+}
+
+.skill > a.item {
+   display: inline-block; 
 }
 
 .skill {
