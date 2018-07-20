@@ -3614,7 +3614,7 @@
             "href": virtKeyboard.rawgit + "css/style.css",
             "dir": ["ltr", "rtl"]
         }, {
-            "href": virtKeyboard.rawgit + "css/rtl-fixduo.css",
+            "href": virtKeyboard.rawgit + "css/rtl-duofix.css",
             "dir": ["rtl"]
         }];
     var documentdir = document.dir ? document.dir : "ltr";
