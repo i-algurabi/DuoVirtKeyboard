@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.41.003
+// @version        0.0.41.004
 // @author        IceCube aka i.algurabi, (c) 2018
 // @include        https://*.duolingo.com/*
 // @include        https://i-algurabi.github.io/DuoVirtKeyboard/*
@@ -178,11 +178,11 @@
             }
             userInfo.documentdir = documentdir;
             for (var i in csslist) {
-                console.info("duo: " + duo);
-                console.info("(!duo.version && csslist[i].dir.indexOf(new) !== -1): " + (!duo.version && csslist[i].dir.indexOf("new") !== -1));
-                console.info("(csslist[i].dir.indexOf(new) === -1): " + (csslist[i].dir.indexOf("new") === -1));
-                console.info("csslist[i].dir.indexOf(documentdir) !== -1: " + csslist[i].dir.indexOf(documentdir) !== -1);
-                var isApply = (duo
+                console.info("duo: " + typeof duo === 'object');
+                console.info("duo.version: " + duo.version);
+                console.info("csslist[i].dir.indexOf(new) !== -1: " + (csslist[i].dir.indexOf("new") !== -1));
+                console.info("csslist[i].dir.indexOf(" + documentdir + ") !== -1: " + csslist[i].dir.indexOf(documentdir) !== -1);
+                var isApply = (typeof duo === 'object'
                         && (
                                 (!duo.version
                                         && csslist[i].dir.indexOf("new") !== -1)
@@ -2630,7 +2630,7 @@
     };
     var virtKeyboard = {
         "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/f48a6a108b8668cf1a200225dcf3a5f85eb2d324/",
-        "version": "0.0.41.003",
+        "version": "0.0.41.004",
         "show": true,
         "apply": true,
         "checklocation": function () {
@@ -3613,6 +3613,9 @@
         }, {
             "href": virtKeyboard.rawgit + "css/style.css",
             "dir": ["ltr", "rtl"]
+        }, {
+            "href": virtKeyboard.rawgit + "css/rtl-fixduo.css",
+            "dir": ["rtl"]
         }];
     var documentdir = document.dir ? document.dir : "ltr";
 

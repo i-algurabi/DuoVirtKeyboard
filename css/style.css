@@ -844,7 +844,3 @@ html[dir="rtl"] .vrt-dl-choice {
 html[dir="rtl"] .vrt-dl-choice > i {
     float: right;
 }
-
-html[dir="rtl"] ._3ImDE, ._2hYEZ {
-    direction: ltr;
-}
