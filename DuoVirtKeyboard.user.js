@@ -2,7 +2,7 @@
 // @name        DuoVirtKeyboard
 // @namespace        duolingo
 // @description        This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version        0.0.41.001
+// @version        0.0.41.002
 // @author        IceCube aka i.algurabi, (c) 2018
 // @include        https://*.duolingo.com/*
 // @include        https://i-algurabi.github.io/DuoVirtKeyboard/*
@@ -986,7 +986,7 @@
                 "ko": "Korejština",
                 "da": "Dánština",
                 "uz": "Uzbek",
-                "el": "�?ečtina",
+                "el": "�?ečtina",
                 "eo": "Esperanto",
                 "en": "Angličtina",
                 "zc": "Chinese (Cantonese)",
@@ -1305,7 +1305,7 @@
                 "pl": "波兰语",
                 "hy": "Armenian",
                 "hr": "Croatian",
-                "hv": "�?等瓦雷利亚语",
+                "hv": "�?等瓦雷利亚语",
                 "ht": "海地人讲的法语",
                 "hu": "匈牙利语",
                 "hi": "印地语",
@@ -1328,7 +1328,7 @@
                 "kn": "Kannada",
                 "zt": "中文",
                 "as": "Assamese",
-                "ar": "�?�拉伯语",
+                "ar": "�?�拉伯语",
                 "zu": "Zulu",
                 "az": "Azeri",
                 "id": "印尼语",
@@ -2376,7 +2376,7 @@
                 "ht": "ハイチクレオール",
                 "hu": "ハンガリー語",
                 "hi": "ヒンディー語",
-                "he": "�?ブライ語",
+                "he": "�?ブライ語",
                 "mb": "Malay (Brunei)",
                 "mm": "Malay (Malaysia)",
                 "ml": "Malayalam",
@@ -2421,7 +2421,7 @@
                 "sf": "Swedish (Finland)"
             },
             "ko": {
-                "level": "�?평",
+                "level": "�?평",
                 "gu": "Gujarati",
                 "ga": "아일랜드어",
                 "gn": "과라니어 (조파라)",
@@ -2442,13 +2442,13 @@
                 "da": "덴마크어",
                 "uz": "Uzbek",
                 "el": "그리스어",
-                "eo": "에스�?란토어",
-                "en": "�?�어",
+                "eo": "에스�?란토어",
+                "en": "�?�어",
                 "zc": "Chinese (Cantonese)",
                 "eu": "Basque",
                 "et": "Estonian",
                 "ep": "English (Pirate)",
-                "es": "스�?인어",
+                "es": "스�?인어",
                 "zs": "중국어",
                 "ru": "러시아어",
                 "ro": "루마니아어",
@@ -2481,7 +2481,7 @@
                 "mk": "Macedonian",
                 "ur": "Urdu",
                 "kk": "Kazakh",
-                "uk": "우크라이�?어",
+                "uk": "우크라이�?어",
                 "mr": "Marathi",
                 "my": "Burmese",
                 "dn": "네덜란드어",
@@ -2510,7 +2510,7 @@
                 "sw": "스와힐리어",
                 "sv": "스웨덴어",
                 "km": "Khmer",
-                "kl": "클링�?�어",
+                "kl": "클링�?�어",
                 "sk": "Slovak",
                 "sn": "신다린어",
                 "sl": "Slovenian",
@@ -2629,8 +2629,8 @@
         }
     };
     var virtKeyboard = {
-        "version": "0.0.41.001",
         "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/f48a6a108b8668cf1a200225dcf3a5f85eb2d324/",
+        "version": "0.0.41.002",
         "show": true,
         "apply": true,
         "checklocation": function () {
@@ -3296,7 +3296,7 @@
         }
     };
     var sidepanel = {
-        "version": "0.0.14",
+        "version": "0.0.15",
         "html": "<div class='sidepanel'><div class='panel panel-upper panel-border'></div><div class='panel panel-inner'></div><div class='panel panel-lower panel-border'></div></div>",
         "hidden": true,
         "init": function () {
