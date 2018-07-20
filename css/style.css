@@ -561,6 +561,11 @@ ul.courses {
     padding-right: 75px;
 }
 
+html[dir="rtl"] .item-box {
+    padding-right: 0px;
+    padding-left: 75px;
+}
+
 .skills {
     border-radius: 25px;
     display: inline-block;
@@ -620,7 +625,7 @@ ul.courses {
     border-radius: 9px;
     text-align: center;
     left: 5px;
-      color: #e0c1c1;
+    color: #e0c1c1;
   }
 
 div.weak > span > a > span.name {
@@ -780,12 +785,6 @@ html[dir="rtl"] .keylabel > span.l2, .keylabel > span.l5, .keylabel > span.l8 {
     padding-right: 2px;
 }
 
-/*
-html[dir="rtl"] .home > div, .menu > div {
-    margin: 11px 7px 0 0;
-}
-*/
-
 html[dir="rtl"] .sidepanel {
     right: -484px;
 }
@@ -812,12 +811,20 @@ html[dir="rtl"] .sp-version {
     padding: 0 0 0 20px;
 }
 
+html[dir="rtl"] .active > div >span >a > .skills {
+  right: 14px;
+}
+
 html[dir="rtl"] .micro {
     right: 0;
 }
 
 html[dir="rtl"] .nano {
     right: 0;
+}
+
+html[dir="rtl"] .name {
+    right: 5px;
 }
 
 html[dir="rtl"] .skill {
