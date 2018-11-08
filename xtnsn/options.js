@@ -29,13 +29,15 @@ function saveToLocalStorage(parameter, value) {
 }
 
 function getFromLocalStorage(parameter) {
+	return virtKeyboard.getFromLocalStorage(parameter);
     if (window.localStorage !== undefined) {
         var localStorage = window.localStorage;
         var status = document.getElementById('status');
         var str = "";
         for (var z in localStorage) {
-            str += z + ":" + localStorage[z];
+            str += z + ":" + localStorage[z] + "\n";
         }
+	//str += "</pre>";
         status.textContent = str;
         var param = localStorage["keyboard." + parameter];
         if (param)

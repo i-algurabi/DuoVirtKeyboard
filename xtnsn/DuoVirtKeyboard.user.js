@@ -6,8 +6,8 @@
 // @author       IceCube aka i.algurabi, (c) 2018
 // @include      https://*.duolingo.com/*
 // @include      https://i-algurabi.github.io/DuoVirtKeyboard/*
-// @updateURL    https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.meta
-// @downloadURL  https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.user.js
+// @updateURL    https://i-algurabi.github.io/DuoVirtKeyboard/extensn/DuoVirtKeyboard.meta
+// @downloadURL  https://i-algurabi.github.io/DuoVirtKeyboard/extensn/DuoVirtKeyboard.user.js
 // @grant        none
 // ==/UserScript==
 (function () {
@@ -160,10 +160,10 @@
         "switchLanguage": function (fromLanguage, learningLanguage) {
             let courseid = "DUOLINGO_" + learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
             userInfo.needrefresh = (userInfo.duoState && userInfo.duoState.courses && (!userInfo.duoState.courses[courseid] || !userInfo.duoState.courses[courseid].fluency));
-            userInfo.tools.sendAjax({                
+            userInfo.tools.sendAjax({
                 type: "POST",
                 url: "/api/1/me/switch_language",
-                data: {                    
+                data: {
                     from_language: fromLanguage,
                     learning_language: learningLanguage
                  }
@@ -173,10 +173,10 @@
                 document.location.href = document.location.protocol + "//" + document.location.hostname;
             });
 			/*
-            $.ajax({                
+            $.ajax({
                 type: "POST",
                 url: "/api/1/me/switch_language",
-                data: {                    
+                data: {
                     from_language: fromLanguage,
                     learning_language: learningLanguage
                 }
@@ -245,7 +245,7 @@
                     if (param)
                         return JSON.parse(param);
                 }
-                return false;            
+                return false;
             },
             "sendAjax": function (options, callBack) {
                 var xhr = new XMLHttpRequest();
@@ -2692,7 +2692,7 @@
         }
     };
     var virtKeyboard = {
-        "rawgit": "https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/",
+        "rawgit": "https://i-algurabi.github.io/DuoVirtKeyboard/extensn/",
         "version": "0.1.0",
         "show": true,
         "apply": true,

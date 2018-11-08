@@ -1,0 +1,846 @@
+#virt-keyboard {
+    position: absolute;
+    top: calc(100% - 290px);
+    left: calc(50% - 352px);
+    width: 704px;
+    height: 290px;
+    background-color: #35629a;
+    background-color: rgba(0, 58, 128, 0.79);
+    margin: 10px auto;
+    border-radius: 9px;
+    padding: 40px;
+    color: #eee;
+    font: 500 15px/20px museo-sans-rounded, sans-serif;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently*/
+    z-index: 1;
+}
+
+#virt-keyboard::selection {
+    background-color: transparent;
+    color: inherit;
+}
+
+.vrt-version {
+    position: inherit;
+    top: 270px;
+    right: 40px;
+    font-size: 9px;
+    color: #354e65;
+}
+
+.vrt-topbar {
+    position: relative;
+    width: 625px;
+    top: -84px;
+    height: 100px;
+    z-index: 1;
+}
+
+.vrt-toggledropdown {
+    position: absolute;
+    top: 55px;
+    line-height: 40px;
+    width: 160px;
+    font-size: 23px;
+    background-color: #1983b2;
+    background-color: rgba(40, 168, 230, 0.58);
+    text-align: center;
+    border-radius: 5px;
+}
+
+.vrt-toggledropdown.vrt-main {
+    left: 0;
+}
+
+.vrt-toggledropdown.vrt-secondary {
+    left: 465px;
+    color: rgb(200, 200, 200);
+}
+
+.vrt-dropdown, .vrt-download {
+    text-align: left;
+    position: absolute;
+    top: 30px;
+    left: 10px;
+    z-index: 1;
+    display: none;
+    float: left;
+    min-width: 200px;
+    padding: 10px 0;
+    margin: 5px 0 0;
+    list-style: inside;
+    background-color: #fff;
+    border-radius: 10px;
+    -webkit-box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    background-clip: padding-box;
+    color: grey;
+}
+
+.vrt-download {
+    left: -72px;
+}
+
+.vrt-dropdown > li.vrt-active, .vrt-download > a > li.vrt-active {
+    position: relative;
+    background: #dfdfdf;
+    color: black;
+    text-align: -webkit-match-parent;
+}
+
+.vrt-dropdown > li:hover, .vrt-download > a > li:hover {
+    background: #ffdfdf;
+}
+
+.vrt-arrow-top:after {
+    height: 0;
+    width: 0;
+    position: absolute;
+    top: -19px;
+    left: 21px;
+    content: "";
+    border: 10px solid transparent;
+    border-bottom: 10px solid #fff;
+    display: block;
+}
+
+.vrt-download.vrt-arrow-top:after {
+    left: 83px;
+}
+
+.vrt-data-choice {
+    padding-left: 15px;
+    display: list-item;
+    font-size: 20px;
+    font-style: oblique;
+}
+
+.vrt-dl-choice {
+    padding-left: 15px;
+    font-size: 20px;
+    list-style-type: none;
+}
+
+.vrt-dl-choice > i {
+    position: relative;
+    top: 0;
+    font-size: 20px;
+    float: left;
+}
+
+.vrt-new {
+    background-color: #dfdfdf;
+}
+
+.vrt-divider {
+    border-top: 2px solid #607D8B;
+    margin: 9px 13px;
+    height: 1px;
+    list-style-type: none;
+}
+
+.vrt-keycodesetting {
+    position: absolute;
+    top: 65px;
+    width: 0;
+    height: 0;
+}
+
+.vrt-keycodesetting.vrt-normal-key {
+    left: 164px;
+}
+
+.vrt-keycodesetting.vrt-shift-key {
+    left: 336px;
+}
+
+#vrt-shift-key, #vrt-normal-key {
+    position: relative;
+    text-align: center;
+    width: 125px;
+}
+
+.v-logo {
+    background-image: url("https://i-algurabi.github.io/DuoVirtKeyboard/images/logo.png");
+    background-position: 0 0;
+    background-size: 45px;
+    display: inline-block;
+    height: 15px;
+    width: 45px;
+    position: relative;
+    top: 8px;
+    left: -22px;
+    background-color: #21c5f1;
+    background-color: rgba(28, 207, 246, 0.75);
+    z-index: 9999;
+}
+
+.v-show {
+    background-position: 0 30px;
+    background-color: #35d385;
+    background-color: rgba(61, 255, 35, 0.49);
+}
+
+.v-disabled {
+    background-position: 0 15px;
+    background-color: #9bbed0;
+    background-color: rgba(206, 199, 199, 0.68);
+}
+
+.v-big {
+    background-size: 102px;
+    width: 40px;
+    height: 40px;
+    background: #CCC 3px 71px;
+    margin: 19px 0 -48px 277px;
+    border-radius: 40px;
+    position: relative;
+    top: 36px;
+    left: 15px;
+}
+
+.v-logoOnTop {
+    position: fixed;
+    top: 3px;
+    left: calc(50% - 30px);
+    z-index: 999;
+}
+
+div.v-close {
+    background: #2e2e2e;
+    border-radius: 98px;
+    cursor: pointer;
+    height: 25px;
+    position: absolute;
+    right: -51px;
+    top: 31px;
+    width: 25px;
+}
+
+span.v-close {
+    height: 12px;
+    width: 12px;
+    background: url(https://d35aaqx5ub95lt.cloudfront.net/images/icon-sprite.svg) -260px -69px;
+    display: inline-block;
+    vertical-align: middle;
+    margin: 2px 0 0 6px;
+    right: -10px;
+    top: -10px;
+}
+
+.vrt-section {
+    position: relative;
+    top: -80px;
+    width: 627px;
+    height: 260px;
+}
+
+.key {
+    width: 40px;
+    height: 40px;
+    display: block;
+    background-color: #333;
+    text-align: left;
+    padding: 0 4px 0 4px;
+    line-height: 20px;
+    border-radius: 2px;
+    float: left;
+    margin-left: 2px;
+    margin-bottom: 2px;
+    cursor: pointer;
+    transition: box-shadow 0.7s ease;
+}
+
+.key:hover {
+    box-shadow: 0 0 10px #c2e1e6;
+    z-index: 10;
+    color: #00b7d4;
+}
+
+.key.virthover, .key.switch.hover {
+    box-shadow: 0 0 25px #c2e1e6;
+    z-index: 10;
+    color: #00b7d4;
+}
+
+.keylabel {
+    width: 0;
+    height: 0;
+    position: relative;
+}
+
+.keylabel > span {
+    top: 0;
+    left: -2px;
+    width: 20px;
+    max-width: 20px;
+    height: 20px;
+    position: absolute !important;
+}
+
+.keylabel > span.l0, .keylabel > span.l3, .keylabel > span.l6 {
+    padding-left: 0;
+    text-align: left;
+}
+
+.keylabel > span.l1, .keylabel > span.l4, .keylabel > span.l7 {
+    padding-left: 12px;
+    text-align: center;
+}
+
+.keylabel > span.l2, .keylabel > span.l5, .keylabel > span.l8 {
+    padding-left: 20px;
+    text-align: right;
+}
+
+.keylabel > span.l0, .keylabel > span.l1, .keylabel > span.l2 {
+    padding-top: 2px;
+    vertical-align: top;
+}
+
+.keylabel > span.l3, .keylabel > span.l4, .keylabel > span.l5 {
+    padding-top: 12px;
+    vertical-align: middle;
+}
+
+.keylabel > span.l6, .keylabel > span.l7, .keylabel > span.l8 {
+    vertical-align: bottom;
+    padding-top: 20px;
+}
+
+.tab {
+    width: 55px;
+}
+
+.caps {
+    width: 72px;
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.shift.left {
+    width: 97px;
+}
+
+.alt {
+    width: 50px;
+}
+
+.ctrl {
+    width: 94px;
+}
+
+.home, .menu {
+    width: 43px;
+}
+
+.home > div, .menu > div {
+    width: 20px;
+    height: 20px;
+    vertical-align: top;
+    background: url(https://d7mj4aqfscim2.cloudfront.net/images/icon-sprite_mv_07abea0df11480e804b8accecc1c101a.svg);
+    margin: 11px 0 0 7px;
+}
+
+.home > div {
+    background-size: 1000px !important;
+    background-position: -146px -70px;
+}
+
+.menu > div {
+    background-size: 800px !important;
+    background-position: -526px -35px;
+}
+
+.space {
+    width: 242px;
+    text-align: center;
+}
+
+.special {
+    line-height: 40px;
+    font-size: 13px;
+}
+
+.backspace {
+    width: 77px;
+    text-align: right;
+    font-size: 13px;
+    padding-right: 7px;
+    line-height: 40px;
+}
+
+.slash {
+    padding-right: 7px;
+    width: 62px;
+}
+
+.enter {
+    width: 87px;
+    text-align: right;
+    padding-left: 0;
+    padding-right: 7px;
+}
+
+.shift.right {
+    text-align: right;
+    padding-right: 7px;
+    width: 104px;
+}
+
+.ctrl.right {
+    text-align: right;
+    padding-right: 7px;
+    width: 89px;
+}
+
+.alt:before {
+    content: "Alt";
+}
+
+.backspace:before {
+    content: "Backspace";
+}
+
+.caps:before {
+    content: "Caps Lock";
+}
+
+.ctrl:before {
+    content: "Ctrl";
+}
+
+.enter:before {
+    content: "Enter";
+}
+
+.shift:before {
+    content: "Shift";
+}
+
+.tab:before {
+    content: "Tab";
+}
+
+.home > div:hover {
+    background-position: -167px -70px;
+}
+
+.home.hover > div {
+    background-position: -167px -70px;
+}
+
+.menu > div:hover {
+    background-position: -507px -35px;
+}
+
+.menu.hover > div {
+    background-position: -507px -35px;
+}
+
+.vrt-hidden {
+    display: none;
+}
+
+.disabled {
+    color: #686868;
+    background-color: #353639;
+}
+
+.disabled:hover {
+    box-shadow: 0 0 10px #d21e23;
+    z-index: 10;
+    color: #ab6262;
+}
+
+.sidepanel.blue {
+    background: #dd381d;
+}
+
+.sidepanel.gray {
+    background: #dd381d;
+}
+
+.sidepanel.green {
+    background: #dd381d;
+}
+
+.sidepanel.purple {
+    background: #dd381d;
+}
+
+.sidepanel {
+    position: fixed;
+    top: 110px;
+    left: -480px;
+    background-color: rgba(41, 168, 228, 0.76);
+    width: 494px;
+    height: 75%;
+    border-radius: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-transition: left 1s, right 1s;
+    transition: left 1s, right 1s;
+    z-index: 9999;
+}
+
+.sidepanel.show {
+    left: -10px;
+}
+
+.from {
+    height: 30px;
+    width: 30px;
+    position: relative;
+    display: inline-block;
+    background-size: 380px;
+    border-radius: 30px 0 0 30px;
+}
+
+.to {
+    height: 30px;
+    width: 30px;
+    position: relative;
+    float: right;
+    display: inline-block;
+    background-size: 380px;
+    border-radius: 0 30px 30px 0;
+}
+
+li.course {
+    min-height: 30px;
+    width: 455px;
+    background-color: #77f095;
+    background-color: rgba(26, 230, 77, 0.59);
+    border-radius: 15px;
+    margin: 6px 0 6px 0;
+}
+
+li.course.active {
+    background-color: #770f95;
+    background-color: rgba(26, 25, 77, 0.59);
+}
+
+ul.courses {
+    position: relative;
+    left: 18px;
+}
+
+.sp-level {
+    position: relative;
+    font-weight: bolder;
+    top: -12px;
+    left: calc(50% - 70px);
+    right: calc(50% - 70px);
+    color: #0a628399;
+    color: #0a6283;
+    background-color: #63b4a3;
+    border-radius: 9px;
+    padding-right: 9px;
+    padding-left: 9px;
+}
+
+.sp-version {
+    font-size: 9px;
+    float: right;
+    padding: 0 20px;
+    color: #5c79ea;
+}
+
+.item-box {
+    display: inline-block;
+    width: 60px;
+    padding-right: 75px;
+}
+
+html[dir="rtl"] .item-box {
+    padding-right: 0px;
+    padding-left: 75px;
+}
+
+.skills {
+    border-radius: 25px;
+    display: inline-block;
+    background-image: url(https://d35aaqx5ub95lt.cloudfront.net/images/skill-icons-unlocked2.svg);
+    background-size: 254px;
+    margin: 6px 3px 0 9px;
+    position: relative;
+    height: 25px;
+    width: 25px;
+}
+
+.active > div >span >a > .skills {
+  background-size: 390px;
+  margin: 5px;
+  position: relative;
+  left: 14px;
+  height: 40px;
+  width: 40px;
+}
+
+.micro {
+    -webkit-transform: scale(.6);
+    -ms-transform: scale(.6);
+    transform: scale(.6);
+    -webkit-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    transform-origin: 0 0;
+    height: 85px;
+    width: 85px;
+    left: 40px;
+    top: 20px;
+    display: inline-block;
+}
+
+.nano {
+    -webkit-transform: scale(.3);
+    -ms-transform: scale(.3);
+    transform: scale(.3);
+    -webkit-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    transform-origin: 0 0;
+    height: 85px;
+    width: 85px;
+    left: 40px;
+    top: 20px;
+    display: inline-block;
+}
+
+.name {
+    font-size: 75%;
+    top: -4px;
+    display: inline-block;
+    position: relative;
+    width: 65px;
+    overflow: hidden !important;
+    height: 23px;
+    border-radius: 9px;
+    text-align: center;
+    left: 5px;
+    color: #e0c1c1;
+  }
+
+div.weak > span > a > span.name {
+  background-color: #6f443a66;
+}
+
+div.new > span > a > span.name {
+  background-color: #497e2a66;
+}
+
+.skill {
+    position: relative;
+    width: 380px;
+    left: 37px;
+    padding-bottom: 20px;
+    border-radius: 5px;
+}
+
+.skill.weak {
+    top: -10px;
+    background-color: rgba(255, 127, 80, 0.70);
+}
+
+.skill.new {
+    top: -5px;
+    background-color: rgba(130, 221, 0, 0.6);
+}
+
+.lightbg {
+    color: #7de8ff;
+    background-color: #90c500;
+    -webkit-transform: scale(1.3);
+    -ms-transform: scale(1.3);
+    transform: scale(1.3);
+    -webkit-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    transform-origin: -125px 220px;
+    margin: 0 0 0 10px;
+    padding: 10px 0 0 0;
+    width: 35px;
+    height: 35px;
+    border-radius: 20px;
+}
+
+.panel {
+    position: relative;
+    width: 494px;
+}
+
+.panel-border {
+    height: 20px;
+    border-radius: 10px;
+}
+
+.panel-upper {
+    top: 0;
+}
+
+.panel-inner {
+    height: calc(100% - 40px);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.panel-lower {
+    top: 0;
+    z-index: 1;
+}
+
+.practice {
+    width: 96%;
+    position: relative;
+    margin: 3%;
+    bottom: -6%;
+    text-align: center;
+    font-weight: 900;
+    font-size: large;
+    background-color: #86c99a;
+    border-radius: 25px;
+}
+
+html[dir="rtl"] .vrt-dropdown, .vrt-download {
+    right: 10px;
+}
+
+html[dir="rtl"] .vrt-download {
+    right: -72px;
+}
+
+html[dir="rtl"] .vrt-toggledropdown.vrt-main {
+    right: 0;
+}
+
+html[dir="rtl"] .vrt-toggledropdown.vrt-secondary {
+    right: 465px;
+}
+
+html[dir="rtl"] .vrt-arrow-top:after {
+    right: 21px;
+}
+
+html[dir="rtl"] .vrt-download.vrt-arrow-top:after {
+    right: 83px;
+}
+
+html[dir="rtl"] .vrt-data-choice {
+    padding-right: 15px;
+    text-align: right;
+}
+
+html[dir="rtl"] .vrt-dl-choice {
+    padding-right: 15px;
+}
+
+html[dir="rtl"] .vrt-keycodesetting.vrt-normal-key {
+    right: 164px;
+}
+
+html[dir="rtl"] .vrt-keycodesetting.vrt-shift-key {
+    right: 336px;
+}
+
+html[dir="rtl"] .v-logo {
+    right: -166px;
+}
+
+html[dir="rtl"] .v-logoOnTop {
+    right: calc(50% + 30px);
+}
+
+html[dir="rtl"] .v-big {
+    right: 292px;
+}
+
+html[dir="rtl"] div.v-close {
+    left: -51px;
+}
+
+html[dir="rtl"] span.v-close {
+    margin: 0 7px 0 0;
+    left: -10px;
+}
+
+html[dir="rtl"] .keylabel > span {
+    right: 0;
+}
+
+html[dir="rtl"] .keylabel > span.l0, .keylabel > span.l3, .keylabel > span.l6 {
+    padding-right: 16px;
+}
+
+html[dir="rtl"] .keylabel > span.l1, .keylabel > span.l4, .keylabel > span.l7 {
+    padding-right: 9px;
+}
+
+html[dir="rtl"] .keylabel > span.l2, .keylabel > span.l5, .keylabel > span.l8 {
+    padding-right: 2px;
+}
+
+html[dir="rtl"] .sidepanel {
+    right: -484px;
+}
+
+html[dir="rtl"] .sidepanel.show {
+    right: -10px;
+}
+
+html[dir="rtl"] .from {
+    border-radius: 0 30px 30px 0;
+}
+
+html[dir="rtl"] .to {
+    float: left;
+    border-radius: 30px 0 0 30px;
+}
+
+html[dir="rtl"] ul.courses {
+    right: 18px;
+}
+
+html[dir="rtl"] .sp-version {
+    float: left;
+    padding: 0 0 0 20px;
+}
+
+html[dir="rtl"] .active > div >span >a > .skills {
+  right: 14px;
+}
+
+html[dir="rtl"] .micro {
+    right: 0;
+}
+
+html[dir="rtl"] .nano {
+    right: 0;
+}
+
+html[dir="rtl"] .name {
+    right: 5px;
+}
+
+html[dir="rtl"] .skill {
+    right: 37px;
+}
+
+html[dir="rtl"] .lightbg {
+    transform-origin: 125px 220px;
+    margin: 0 10px 0 0;
+}
+
+html[dir="rtl"] .vrt-dl-choice {
+    padding: 0 12px 6px 0;
+    text-align: right;
+}
+
+html[dir="rtl"] .vrt-dl-choice > i {
+    float: right;
+}

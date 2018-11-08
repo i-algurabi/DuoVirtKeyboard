@@ -1,0 +1,198 @@
+{
+  "version": "0.0.1",
+  "lang": "ar",
+  "keysmap": {
+    "48": {
+      "normal": "0",
+      "shift": "("
+    },
+    "49": {
+      "normal": "1",
+      "shift": "!"
+    },
+    "50": {
+      "normal": "2",
+      "shift": "@"
+    },
+    "51": {
+      "normal": "3",
+      "shift": "#"
+    },
+    "52": {
+      "normal": "4",
+      "shift": "$"
+    },
+    "53": {
+      "normal": "5",
+      "shift": "%"
+    },
+    "54": {
+      "normal": "6",
+      "shift": "^"
+    },
+    "55": {
+      "normal": "7",
+      "shift": "&"
+    },
+    "56": {
+      "normal": "8",
+      "shift": "*"
+    },
+    "57": {
+      "normal": "9",
+      "shift": ")"
+    },
+    "59": {
+      "normal": ";",
+      "shift": ":"
+    },
+    "65": {
+      "normal": "ش",
+      "shift": "ِ"
+    },
+    "66": {
+      "normal": "لا",
+      "shift": "لآ"
+    },
+    "67": {
+      "normal": "ؤ",
+      "shift": "}"
+    },
+    "68": {
+      "normal": "ي",
+      "shift": "]"
+    },
+    "69": {
+      "normal": "ث",
+      "shift": "ُ"
+    },
+    "70": {
+      "normal": "ب",
+      "shift": "["
+    },
+    "71": {
+      "normal": "ل",
+      "shift": "لأ"
+    },
+    "72": {
+      "normal": "ا",
+      "shift": "أ"
+    },
+    "73": {
+      "normal": "ه",
+      "shift": "÷"
+    },
+    "74": {
+      "normal": "ت",
+      "shift": "ـ"
+    },
+    "75": {
+      "normal": "ن",
+      "shift": "،"
+    },
+    "76": {
+      "normal": "م",
+      "shift": "/"
+    },
+    "77": {
+      "normal": "ة",
+      "shift": "’"
+    },
+    "78": {
+      "normal": "ى",
+      "shift": "آ"
+    },
+    "79": {
+      "normal": "خ",
+      "shift": "×"
+    },
+    "80": {
+      "normal": "ح",
+      "shift": "؛"
+    },
+    "81": {
+      "normal": "ض",
+      "shift": "َ"
+    },
+    "82": {
+      "normal": "ق",
+      "shift": "ٌ"
+    },
+    "83": {
+      "normal": "س",
+      "shift": "ٍ"
+    },
+    "84": {
+      "normal": "ف",
+      "shift": "لإ"
+    },
+    "85": {
+      "normal": "ع",
+      "shift": "‘"
+    },
+    "86": {
+      "normal": "ر",
+      "shift": "{"
+    },
+    "87": {
+      "normal": "ص",
+      "shift": "ً"
+    },
+    "88": {
+      "normal": "ء",
+      "shift": "ْ"
+    },
+    "89": {
+      "normal": "غ",
+      "shift": "إ"
+    },
+    "90": {
+      "normal": "ئ",
+      "shift": "~"
+    },
+    "186": {
+      "normal": "ك",
+      "shift": ":"
+    },
+    "187": {
+      "normal": "=",
+      "shift": "+"
+    },
+    "188": {
+      "normal": "و",
+      "shift": ","
+    },
+    "189": {
+      "normal": "-",
+      "shift": "_"
+    },
+    "190": {
+      "normal": "ز",
+      "shift": "."
+    },
+    "191": {
+      "normal": "ظ",
+      "shift": "؟"
+    },
+    "192": {
+      "normal": "ذ",
+      "shift": "ّ"
+    },
+    "219": {
+      "normal": "ج",
+      "shift": "<"
+    },
+    "220": {
+      "normal": "\\",
+      "shift": "|"
+    },
+    "221": {
+      "normal": "د",
+      "shift": ">"
+    },
+    "222": {
+      "normal": "ط",
+      "shift": "\""
+    }
+  }
+}

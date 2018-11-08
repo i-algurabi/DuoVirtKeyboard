@@ -1,9 +1,9 @@
-<img align="right" src="https://i-algurabi.github.io/DuoVirtKeyboard/images/logo.png" />
+<img align="right" src="https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/images/logo.png" />
 
-[**DuoVirtKeyboard**](https://i-algurabi.github.io/DuoVirtKeyboard/DuoVirtKeyboard.user.js) is an extension that allows you to use a virtual onscreen keyboard with customizable layouts. Adding
+[**DuoVirtKeyboard**](https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.user.js) is an extension that allows you to use a virtual onscreen keyboard with customizable layouts. Adding
  automatic keyboard layout switching to both virtual and physical keyboards
 
-Current version: **0.0.42**
+Current version: **0.1.0**
 
 # Table of Content
 
@@ -30,11 +30,12 @@ The script is tested to work under Chrome 58.0.3029.110 and FF53.0.2
 # Installation
 
 To use this userscript first you need to install a [TamperMonkey](https://tampermonkey.net/) addon for you browser.
-After instaling it, go to TamperMonkey Dashboard, paste URL
-
-     [https://i-algurabi.github.io/DuoVirtKeyboard/DuoVirtKeyboard.user.js](https://i-algurabi.github.io/DuoVirtKeyboard/DuoVirtKeyboard.user.js)
-
-and click Import, to import this userscript.
+After instaling it,
+ * click [here](https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.user.js)
+ or
+ * Open TamperMonkey settings
+   ** copy following URL '''https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.user.js'''
+   ** paste it to Utilities\URL and click Import, to import this userscript.
 
 # What do you get
 
