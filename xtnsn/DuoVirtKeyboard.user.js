@@ -2,12 +2,12 @@
 // @name         DuoVirtKeyboard
 // @namespace    duolingo
 // @description  This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version      0.1.0
+// @version      0.1.0.001
 // @author       IceCube aka i.algurabi, (c) 2018
 // @include      https://*.duolingo.com/*
 // @include      https://i-algurabi.github.io/DuoVirtKeyboard/*
-// @updateURL    https://i-algurabi.github.io/DuoVirtKeyboard/extensn/DuoVirtKeyboard.meta
-// @downloadURL  https://i-algurabi.github.io/DuoVirtKeyboard/extensn/DuoVirtKeyboard.user.js
+// @updateURL    https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.meta
+// @downloadURL  https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.user.js
 // @grant        none
 // ==/UserScript==
 (function () {
@@ -18,14 +18,21 @@
         "duoState": null,
         "firstrefresh": true,
         "needrefresh": false,
-        "getLangs": function () {
-            var current_duoState;
-            current_duoState = userInfo.duoState = userInfo.refresh();
+        "getLangs": function (withoutMapped) {
+            var currentDuoState;
+            currentDuoState = userInfo.duoState = userInfo.refresh();
             var result = {};
             try {
-                for (let course in current_duoState.courses) {
-                    result[current_duoState.courses[course].fromLanguage] = (basekeys[current_duoState.courses[course].fromLanguage] === undefined);
-                    result[current_duoState.courses[course].learningLanguage] = (basekeys[current_duoState.courses[course].learningLanguage] === undefined);
+                var mappedfrLanguage, mappedtoLanguage;
+                for (let course in currentDuoState.courses) {
+                    let frLanguage = mappedfrLanguage = currentDuoState.courses[course].fromLanguage;
+                    let toLanguage = mappedtoLanguage = currentDuoState.courses[course].learningLanguage;
+                    if (!withoutMapped) {
+                        mappedfrLanguage = basekeys.supported(frLanguage);
+                        mappedtoLanguage = basekeys.supported(toLanguage);
+                    }
+                    result[frLanguage] = (basekeys[mappedfrLanguage] !== undefined);
+                    result[toLanguage] = (basekeys[mappedtoLanguage] !== undefined);
                 }
             } catch (e) {
             }
@@ -88,7 +95,7 @@
                 if (json.courses) {
                     if (!jsonDuoState.courses)
                         jsonDuoState.courses = {};
-                    virtKeyboard.updateBase(jsonDuoState.courses, json.courses);
+                    userInfo.tools.updateBase(jsonDuoState.courses, json.courses);
                 }
                 if (json.currentCourse) {
                     if (!jsonDuoState.courses)
@@ -96,7 +103,7 @@
                     jsonDuoState.courses[json.currentCourse.id] = json.currentCourse;
                     if (!jsonDuoState.skills)
                         jsonDuoState.skills = {};
-                    virtKeyboard.updateBase(jsonDuoState.skills, json.currentCourse.skills);
+                    userInfo.tools.updateBase(jsonDuoState.skills, json.currentCourse.skills);
                 }
                 localStorage["duo.state"] = JSON.stringify(jsonDuoState);
                 return jsonDuoState;
@@ -128,30 +135,31 @@
                     learningLanguage = currentSkill.learningLanguage;
                 let courseid = "DUOLINGO_" + learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
                 let willreturn = fromLanguage === currentSkill.fromLanguage
-                        && learningLanguage === currentSkill.learningLanguage
-                        && currentSkill.accessible
-                        && ((skillsType === "weak") ? (
-                                currentSkill.strength
-                                && currentSkill.strength < 1
-                                && (
-                                        (currentSkill.finishedLevels > 0)
-                                        || (currentSkill.finishedLessons === currentSkill.lessons)
-                                        )
-                                ) : (
+                    && learningLanguage === currentSkill.learningLanguage
+                    && currentSkill.accessible
+                    && ((skillsType === "weak") ? (
+                            currentSkill.finishedLevels > 0 && (
                                 currentSkill.finishedLessons < currentSkill.lessons
-                                && (currentSkill.finishedLevels === 0)
-                                ));
+                                || currentSkill.finishedLevels < currentSkill.levels
+                            )
+                        ) : (
+                            currentSkill.finishedLessons < currentSkill.lessons
+                            && currentSkill.finishedLevels === 0
+                        )
+                    );
                 if (willreturn) {
                     if (!result[courseid]) {
                         result[courseid] = {};
                     }
                     let nextLesson = 0;
                     if (currentSkill.finishedLessons < currentSkill.lessons)
-                        nextLesson = currentSkill.finishedLessons + 1
+                        nextLesson = currentSkill.finishedLessons + 1;
+                    if (virtKeyboard.test)
+                        nextLesson = "test";
                     currentSkill.URI = "/skill/"
-                            + currentSkill.learningLanguage + "/"
-                            + currentSkill.urlName + "/"
-                            + nextLesson;
+                        + currentSkill.learningLanguage + "/"
+                        + currentSkill.urlName + "/"
+                        + nextLesson;
                     result[courseid][currentSkill.name] = currentSkill;
                 }
             }
@@ -166,26 +174,12 @@
                 data: {
                     from_language: fromLanguage,
                     learning_language: learningLanguage
-                 }
-            },function () {
-                if (userInfo.needrefresh && !duo.version)
-                    userInfo.enrichUser();
-                document.location.href = document.location.protocol + "//" + document.location.hostname;
-            });
-			/*
-            $.ajax({
-                type: "POST",
-                url: "/api/1/me/switch_language",
-                data: {
-                    from_language: fromLanguage,
-                    learning_language: learningLanguage
                 }
-            }).done(function () {
+            }, function () {
                 if (userInfo.needrefresh && !duo.version)
                     userInfo.enrichUser();
                 document.location.href = document.location.protocol + "//" + document.location.hostname;
             });
-			*/
         },
         "fixcss": function (documentdir) {
             console.info("fixcss(" + documentdir + ")");
@@ -199,12 +193,12 @@
                 console.debug("csslist[i].dir.indexOf(new) !== -1: " + (csslist[i].dir.indexOf("new") !== -1));
                 console.debug("csslist[i].dir.indexOf(" + documentdir + ") !== -1: " + csslist[i].dir.indexOf(documentdir) !== -1);
                 let isApply = (typeof duo === 'object'
-                        && (
-                                (!duo.version && csslist[i].dir.indexOf("new") !== -1)
-                                || csslist[i].dir.indexOf("new") === -1
-                                )
-                        && csslist[i].dir.indexOf(documentdir) !== -1
-                        ) && ((csslist[i].dir.indexOf("fix") !== -1)?virtKeyboard.fixCss:true) /* if this is a fix css then act according to fixCss value */;
+                    && (
+                        (!duo.version && csslist[i].dir.indexOf("new") !== -1)
+                        || csslist[i].dir.indexOf("new") === -1
+                    )
+                    && csslist[i].dir.indexOf(documentdir) !== -1
+                ) && ((csslist[i].dir.indexOf("fix") !== -1) ? virtKeyboard.fixCss : true) /* if this is a fix css then act according to fixCss value */;
                 console.info("isApply: " + isApply + "\thref:" + csslist[i].href);
                 if (isApply) {
                     let vrtcss = document.createElement('link');
@@ -215,16 +209,27 @@
             }
         },
         "tools": {
-            "getLocalStorage": function(){
+            "updateBase": function (lObject, jsonObj, depth) {
+                depth = (!depth) ? 0 : depth + 1;
+                for (let subobj in jsonObj) {
+                    if (typeof jsonObj[subobj] === 'object' && typeof lObject[subobj] === 'object') {
+                        if (depth < 10)
+                            userInfo.tools.updateBase(lObject[subobj], jsonObj[subobj], depth);
+                    } else {
+                        lObject[subobj] = jsonObj[subobj];
+                    }
+                }
+            },
+            "getLocalStorage": function () {
                 if (chrome && chrome.storage)
-                    return chrome.storage.sync
+                    return chrome.storage.sync;
                 if (window.localStorage)
-                    return window.localStorage
+                    return window.localStorage;
                 return null;
             },
             "saveToLocalStorage": function (parameter, value) {
                 let localStorage = userInfo.tools.getLocalStorage();
-                if (localStorage){
+                if (localStorage) {
                     localStorage["keyboard." + parameter] = JSON.stringify(value);
                     return true;
                 }
@@ -232,7 +237,7 @@
             },
             "clearLocalStorage": function (parameter) {
                 let localStorage = userInfo.tools.getLocalStorage();
-                if (localStorage){
+                if (localStorage) {
                     localStorage.removeItem("keyboard." + parameter);
                     return true;
                 }
@@ -240,7 +245,7 @@
             },
             "getFromLocalStorage": function (parameter) {
                 let localStorage = userInfo.tools.getLocalStorage();
-                if (localStorage){
+                if (localStorage) {
                     let param = localStorage["keyboard." + parameter];
                     if (param)
                         return JSON.parse(param);
@@ -249,16 +254,16 @@
             },
             "sendAjax": function (options, callBack) {
                 var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function(){
-                    if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
                         callBack(xhr.response);
                     }
                 };
-				var data="";
-				if (!options.contentType) options.contentType="application/json;charset=UTF-8";
-				if (options.data) data = JSON.stringify(options.data);
+                var data = "";
+                if (!options.contentType) options.contentType = "application/json;charset=UTF-8";
+                if (options.data) data = JSON.stringify(options.data);
                 xhr.open(options.type, encodeURI(location.href + options.url), true);
-				xhr.setRequestHeader("Content-Type", options.contentType);
+                xhr.setRequestHeader("Content-Type", options.contentType);
                 xhr.send(data);
             }
         },
@@ -327,207 +332,207 @@
         "base": {
             "raw": {
                 "0": [{
-                        "type": "keylabel",
-                        "code": "192"
-                    }, {
-                        "type": "keylabel",
-                        "code": "49"
-                    }, {
-                        "type": "keylabel",
-                        "code": "50"
-                    }, {
-                        "type": "keylabel",
-                        "code": "51"
-                    }, {
-                        "type": "keylabel",
-                        "code": "52"
-                    }, {
-                        "type": "keylabel",
-                        "code": "53"
-                    }, {
-                        "type": "keylabel",
-                        "code": "54"
-                    }, {
-                        "type": "keylabel",
-                        "code": "55"
-                    }, {
-                        "type": "keylabel",
-                        "code": "56"
-                    }, {
-                        "type": "keylabel",
-                        "code": "57"
-                    }, {
-                        "type": "keylabel",
-                        "code": "48"
-                    }, {
-                        "type": "keylabel",
-                        "code": "189"
-                    }, {
-                        "type": "keylabel",
-                        "code": "187"
-                    }, {
-                        "type": "backspace",
-                        "code": "8",
-                        "name": "Backspace"
-                    }
+                    "type": "keylabel",
+                    "code": "192"
+                }, {
+                    "type": "keylabel",
+                    "code": "49"
+                }, {
+                    "type": "keylabel",
+                    "code": "50"
+                }, {
+                    "type": "keylabel",
+                    "code": "51"
+                }, {
+                    "type": "keylabel",
+                    "code": "52"
+                }, {
+                    "type": "keylabel",
+                    "code": "53"
+                }, {
+                    "type": "keylabel",
+                    "code": "54"
+                }, {
+                    "type": "keylabel",
+                    "code": "55"
+                }, {
+                    "type": "keylabel",
+                    "code": "56"
+                }, {
+                    "type": "keylabel",
+                    "code": "57"
+                }, {
+                    "type": "keylabel",
+                    "code": "48"
+                }, {
+                    "type": "keylabel",
+                    "code": "189"
+                }, {
+                    "type": "keylabel",
+                    "code": "187"
+                }, {
+                    "type": "backspace",
+                    "code": "8",
+                    "name": "Backspace"
+                }
                 ],
                 "1": [{
-                        "type": "tab special disabled",
-                        "code": "9",
-                        "name": "Tab"
-                    }, {
-                        "type": "keylabel",
-                        "code": "81"
-                    }, {
-                        "type": "keylabel",
-                        "code": "87"
-                    }, {
-                        "type": "keylabel",
-                        "code": "69"
-                    }, {
-                        "type": "keylabel",
-                        "code": "82"
-                    }, {
-                        "type": "keylabel",
-                        "code": "84"
-                    }, {
-                        "type": "keylabel",
-                        "code": "89"
-                    }, {
-                        "type": "keylabel",
-                        "code": "85"
-                    }, {
-                        "type": "keylabel",
-                        "code": "73"
-                    }, {
-                        "type": "keylabel",
-                        "code": "79"
-                    }, {
-                        "type": "keylabel",
-                        "code": "80"
-                    }, {
-                        "type": "keylabel",
-                        "code": "219"
-                    }, {
-                        "type": "keylabel",
-                        "code": "221"
-                    }, {
-                        "type": "slash",
-                        "code": "220"
-                    }
+                    "type": "tab special disabled",
+                    "code": "9",
+                    "name": "Tab"
+                }, {
+                    "type": "keylabel",
+                    "code": "81"
+                }, {
+                    "type": "keylabel",
+                    "code": "87"
+                }, {
+                    "type": "keylabel",
+                    "code": "69"
+                }, {
+                    "type": "keylabel",
+                    "code": "82"
+                }, {
+                    "type": "keylabel",
+                    "code": "84"
+                }, {
+                    "type": "keylabel",
+                    "code": "89"
+                }, {
+                    "type": "keylabel",
+                    "code": "85"
+                }, {
+                    "type": "keylabel",
+                    "code": "73"
+                }, {
+                    "type": "keylabel",
+                    "code": "79"
+                }, {
+                    "type": "keylabel",
+                    "code": "80"
+                }, {
+                    "type": "keylabel",
+                    "code": "219"
+                }, {
+                    "type": "keylabel",
+                    "code": "221"
+                }, {
+                    "type": "slash",
+                    "code": "220"
+                }
                 ],
                 "2": [{
-                        "type": "caps special switch",
-                        "code": "20",
-                        "name": "CapsLock"
-                    }, {
-                        "type": "keylabel",
-                        "code": "65"
-                    }, {
-                        "type": "keylabel",
-                        "code": "83"
-                    }, {
-                        "type": "keylabel",
-                        "code": "68"
-                    }, {
-                        "type": "keylabel",
-                        "code": "70"
-                    }, {
-                        "type": "keylabel",
-                        "code": "71"
-                    }, {
-                        "type": "keylabel",
-                        "code": "72"
-                    }, {
-                        "type": "keylabel",
-                        "code": "74"
-                    }, {
-                        "type": "keylabel",
-                        "code": "75"
-                    }, {
-                        "type": "keylabel",
-                        "code": "76"
-                    }, {
-                        "type": "keylabel",
-                        "code": "186"
-                    }, {
-                        "type": "keylabel",
-                        "code": "222"
-                    }, {
-                        "type": "enter special disabled",
-                        "code": "13",
-                        "name": "Enter"
-                    }
+                    "type": "caps special switch",
+                    "code": "20",
+                    "name": "CapsLock"
+                }, {
+                    "type": "keylabel",
+                    "code": "65"
+                }, {
+                    "type": "keylabel",
+                    "code": "83"
+                }, {
+                    "type": "keylabel",
+                    "code": "68"
+                }, {
+                    "type": "keylabel",
+                    "code": "70"
+                }, {
+                    "type": "keylabel",
+                    "code": "71"
+                }, {
+                    "type": "keylabel",
+                    "code": "72"
+                }, {
+                    "type": "keylabel",
+                    "code": "74"
+                }, {
+                    "type": "keylabel",
+                    "code": "75"
+                }, {
+                    "type": "keylabel",
+                    "code": "76"
+                }, {
+                    "type": "keylabel",
+                    "code": "186"
+                }, {
+                    "type": "keylabel",
+                    "code": "222"
+                }, {
+                    "type": "enter special disabled",
+                    "code": "13",
+                    "name": "Enter"
+                }
                 ],
                 "3": [{
-                        "type": "shift left special switch",
-                        "code": "16",
-                        "name": "Shift"
-                    }, {
-                        "type": "keylabel",
-                        "code": "90"
-                    }, {
-                        "type": "keylabel",
-                        "code": "88"
-                    }, {
-                        "type": "keylabel",
-                        "code": "67"
-                    }, {
-                        "type": "keylabel",
-                        "code": "86"
-                    }, {
-                        "type": "keylabel",
-                        "code": "66"
-                    }, {
-                        "type": "keylabel",
-                        "code": "78"
-                    }, {
-                        "type": "keylabel",
-                        "code": "77"
-                    }, {
-                        "type": "keylabel",
-                        "code": "188"
-                    }, {
-                        "type": "keylabel",
-                        "code": "190"
-                    }, {
-                        "type": "keylabel",
-                        "code": "191"
-                    }, {
-                        "type": "shift right special disabled",
-                        "code": "16",
-                        "name": "Shift"
-                    }
+                    "type": "shift left special switch",
+                    "code": "16",
+                    "name": "Shift"
+                }, {
+                    "type": "keylabel",
+                    "code": "90"
+                }, {
+                    "type": "keylabel",
+                    "code": "88"
+                }, {
+                    "type": "keylabel",
+                    "code": "67"
+                }, {
+                    "type": "keylabel",
+                    "code": "86"
+                }, {
+                    "type": "keylabel",
+                    "code": "66"
+                }, {
+                    "type": "keylabel",
+                    "code": "78"
+                }, {
+                    "type": "keylabel",
+                    "code": "77"
+                }, {
+                    "type": "keylabel",
+                    "code": "188"
+                }, {
+                    "type": "keylabel",
+                    "code": "190"
+                }, {
+                    "type": "keylabel",
+                    "code": "191"
+                }, {
+                    "type": "shift right special disabled",
+                    "code": "16",
+                    "name": "Shift"
+                }
                 ],
                 "4": [{
-                        "type": "ctrl special disabled",
-                        "code": "17",
-                        "name": "Control"
-                    }, {
-                        "type": "home special",
-                        "code": "91",
-                        "name": "Meta"
-                    }, {
-                        "type": "alt special disabled",
-                        "code": "18",
-                        "name": "Alt"
-                    }, {
-                        "type": "space",
-                        "code": "32",
-                        "name": " "
-                    }, {
-                        "type": "alt special disabled",
-                        "code": "18",
-                        "name": "Alt"
-                    }, {
-                        "type": "menu special",
-                        "code": "93",
-                        "name": "ContextMenu"
-                    }, {
-                        "type": "ctrl right special disabled",
-                        "code": "17",
-                        "name": "Control"
-                    }
+                    "type": "ctrl special disabled",
+                    "code": "17",
+                    "name": "Control"
+                }, {
+                    "type": "home special",
+                    "code": "91",
+                    "name": "Meta"
+                }, {
+                    "type": "alt special disabled",
+                    "code": "18",
+                    "name": "Alt"
+                }, {
+                    "type": "space",
+                    "code": "32",
+                    "name": " "
+                }, {
+                    "type": "alt special disabled",
+                    "code": "18",
+                    "name": "Alt"
+                }, {
+                    "type": "menu special",
+                    "code": "93",
+                    "name": "ContextMenu"
+                }, {
+                    "type": "ctrl right special disabled",
+                    "code": "17",
+                    "name": "Control"
+                }
                 ]
             }
         },
@@ -2682,8 +2687,8 @@
             let result = lang;
             try {
                 result = result || userInfo.duoState.user.learningLanguage;
-                if (this.layout_map[result]) {
-                    result = this.supported_lang[this.layout_map[result]];
+                if (basekeys.layout_map[result]) {
+                    result = basekeys.supported_lang[basekeys.layout_map[result]];
                 }
             } catch (e) {
                 result = -1;
@@ -2692,16 +2697,19 @@
         }
     };
     var virtKeyboard = {
-        "rawgit": "https://i-algurabi.github.io/DuoVirtKeyboard/extensn/",
-        "version": "0.1.0",
+        //"rawgit": "https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/",
+        //"rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/352da72d38cf7e0827ee8dc05a0db8976e383ccd/xtnsn/",
+        "rawgit": "./",
+        "version": "0.1.0.001",
+        "test": true,
         "show": true,
         "apply": true,
-        "fixCss":false,
+        "fixCss": false,
         "checklocation": function () {
             return (/^\/skill/.test(location.pathname) ||
-                    /^\/bigtest/.test(location.pathname) ||
-                    /^\/practice/.test(location.pathname) ||
-                    /^\/DuoVirtKeyboard/.test(location.pathname));
+                /^\/bigtest/.test(location.pathname) ||
+                /^\/practice/.test(location.pathname) ||
+                /^\/DuoVirtKeyboard/.test(location.pathname));
         },
         "shift": false,
         "caps": false,
@@ -2709,6 +2717,7 @@
         "newlang": "",
         "mainlang": "",
         "secondlang": "",
+        "uiLanguage": "",
         "body": "<div id='virt-keyboard' class='vrt-hidden'><header class='vrt-topbar'><div class='vrt-toggledropdown vrt-main'><span class='vrt-langspan vrt-main'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-main' id='vrt-mainlang' data-language='en'></ul></div><div class='vrt-keycodesetting vrt-normal-key vrt-hidden'><input id='vrt-normal-key' placeholder='Regular character' /></div><div class='v-logo v-big'><ul class='vrt-download vrt-arrow-top'></ul></div><div class='vrt-keycodesetting vrt-shift-key vrt-hidden'><input id='vrt-shift-key' placeholder='Shift character' /></div><div class='vrt-toggledropdown vrt-secondary'><span class='vrt-langspan vrt-secondary'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-secondary' id='vrt-secondarylang' data-language='en'></ul></div><div class='v-close'><span class='v-close'></span></div></header><div class='vrt-section'></div></div>",
         "fillKeyboard": function (lang0, lang1) {
             console.debug("fillKeyboard(" + lang0 + "," + lang1 + ")");
@@ -2717,13 +2726,19 @@
                 virtKeyboard.mainlang = lang0;
             }
             if (!lang1) {
-                lang1 = (lang0 === virtKeyboard.secondlang) ? virtKeyboard.mainlang : virtKeyboard.secondlang;
+                if (lang0 === virtKeyboard.secondlang) {
+                    lang1 = lang0;
+                    lang0 = virtKeyboard.mainlang
+                } else {
+                    lang1 = virtKeyboard.secondlang;
+                }
             }
-            virtKeyboard.secondlang = lang1;
             if (!(lang0 && lang1)) {
                 console.error("Language keycodes not provided.");
                 return false;
             }
+            virtKeyboard.mainlang = lang0 = basekeys.supported(lang0);
+            virtKeyboard.secondlang = lang1 = basekeys.supported(lang1);
 
             for (let keycode in basekeys[lang0]) {
                 let mainlabel = basekeys[lang0][keycode];
@@ -2769,7 +2784,7 @@
             let jq_inputf = $(inputf);
             let input_lang = basekeys.supported(jq_inputf.attr("lang"));
             if ($(".fixmain").hasClass("hover"))
-                input_lang = virtKeyboard.mainlang;
+                input_lang = $("#vrt-mainlang").data("language");
             console.debug("typecustomchar: using lang [" + input_lang + "]");
             if (input_lang === -1) {
                 input_lang = userInfo.duoState.user.learningLanguage;
@@ -2870,7 +2885,7 @@
         },
         "getlanguagename": function (langcode, ui_main) {
             if (!ui_main)
-                ui_main = virtKeyboard.mainlang;
+                ui_main = virtKeyboard.uiLanguage = duo.uiLanguage || userInfo.duoState.user.fromLanguage || virtKeyboard.secondlang;
             let ui_langs = basekeys.language_names_ui[ui_main];
             let langname = ui_langs[langcode].split("");
             langname[0] = langname[0].toUpperCase();
@@ -2899,15 +2914,16 @@
                 }
             };
 
-            let active_langs_supported=userInfo.getLangs();
-            for (let i in active_langs_supported) {
-                let langcode = i;
+            let active_langs_supported = userInfo.getLangs(true /* Return only not mapped languages */);
+            for (let langcode in active_langs_supported) {
+                if (!active_langs_supported[langcode]) continue;
                 let newentry = $("<li>");
                 newentry.addClass(dchclass);
                 newentry.data("language", langcode);
                 newentry[0].textContent = virtKeyboard.getlanguagename(langcode);
                 if (isDL) {
                     let a_link = $("<a>");
+                    a_link.addClass("v-download");
                     let temp = {
                         "lang": langcode,
                         "keysmap": basekeys[langcode]
@@ -2967,17 +2983,6 @@
                 jq_vrt_section.append(ul);
             }
         },
-        "updateBase": function (lObject, jsonObj, depth) {
-            depth = (!depth) ? 0 : depth + 1;
-            for (let subobj in jsonObj) {
-                if (typeof jsonObj[subobj] === 'object' && typeof lObject[subobj] === 'object') {
-                    if (depth < 10)
-                        this.updateBase(lObject[subobj], jsonObj[subobj], depth);
-                } else {
-                    lObject[subobj] = jsonObj[subobj];
-                }
-            }
-        },
         "updateLangs": function (update) {
             if (!update) {
                 update = {};
@@ -3035,21 +3040,6 @@
                     if (!jq_menu.hasClass("switch")) {
                         jq_menu.addClass("switch");
                     }
-                    /* To add new languages to dropdown menu - uncomment this code
-                     if (!jq_dd_sec.hasClass("vrt-settings")) {
-                     jq_dd_sec.addClass("vrt-update");
-                     virtKeyboard.updatesecondary();
-                     }
-                     else {
-                     virtKeyboard.newcodepage = false;
-                     jq_ks.hide();
-                     jq_dd_sec.removeClass("vrt-settings");
-                     jq_dd_sec.removeClass("vrt-update");
-                     jq_dd_sec_new.remove();
-                     userInfo.tools.saveToLocalStorage("keys", basekeys);
-                     virtKeyboard.updatesupportedlangs();
-                     }
-                     */
                 }
                 if ($(this).hasClass("special")) {
                     $(this).toggleClass("hover");
@@ -3157,15 +3147,19 @@
             });
         },
         "completeInit": function () {
-            if (Object.keys(userInfo.getLangs()).length === 0 || basekeys.supported_lang.length === 0) {
+            let userLanguages = userInfo.getLangs();
+            if (Object.keys(userLanguages).length === 0 || basekeys.supported_lang.length === 0) {
                 setTimeout(function () {
                     virtKeyboard.completeInit();
                 }, 300);
                 return;
             }
-            virtKeyboard.updateLangs(userInfo.getLangs());
+            $("#vrt-mainlang").data("language", virtKeyboard.mainlang = userInfo.duoState.user.learningLanguage || "en");
+            $("#vrt-secondarylang").data("language", virtKeyboard.secondlang = userInfo.duoState.user.fromLanguage || "en");
+            virtKeyboard.updateLangs(userLanguages);
             virtKeyboard.drawKeyboard();
             virtKeyboard.updatesupportedlangs();
+            virtKeyboard.uiLanguage = virtKeyboard.uiLanguage ? virtKeyboard.uiLanguage : duo ? duo.uiLanguage : userInfo ? userInfo.duoState ? userInfo.duoState.user ? userInfo.duoState.user.fromLanguage : virtKeyboard.secondlang : "en" : "en";
         },
         "init": function () {
             if (userInfo.firstrefresh) {
@@ -3174,17 +3168,17 @@
                 }, 300);
                 return;
             }
-            virtKeyboard.mainlang = userInfo.duoState.user.learningLanguage || "en";
-            virtKeyboard.secondlang = userInfo.duoState.user.fromLanguage || "en";
             $("body").append(virtKeyboard.body);
             let virt_keyboard = $("#virt-keyboard");
-            virt_keyboard.hover(function () {
-                $(this).addClass("vrt-keep");
-            }, function () {
-                $(this).removeClass("vrt-keep");
-            });
-            $(document).on("click", ".v-logo", function () {
-                let jq_logo = $(".v-logo");
+            virt_keyboard.hover(
+                function () {
+                    $(this).addClass("vrt-keep");
+                }, function () {
+                    $(this).removeClass("vrt-keep");
+                });
+            $(document).on("click", ".v-logoOnTop", function () {
+                let virt_keyboard = $("#virt-keyboard");
+                let jq_logo = $(".v-logoOnTop");
                 virtKeyboard.show = !virtKeyboard.show;
                 virtKeyboard.apply = true;
                 jq_logo.removeClass("v-disabled");
@@ -3194,12 +3188,13 @@
                 } else {
                     if ($(this).hasClass("v-show"))
                         $(this).removeClass("v-show");
+                    virt_keyboard.hide();
                 }
                 userInfo.tools.saveToLocalStorage("settings", virtKeyboard);
             });
             $(document).on("click", ".v-close", function () {
                 let virt_keyboard = $("#virt-keyboard");
-                let jq_logo = $(".v-logo");
+                let jq_logo = $(".v-logoOnTop");
                 virtKeyboard.show = false;
                 jq_logo.removeClass("v-show");
                 jq_logo.addClass("v-disabled");
@@ -3217,7 +3212,6 @@
                     }
                     let visible = $("#virt-keyboard:visible").length > 0;
                     if (virtKeyboard.show && !visible) {
-                        //var jq_vkbd = $("#virt-keyboard");
                         virtKeyboard.updatesupportedlangs();
                         console.debug("init.textarea.onfocus:fillKeyboard");
                         virtKeyboard.fillKeyboard($(this).attr("lang"));
@@ -3256,22 +3250,21 @@
                     userInfo.tools.clearLocalStorage("keys");
                     userInfo.tools.clearLocalStorage("weakspan");
                     userInfo.tools.clearLocalStorage("newspan");
-                    //userInfo.tools.clearLocalStorage("courseLevel");
                 }
                 settings.version = virtKeyboard.version;
                 settings.rawgit = virtKeyboard.rawgit;
-                virtKeyboard.updateBase(virtKeyboard, settings);
+                userInfo.tools.updateBase(virtKeyboard, settings);
             }
             $.fn.draggable = function () {
                 var $this = this,
-                        ns = 'draggable_' + (Math.random() + '').replace('.', ''),
-                        mm = 'mousemove.' + ns,
-                        mu = 'mouseup.' + ns,
-                        $w = $(window),
-                        rtl = $("html").attr("dir") === "rtl",
-                        isFixed = ($this.css('position') === 'fixed'),
-                        adjX = 0,
-                        adjY = 0;
+                    ns = 'draggable_' + (Math.random() + '').replace('.', ''),
+                    mm = 'mousemove.' + ns,
+                    mu = 'mouseup.' + ns,
+                    $w = $(window),
+                    rtl = $("html").attr("dir") === "rtl",
+                    isFixed = ($this.css('position') === 'fixed'),
+                    adjX = 0,
+                    adjY = 0;
                 $this.mousedown(function (ev) {
                     var pos = $this.position();
                     if (isFixed) {
@@ -3279,7 +3272,7 @@
                         adjY = $w.scrollTop();
                     }
                     var ox = (ev.pageX - pos.left),
-                            oy = (ev.pageY - pos.top);
+                        oy = (ev.pageY - pos.top);
                     $this.data(ns, {
                         x: ox,
                         y: oy
@@ -3310,11 +3303,11 @@
                     type: "get",
                     url: virtKeyboard.rawgit + "duo/keyboard.base.json"
                 }).done(function (json) {
-                    virtKeyboard.updateBase(basekeys, json);
+                    userInfo.tools.updateBase(basekeys, json);
                     userInfo.tools.saveToLocalStorage("keys", basekeys);
                 });
             } else {
-                virtKeyboard.updateBase(basekeys, oldkeys);
+                userInfo.tools.updateBase(basekeys, oldkeys);
             }
             if ($(".v-logo").length === 0) {
                 let vKeyboardLogo = $("<span>");
@@ -3365,7 +3358,7 @@
             }
             let sortedCourses = Object.keys(userInfo.duoState.courses).sort(function (a, b) {
                 return (userInfo.duoState.courses[a].fromLanguage.localeCompare(userInfo.duoState.courses[b].fromLanguage))
-            })
+            });
             let currentCourse;
             for (let x in sortedCourses) {
                 let course = sortedCourses[x];
@@ -3388,9 +3381,10 @@
                 let newspan = $("<div class='skill new'>");
                 let weakSkills = userInfo.getSkills("weak", fromLanguage, learningLanguage)[courseid];
                 let newSkills = userInfo.getSkills("new", fromLanguage, learningLanguage)[courseid];
-                let skill; let nClone;
+                let skill;
+                let nClone;
                 if (learningLanguage === userInfo.duoState.user.learningLanguage
-                        && fromLanguage === userInfo.duoState.user.fromLanguage) {
+                    && fromLanguage === userInfo.duoState.user.fromLanguage) {
                     let empty_node = $("");
                     let prevWeak = $(userInfo.tools.getFromLocalStorage("weakspan").html) || empty_node;
                     let prevNew = $(userInfo.tools.getFromLocalStorage("newspan").html) || empty_node;
@@ -3440,7 +3434,7 @@
                     }
                 }
                 li.append(span1);
-                let levelString = (basekeys.language_names_ui[fromLanguage].level || "LEVEL").toUpperCase() + " " + (courseLevel[course] || "[ ]");
+                let levelString = (basekeys.language_names_ui[virtKeyboard.uiLanguage || "en"].level || "LEVEL").toUpperCase() + " " + (courseLevel[course] || "[ ]");
                 li.append($("<span class='sp-level'>" + levelString + "</span>"));
                 li.append(span2);
                 addweakspan = addweakspan || weakspan.find("span").length > 0;
@@ -3509,110 +3503,6 @@
             return nClone;
         }
     };
-    !function (s) {
-        function r(t) {
-            if (n[t])
-                return n[t].exports;
-            var e = n[t] = {
-                exports: {},
-                id: t,
-                loaded: !1
-            };
-            return s[t].call(e.exports, e, e.exports, r),
-                    e.loaded = !0,
-                    e.exports;
-        }
-
-        var t = window.webpackJsonp;
-        window.webpackJsonp = function (i, a) {
-            for (var c, f, d = 0, g = []; d < i.length; d++)
-                f = i[d], e[f] && g.push.apply(g, e[f]), e[f] = 0;
-            for (c in a)
-                s[c] = a[c];
-            for (t && t(i, a); g.length; )
-                g.shift().call(null, r);
-            if (a[0])
-                return n[0] = 0, r(0);
-        };
-        var n = {},
-                e = {
-                    0: 0
-                };
-        r.e = function (s, t) {
-            if (0 === e[s])
-                return t.call(null, r);
-            if (void 0 !== e[s])
-                e[s].push(t);
-            else {
-                e[s] = [t];
-                var n = document.getElementsByTagName("head")[0],
-                        i = document.createElement("script");
-                i.type = "text/javascript",
-                        i.charset = "utf-8",
-                        i.async = !0,
-                        i.src = r.p + "" + ({
-                            1: "js/vendor",
-                            2: "js/app",
-                            3: "strings/zh-TW",
-                            4: "strings/zh-CN",
-                            5: "strings/vi",
-                            6: "strings/uk",
-                            7: "strings/tr",
-                            8: "strings/ru",
-                            9: "strings/ro",
-                            10: "strings/pt",
-                            11: "strings/pl",
-                            12: "strings/nl-NL",
-                            13: "strings/ko",
-                            14: "strings/ja",
-                            15: "strings/it",
-                            16: "strings/id",
-                            17: "strings/hu",
-                            18: "strings/hi",
-                            19: "strings/fr",
-                            20: "strings/es",
-                            21: "strings/en",
-                            22: "strings/el",
-                            23: "strings/de",
-                            24: "strings/cs",
-                            25: "strings/ar"
-                        }, [s] || s) + "-" + {
-                    1: "dc221740",
-                    2: "bd21b823",
-                    3: "1496ee5d",
-                    4: "3bd0e77f",
-                    5: "f4bf9b65",
-                    6: "a2b896ec",
-                    7: "a57279d4",
-                    8: "7358872c",
-                    9: "a72b1a76",
-                    10: "d31c8206",
-                    11: "cd94eafc",
-                    12: "b7995df2",
-                    13: "688e6d65",
-                    14: "8561a8d7",
-                    15: "7b389202",
-                    16: "cba322e8",
-                    17: "f30670c9",
-                    18: "3cfba715",
-                    19: "60fd521f",
-                    20: "59f590f4",
-                    21: "830e44b4",
-                    22: "0cccc05f",
-                    23: "a011bfdb",
-                    24: "b0a7ffee",
-                    25: "5293014a"
-                };
-                [s] + ".js",
-                        n.appendChild(i);
-            }
-        },
-                r.m = s,
-                r.c = n,
-                r.p = "/";
-    }
-    ([]);
-
     var chrome = chrome || {
         "extension": false
     };
@@ -3631,7 +3521,7 @@
                     if (/version/.test(splitted[0])) {
                         duo.version = jprs1;
                     } else {
-                        virtKeyboard.updateBase(duo, jprs1);
+                        userInfo.tools.updateBase(duo, jprs1);
                     }
                 }
             }
@@ -3640,16 +3530,16 @@
     var csslist = [
         {
             "href": virtKeyboard.rawgit + "css/newduo.css",
-            "dir": ["ltr", "rtl", "new","fix"]
+            "dir": ["ltr", "rtl", "new", "fix"]
         }, {
             "href": virtKeyboard.rawgit + "css/rtl-newduo.css",
-            "dir": ["rtl", "new","fix"]
+            "dir": ["rtl", "new", "fix"]
         }, {
             "href": virtKeyboard.rawgit + "css/rtl-duofix.css",
-            "dir": ["rtl","fix"]
+            "dir": ["rtl", "fix"]
         },
         {
-            "href": "//fonts.googleapis.com/icon?family=Material+Icons",
+            "href": "https://fonts.googleapis.com/icon?family=Material+Icons",
             "dir": ["ltr", "rtl"]
         }, {
             "href": virtKeyboard.rawgit + "css/style.css",

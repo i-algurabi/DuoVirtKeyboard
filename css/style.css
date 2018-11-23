@@ -169,7 +169,7 @@
 }
 
 .v-logo {
-    background-image: url("../images/logo.png");
+    background-image: url("https://i-algurabi.github.io/DuoVirtKeyboard/images/logo.png");
     background-position: 0 0;
     background-size: 45px;
     display: inline-block;
@@ -196,7 +196,8 @@
 }
 
 .v-big {
-    background-size: 102px;
+    background-image: url("https://i-algurabi.github.io/DuoVirtKeyboard/images/logo.png") !important;
+    background-size: 102px auto !important;
     width: 40px;
     height: 40px;
     background: #CCC 3px 71px;
@@ -214,6 +215,10 @@
     z-index: 999;
 }
 
+.v-download {
+    padding: 0px 1px 0px 1px;
+}
+
 div.v-close {
     background: #2e2e2e;
     border-radius: 98px;
@@ -228,7 +233,7 @@ div.v-close {
 span.v-close {
     height: 12px;
     width: 12px;
-    background: url(//d35aaqx5ub95lt.cloudfront.net/images/icon-sprite.svg) -260px -69px;
+    background: url(https://d35aaqx5ub95lt.cloudfront.net/images/icon-sprite.svg) -260px -69px;
     display: inline-block;
     vertical-align: middle;
     margin: 2px 0 0 6px;
@@ -346,7 +351,7 @@ span.v-close {
     width: 20px;
     height: 20px;
     vertical-align: top;
-    background: url(//d7mj4aqfscim2.cloudfront.net/images/icon-sprite_mv_07abea0df11480e804b8accecc1c101a.svg);
+    background: url(https://d7mj4aqfscim2.cloudfront.net/images/icon-sprite_mv_07abea0df11480e804b8accecc1c101a.svg);
     margin: 11px 0 0 7px;
 }
 
@@ -569,7 +574,7 @@ html[dir="rtl"] .item-box {
 .skills {
     border-radius: 25px;
     display: inline-block;
-    background-image: url(//d35aaqx5ub95lt.cloudfront.net/images/skill-icons-unlocked2.svg);
+    background-image: url(https://d35aaqx5ub95lt.cloudfront.net/images/skill-icons-unlocked2.svg);
     background-size: 254px;
     margin: 6px 3px 0 9px;
     position: relative;
@@ -578,12 +583,12 @@ html[dir="rtl"] .item-box {
 }
 
 .active > div >span >a > .skills {
-  background-size: 390px;
-  margin: 5px;
-  position: relative;
-  left: 14px;
-  height: 40px;
-  width: 40px;
+    background-size: 390px;
+    margin: 5px;
+    position: relative;
+    left: 14px;
+    height: 40px;
+    width: 40px;
 }
 
 .micro {
@@ -626,14 +631,14 @@ html[dir="rtl"] .item-box {
     text-align: center;
     left: 5px;
     color: #e0c1c1;
-  }
+}
 
 div.weak > span > a > span.name {
-  background-color: #6f443a66;
+    background-color: #6f443a66;
 }
 
 div.new > span > a > span.name {
-  background-color: #497e2a66;
+    background-color: #497e2a66;
 }
 
 .skill {
@@ -812,7 +817,7 @@ html[dir="rtl"] .sp-version {
 }
 
 html[dir="rtl"] .active > div >span >a > .skills {
-  right: 14px;
+    right: 14px;
 }
 
 html[dir="rtl"] .micro {
@@ -843,4 +848,28 @@ html[dir="rtl"] .vrt-dl-choice {
 
 html[dir="rtl"] .vrt-dl-choice > i {
     float: right;
+}
+
+/* fallback */
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(./fonts/material-icons.woff2) format('woff2');
+}
+
+.material-icons {
+    font-family: 'Material Icons' !important;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px !important;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -moz-font-feature-settings: 'liga';
+    -moz-osx-font-smoothing: grayscale;
 }
