@@ -40,8 +40,7 @@ function getFromLocalStorage(parameter) {
 	//str += "</pre>";
         status.textContent = str;
         var param = localStorage["keyboard." + parameter];
-        if (param)
-            console.info(param);
+        //if (param) console.info(param);
         return JSON.parse(param);
     }
     return false;

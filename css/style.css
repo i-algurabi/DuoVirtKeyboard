@@ -219,6 +219,28 @@
     padding: 0px 1px 0px 1px;
 }
 
+.hotkeydiv {
+    display: inline-block;
+    margin: 0 -8px 0 -10px;
+}
+
+.hotkeyhint {
+    float: left;
+    position: relative;
+    top: -5px;
+    background-color: #235574;
+    background-color: #1578b480;
+    border-radius: 15px;
+    padding: 5px;
+    font-size: small;
+    color: antiquewhite;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 10px;
+    left: 15px;
+}
+
 div.v-close {
     background: #2e2e2e;
     border-radius: 98px;

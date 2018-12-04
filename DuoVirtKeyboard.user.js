@@ -4,6 +4,7 @@
 // @description  This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
 // @version      0.1.0
 // @author       IceCube aka i.algurabi, (c) 2018
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @include      https://*.duolingo.com/*
 // @include      https://i-algurabi.github.io/DuoVirtKeyboard/*
 // @updateURL    https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.meta
@@ -187,8 +188,8 @@
             });
 			*/
         },
-        "fixcss": function (documentdir) {
-            console.info("fixcss(" + documentdir + ")");
+        "fixCss": function (documentdir) {
+            console.info("fixCss(" + documentdir + ")");
             if (documentdir === userInfo.documentdir) {
                 return;
             }
@@ -2692,8 +2693,8 @@
         }
     };
     var virtKeyboard = {
+        "version": "0.1.0.002",
         "rawgit": "https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/",
-        "version": "0.1.0",
         "show": true,
         "apply": true,
         "fixCss":false,
@@ -2765,7 +2766,7 @@
             }
         },
         "typecustomchar": function (inputf, charcode, key) {
-            console.info("typecustomchar: inputf {" + inputf + "}\n\t charcode {" + charcode + "}\n\tkey {" + key + "}");
+            console.debug("typecustomchar: inputf {" + inputf + "}\n\t charcode {" + charcode + "}\n\tkey {" + key + "}");
             let jq_inputf = $(inputf);
             let input_lang = basekeys.supported(jq_inputf.attr("lang"));
             if ($(".fixmain").hasClass("hover"))
@@ -3143,7 +3144,7 @@
                 });
             });
             $(document).on("keydown", "textarea, input", function (keypressed) {
-                userInfo.fixcss(document.dir);
+                userInfo.fixCss(document.dir);
                 if (virtKeyboard.apply && virtKeyboard.checklocation()) {
                     let virtkey = $("." + keypressed.keyCode).parent();
                     virtkey.addClass("virthover");
@@ -3236,6 +3237,12 @@
                     if (!virt_keyboard.hasClass("vrt-keep")) {
                         virt_keyboard.hide();
                     }
+                }
+            });
+            $(document).on("keydown", null, function (keypressed) {
+                if ($("textarea, input[type='text']").length===0) {
+                    console.debug(keypressed);
+                    let hotkey = $('button#button_'+ keypressed.key);
                 }
             });
             virtKeyboard.completeInit();
@@ -3657,7 +3664,7 @@
         }];
     let documentdir = document.dir ? document.dir : "ltr";
 
-    userInfo.fixcss(documentdir);
+    userInfo.fixCss(documentdir);
     virtKeyboard.preinit();
     sidepanel.init();
 })
