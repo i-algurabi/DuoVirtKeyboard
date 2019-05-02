@@ -1,0 +1,197 @@
+{
+  "lang": "ja",
+  "keysmap": {
+    "48": {
+      "normal": "わ",
+      "shift": "を"
+    },
+    "49": {
+      "normal": "ぬ",
+      "shift": "ぬ"
+    },
+    "50": {
+      "normal": "ふ",
+      "shift": "ふ"
+    },
+    "51": {
+      "normal": "あ",
+      "shift": "ぁ"
+    },
+    "52": {
+      "normal": "う",
+      "shift": "ぅ"
+    },
+    "53": {
+      "normal": "え",
+      "shift": "ぇ"
+    },
+    "54": {
+      "normal": "お",
+      "shift": "ぉ"
+    },
+    "55": {
+      "normal": "や",
+      "shift": "ゃ"
+    },
+    "56": {
+      "normal": "ゆ",
+      "shift": "ゅ"
+    },
+    "57": {
+      "normal": "よ",
+      "shift": "ょ"
+    },
+    "59": {
+      "normal": ";",
+      "shift": ":"
+    },
+    "65": {
+      "normal": "ち",
+      "shift": "ち"
+    },
+    "66": {
+      "normal": "こ",
+      "shift": "こ"
+    },
+    "67": {
+      "normal": "そ",
+      "shift": "そ"
+    },
+    "68": {
+      "normal": "し",
+      "shift": "し"
+    },
+    "69": {
+      "normal": "い",
+      "shift": "ぃ"
+    },
+    "70": {
+      "normal": "は",
+      "shift": "は"
+    },
+    "71": {
+      "normal": "き",
+      "shift": "き"
+    },
+    "72": {
+      "normal": "く",
+      "shift": "く"
+    },
+    "73": {
+      "normal": "に",
+      "shift": "に"
+    },
+    "74": {
+      "normal": "ま",
+      "shift": "ま"
+    },
+    "75": {
+      "normal": "の",
+      "shift": "の"
+    },
+    "76": {
+      "normal": "り",
+      "shift": "り"
+    },
+    "77": {
+      "normal": "も",
+      "shift": "も"
+    },
+    "78": {
+      "normal": "み",
+      "shift": "み"
+    },
+    "79": {
+      "normal": "ら",
+      "shift": "ら"
+    },
+    "80": {
+      "normal": "せ",
+      "shift": "せ"
+    },
+    "81": {
+      "normal": "た",
+      "shift": "た"
+    },
+    "82": {
+      "normal": "す",
+      "shift": "す"
+    },
+    "83": {
+      "normal": "と",
+      "shift": "と"
+    },
+    "84": {
+      "normal": "か",
+      "shift": "か"
+    },
+    "85": {
+      "normal": "な",
+      "shift": "な"
+    },
+    "86": {
+      "normal": "ひ",
+      "shift": "ひ"
+    },
+    "87": {
+      "normal": "て",
+      "shift": "て"
+    },
+    "88": {
+      "normal": "さ",
+      "shift": "さ"
+    },
+    "89": {
+      "normal": "ん",
+      "shift": "か"
+    },
+    "90": {
+      "normal": "つ",
+      "shift": "っ"
+    },
+    "186": {
+      "normal": "れ",
+      "shift": "れ"
+    },
+    "187": {
+      "normal": "へ",
+      "shift": "へ"
+    },
+    "188": {
+      "normal": "ね",
+      "shift": "、"
+    },
+    "189": {
+      "normal": "ほ",
+      "shift": "ー"
+    },
+    "190": {
+      "normal": "る",
+      "shift": "。"
+    },
+    "191": {
+      "normal": "め",
+      "shift": "・"
+    },
+    "192": {
+      "normal": "ろ",
+      "shift": "ろ"
+    },
+    "219": {
+      "normal": "゛",
+      "shift": "「"
+    },
+    "220": {
+      "normal": "む",
+      "shift": "む"
+    },
+    "221": {
+      "normal": "゜",
+      "shift": "」"
+    },
+    "222": {
+      "normal": "け",
+      "shift": "け"
+    }
+  }
+}
