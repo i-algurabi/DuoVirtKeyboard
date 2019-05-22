@@ -11,3587 +11,3579 @@
 // @downloadURL  https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.user.js
 // @grant        none
 // ==/UserScript==
-(function () {
-    'use strict';
-    var userInfo = {
-        "documentDir": "",
-        "loggedInUser": "",
-        "duoState": null,
-        "firstrefresh": true,
-        "needrefresh": false,
-        "getLangs": function (withoutMapped) {
-            var currentDuoState;
-            currentDuoState = userInfo.duoState = userInfo.refresh();
-            var result = {};
-            try {
-                var mappedFromLanguage, mappedToLanguage;
-                currentDuoState.courses.forEach(function (element) {
-                    let frLanguage = mappedFromLanguage = element.fromLanguage;
-                    let toLanguage = mappedToLanguage = element.learningLanguage;
-                    if (!withoutMapped) {
-                        mappedFromLanguage = basekeys.supported(frLanguage);
-                        mappedToLanguage = basekeys.supported(toLanguage);
-                    }
-                    result[frLanguage] = (basekeys[mappedFromLanguage] !== undefined);
-                    result[toLanguage] = (basekeys[mappedToLanguage] !== undefined);
-                });
-            } catch (e) {
-            }
-            if (Object.keys(result).length === 0) {
-                var langs = basekeys.supported_lang;
-                for (var x in langs) {
-                    result[langs[x]] = true;
-                }
-            }
-            return result;
-        },
-        "refresh": function () {
-            userInfo.firstrefresh = false;
-            let localStorage = userInfo.tools.getLocalStorage();
-            let duoStateSTR = localStorage["duo.state"];
-            let result = {
-                courses: {},
-                user: {
-                    "learningLanguage": "",
-                    "fromLanguage": "",
-                    "accessible":false,
-                    "finishedLevels":0,
-                    "levels":0,
-                    "finishedLessons":0,
-                    "lessons":0,
-                    "URI":"",
-                    "urlName":""
-                }
-            };
-
-            if (duoStateSTR) {
-                userInfo.tools.saveToLocalStorage("duo.state", duoStateSTR);
-                return JSON.parse(duoStateSTR);
-            } else {
-                userInfo.loggedInUser = userInfo.getLoggedInUserId();
-                if (userInfo.loggedInUser) {
-                    result = userInfo.enrichUser();
-                } else {
-                    result = userInfo.tools.getFromLocalStorage("duo.state");
-                }
-                userInfo.tools.saveToLocalStorage("duo.state", result);
-                return result;
-            }
-        },
-        "enrichUser": function (params) {
-            userInfo.needrefresh = false;
-            if (!params)
-                params = "courses,currentCourse,fromLanguage,learningLanguage";
-            userInfo.firstrefresh = false;
-            $.ajax({
-                type: "get",
-                url: "//www.duolingo.com/2016-04-13/users/" + userInfo.loggedInUser,
-                data: {
-                    "fields": params
-                }
-            }).done(function (json) {
-                let jsonDuoState = {};
-                if (!userInfo.firstrefresh) {
-                    jsonDuoState = JSON.parse(localStorage["duo.state"]);
-                }
-                if (json.fromLanguage) {
-                    jsonDuoState.user = {
-                        "fromLanguage": json.fromLanguage
-                    };
-                    jsonDuoState.user.learningLanguage = json.learningLanguage;
-                }
-                if (json.courses) {
-                    if (!jsonDuoState.courses)
-                        jsonDuoState.courses = {};
-                    userInfo.tools.updateBase(jsonDuoState.courses, json.courses);
-                }
-                if (json.currentCourse) {
-                    if (!jsonDuoState.courses)
-                        jsonDuoState.courses = {};
-                    jsonDuoState.courses[json.currentCourse.id] = json.currentCourse;
-                    if (!jsonDuoState.skills)
-                        jsonDuoState.skills = {};
-                    userInfo.tools.updateBase(jsonDuoState.skills, json.currentCourse.skills);
-                }
-                localStorage["duo.state"] = JSON.stringify(jsonDuoState);
-                return jsonDuoState;
-            });
-        },
-        "getCookie": function (name) {
-            let cookies = document.cookie.split(';');
-            for (let i in cookies) {
-                if (cookies[i].indexOf(name) === 1) {
-                    return cookies[i].split("=")[1];
-                }
-            }
-            return "";
-        },
-        "getLoggedInUserId": function () {
-            let e = userInfo.getCookie("auth_tkt") || "";
-            let t = e.match(/[0-9a-f]{40}(\d+)!/);
-            if (t)
-                return parseInt(t[1], 10);
-        },
-        "getSkills": function (skillsType, fromLanguage, learningLanguage) {
-            this.duoState = this.refresh();
-            let result = {};
-            for (var skill in this.duoState.skills) {
-                let currentSkill = this.duoState.skills[skill];
-                if (!fromLanguage)
-                    fromLanguage = currentSkill.fromLanguage;
-                if (!learningLanguage)
-                    learningLanguage = currentSkill.learningLanguage;
-                let courseId = "DUOLINGO_" + learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
-                let willReturn = fromLanguage === currentSkill.fromLanguage
-                    && learningLanguage === currentSkill.learningLanguage
-                    && currentSkill.accessible
-                    && ((skillsType === "weak") ? (
-                            currentSkill.finishedLevels > 0 && (
-                                currentSkill.finishedLessons < currentSkill.lessons
-                                || currentSkill.finishedLevels < currentSkill.levels
-                            )
-                        ) : (
-                            currentSkill.finishedLessons < currentSkill.lessons
-                            && currentSkill.finishedLevels === 0
-                        )
-                    );
-                if (willReturn) {
-                    if (!result[courseId]) {
-                        result[courseId] = {};
-                    }
-                    let nextLesson = 0;
-                    if (currentSkill.finishedLessons < currentSkill.lessons)
-                        nextLesson = currentSkill.finishedLessons + 1;
-                    if (virtKeyboard.test)
-                        nextLesson = "test";
-                    currentSkill.URI = "/skill/"
-                        + currentSkill.learningLanguage + "/"
-                        + currentSkill.urlName + "/"
-                        + nextLesson;
-                    result[courseId][currentSkill.name] = currentSkill;
-                }
-            }
-            return result;
-        },
-        "switchLanguage": function (fromLanguage, learningLanguage) {
-            let courseid = "DUOLINGO_" + learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
-            userInfo.needrefresh = (userInfo.duoState && userInfo.duoState.courses && (!userInfo.duoState.courses[courseid] || !userInfo.duoState.courses[courseid].fluency));
-            userInfo.tools.sendAjax({
-                type: "POST",
-                url: "/api/1/me/switch_language",
-                data: {
-                    from_language: fromLanguage,
-                    learning_language: learningLanguage
-                }
-            }, function () {
-                if (userInfo.needrefresh && !duo.version)
-                    userInfo.enrichUser();
-                document.location.href = document.location.protocol + "//" + document.location.hostname;
-            });
-        },
-        "fixCss": function (documentDir) {
-            console.info("fixCss(" + documentDir + ")");
-            if (documentDir === userInfo.documentdir) {
-                return;
-            }
-            userInfo.documentdir = documentDir;
-            console.info("duo: " + typeof duo === 'object');
-            console.info("duo.version: " + duo.version);
-            cssList.forEach(function (cssElement) {
-                console.debug("cssElement.dir.indexOf(new) !== -1: " + (cssElement.dir.indexOf("new") !== -1));
-                console.debug("cssElement.dir.indexOf(" + documentDir + ") !== -1: " + cssElement.dir.indexOf(documentDir) !== -1);
-                let isApply = (typeof duo === 'object'
-                    && (
-                        (!duo.version && cssElement.dir.indexOf("new") !== -1)
-                        || cssElement.dir.indexOf("new") === -1
-                    )
-                    && cssElement.dir.indexOf(documentDir) !== -1
-                ) && ((cssElement.dir.indexOf("fix") !== -1) ? virtKeyboard.fixCss : true) /* if this is a fix css then act according to fixCss value */;
-                console.info("isApply: " + isApply + "\thref:" + cssElement.href);
-                if (isApply) {
-                    let vrtcss = document.createElement('link');
-                    vrtcss.rel = "stylesheet";
-                    vrtcss.href = cssElement.href;
-                    document.getElementsByTagName('head')[0].appendChild(vrtcss);
-                }
-            });
-        },
-        "tools": {
-            "updateBase": function (lObject, jsonObj, depth) {
-                depth = (!depth) ? 0 : depth + 1;
-                for (let subObj in jsonObj) {
-                    if (typeof jsonObj[subObj] === 'object' && typeof lObject[subObj] === 'object') {
-                        if (depth < 10)
-                            userInfo.tools.updateBase(lObject[subObj], jsonObj[subObj], depth);
-                    } else {
-                        lObject[subObj] = jsonObj[subObj];
-                    }
-                }
-            },
-            "getLocalStorage": function () {
-                /** @namespace chrome.storage */
-                /** @namespace chrome.storage.sync */
-                if (chrome && chrome.storage)
-                    return chrome.storage.sync;
-                if (window.localStorage)
-                    return window.localStorage;
-                return null;
-            },
-            "saveToLocalStorage": function (parameter, value) {
-                let localStorage = userInfo.tools.getLocalStorage();
-                if (localStorage) {
-                    localStorage["keyboard." + parameter] = JSON.stringify(value);
-                    return true;
-                }
-                return false;
-            },
-            "clearLocalStorage": function (parameter) {
-                let localStorage = userInfo.tools.getLocalStorage();
-                if (localStorage) {
-                    localStorage.removeItem("keyboard." + parameter);
-                    return true;
-                }
-                return false;
-            },
-            "getFromLocalStorage": function (parameter) {
-                let localStorage = userInfo.tools.getLocalStorage();
-                if (localStorage) {
-                    let param = localStorage["keyboard." + parameter];
-                    if (param)
-                        return JSON.parse(param);
-                }
-                return false;
-            },
-            "sendAjax": function (options, callBack) {
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                        callBack(xhr.response);
-                    }
-                };
-                var data = "";
-                if (!options.contentType) options.contentType = "application/json;charset=UTF-8";
-                if (options.data) data = JSON.stringify(options.data);
-                xhr.open(options.type, encodeURI(location.href + options.url), true);
-                xhr.setRequestHeader("Content-Type", options.contentType);
-                xhr.send(data);
-            }
-        },
-        "dict": {
-            "circle": "_3hKMG",
-            "circle-hoverable": "_1z_vo _3hKMG",
-            "blue": "_2VAWl",
-            "gray": "_39kLK",
-            "green": "_1na3J",
-            "purple": "_2wyKI",
-            "red": "_3E0y_",
-            "gold": "ewiWc",
-            "topbar-brand": "NJXKT _1nAJB cCL9P",
-            "flag": "_3viv6",
-            "flag-cell": "_3I51r _3HsQj _2OF7V",
-            "practice-button": "_6Hq2p _1AthD _1lig4 _3IS_q _2cWmF",
-            "fr": "_2KQN3",
-            "es": "u5W-o",
-            "de": "oboa9",
-            "pt": "pmGwL",
-            "it": "_1PruQ",
-            "en": "_2cR-E",
-            "ga": "_1vhNM",
-            "hu": "_1S3hi",
-            "ru": "_1eqxJ",
-            "pl": "_3uusw",
-            "ro": "_12U6e",
-            "nl-NL": "_1fajz",
-            "tr": "_1tJJ2",
-            "id": "_107sn",
-            "ja": "_2N-Uj",
-            "uk": "_1zZsN",
-            "zh": "xi6jQ",
-            "el": "_2tQo9",
-            "bn": "_2TXAL",
-            "ar": "_1ARRD",
-            "hi": "OgUIe",
-            "he": "_PDrK",
-            "ko": "_2lkzc",
-            "vi": "_1KtzC",
-            "sv": "_2DMfV",
-            "zs": "_2gNgd",
-            "cs": "_1uPQW",
-            "th": "_2oTcA",
-            "un": "t-XH-",
-            "eo": "pWj0w",
-            "kl": "_6mRM",
-            "da": "_1h0xh",
-            "dk": "_3AA1F",
-            "sn": "q_PD-",
-            "no-BO": "_200jU",
-            "ca": "mc4rg",
-            "cy": "_1jO8h",
-            "gn": "_24xu4",
-            "sw": "_3T1km",
-            "tl": "_1q_MQ",
-            "_circle-flag": "_2XSZu",
-            "medium-circle-flag": "_1ct7y _2XSZu",
-            "micro-circle-flag": "_3i5IF _2XSZu",
-            "small-circle-flag": "_3PU7E _2XSZu"
+(function() {
+  'use strict';
+  var userInfo = {
+    "documentDir": "",
+    "loggedInUser": "",
+    "duoState": null,
+    "firstrefresh": true,
+    "needrefresh": false,
+    "getLangs": function(withoutMapped) {
+      var currentDuoState;
+      currentDuoState = userInfo.duoState = userInfo.refresh(userInfo.needrefresh);
+      var result = {};
+      try {
+        var mappedFromLanguage, mappedToLanguage;
+        currentDuoState.courses.forEach(function(element) {
+          let frLanguage = mappedFromLanguage = element.fromLanguage;
+          let toLanguage = mappedToLanguage = element.learningLanguage;
+          if (!withoutMapped) {
+            mappedFromLanguage = basekeys.supported(frLanguage);
+            mappedToLanguage = basekeys.supported(toLanguage);
+          }
+          result[frLanguage] = (basekeys[mappedFromLanguage] !== undefined);
+          result[toLanguage] = (basekeys[mappedToLanguage] !== undefined);
+        });
+      } catch (e) {}
+      if (Object.keys(result).length === 0) {
+        var langs = basekeys.supported_lang;
+        for (var x in langs) {
+          result[langs[x]] = true;
         }
-    };
-    var basekeys = {
-        "supported_lang": [],
-        "layout_map": {},
-        "base": {
-            "raw": {
-                "0": [{
-                    "type": "keylabel",
-                    "code": "192"
-                }, {
-                    "type": "keylabel",
-                    "code": "49"
-                }, {
-                    "type": "keylabel",
-                    "code": "50"
-                }, {
-                    "type": "keylabel",
-                    "code": "51"
-                }, {
-                    "type": "keylabel",
-                    "code": "52"
-                }, {
-                    "type": "keylabel",
-                    "code": "53"
-                }, {
-                    "type": "keylabel",
-                    "code": "54"
-                }, {
-                    "type": "keylabel",
-                    "code": "55"
-                }, {
-                    "type": "keylabel",
-                    "code": "56"
-                }, {
-                    "type": "keylabel",
-                    "code": "57"
-                }, {
-                    "type": "keylabel",
-                    "code": "48"
-                }, {
-                    "type": "keylabel",
-                    "code": "189"
-                }, {
-                    "type": "keylabel",
-                    "code": "187"
-                }, {
-                    "type": "backspace",
-                    "code": "8",
-                    "name": "Backspace"
-                }
-                ],
-                "1": [{
-                    "type": "tab special disabled",
-                    "code": "9",
-                    "name": "Tab"
-                }, {
-                    "type": "keylabel",
-                    "code": "81"
-                }, {
-                    "type": "keylabel",
-                    "code": "87"
-                }, {
-                    "type": "keylabel",
-                    "code": "69"
-                }, {
-                    "type": "keylabel",
-                    "code": "82"
-                }, {
-                    "type": "keylabel",
-                    "code": "84"
-                }, {
-                    "type": "keylabel",
-                    "code": "89"
-                }, {
-                    "type": "keylabel",
-                    "code": "85"
-                }, {
-                    "type": "keylabel",
-                    "code": "73"
-                }, {
-                    "type": "keylabel",
-                    "code": "79"
-                }, {
-                    "type": "keylabel",
-                    "code": "80"
-                }, {
-                    "type": "keylabel",
-                    "code": "219"
-                }, {
-                    "type": "keylabel",
-                    "code": "221"
-                }, {
-                    "type": "slash",
-                    "code": "220"
-                }
-                ],
-                "2": [{
-                    "type": "caps special switch",
-                    "code": "20",
-                    "name": "CapsLock"
-                }, {
-                    "type": "keylabel",
-                    "code": "65"
-                }, {
-                    "type": "keylabel",
-                    "code": "83"
-                }, {
-                    "type": "keylabel",
-                    "code": "68"
-                }, {
-                    "type": "keylabel",
-                    "code": "70"
-                }, {
-                    "type": "keylabel",
-                    "code": "71"
-                }, {
-                    "type": "keylabel",
-                    "code": "72"
-                }, {
-                    "type": "keylabel",
-                    "code": "74"
-                }, {
-                    "type": "keylabel",
-                    "code": "75"
-                }, {
-                    "type": "keylabel",
-                    "code": "76"
-                }, {
-                    "type": "keylabel",
-                    "code": "186"
-                }, {
-                    "type": "keylabel",
-                    "code": "222"
-                }, {
-                    "type": "enter special disabled",
-                    "code": "13",
-                    "name": "Enter"
-                }
-                ],
-                "3": [{
-                    "type": "shift left special switch",
-                    "code": "16",
-                    "name": "Shift"
-                }, {
-                    "type": "keylabel",
-                    "code": "90"
-                }, {
-                    "type": "keylabel",
-                    "code": "88"
-                }, {
-                    "type": "keylabel",
-                    "code": "67"
-                }, {
-                    "type": "keylabel",
-                    "code": "86"
-                }, {
-                    "type": "keylabel",
-                    "code": "66"
-                }, {
-                    "type": "keylabel",
-                    "code": "78"
-                }, {
-                    "type": "keylabel",
-                    "code": "77"
-                }, {
-                    "type": "keylabel",
-                    "code": "188"
-                }, {
-                    "type": "keylabel",
-                    "code": "190"
-                }, {
-                    "type": "keylabel",
-                    "code": "191"
-                }, {
-                    "type": "shift right special disabled",
-                    "code": "16",
-                    "name": "Shift"
-                }
-                ],
-                "4": [{
-                    "type": "ctrl special disabled",
-                    "code": "17",
-                    "name": "Control"
-                }, {
-                    "type": "home special",
-                    "code": "91",
-                    "name": "Meta"
-                }, {
-                    "type": "alt special disabled",
-                    "code": "18",
-                    "name": "Alt"
-                }, {
-                    "type": "space",
-                    "code": "32",
-                    "name": " "
-                }, {
-                    "type": "alt special disabled",
-                    "code": "18",
-                    "name": "Alt"
-                }, {
-                    "type": "menu special",
-                    "code": "93",
-                    "name": "ContextMenu"
-                }, {
-                    "type": "ctrl right special disabled",
-                    "code": "17",
-                    "name": "Control"
-                }
-                ]
-            }
-        },
-        "dublicate": {
-            "Semicolon": "186",
-            "Comma": "188",
-            "Period": "190",
-            "Slash": "191",
-            "Backquote": "192",
-            "BracketLeft": "219",
-            "Backslash": "220",
-            "BracketRight": "221",
-            "Quote": "222"
-        },
-        "language_names_ui": {
-            "el": {
-                "level": "επίπεδο",
-                "gu": "Gujarati",
-                "ga": "Ιρλανδικά",
-                "gn": "Γουαρανί (Υοπαρά)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Τουρκικά",
-                "lv": "Latvian",
-                "tl": "Ταγκάλογκ",
-                "th": "Ταϊλανδέζικα",
-                "te": "Τελούγκου",
-                "ta": "Ταμίλ",
-                "yi": "Γίντις",
-                "dk": "Ντοθράκι",
-                "de": "Γερμανικά",
-                "db": "Dutch (Belgium)",
-                "ko": "Κορεατικά",
-                "da": "Δανέζικα",
-                "uz": "Uzbek",
-                "el": "Ελληνικά",
-                "eo": "Εσπεράντο",
-                "en": "Αγγλικά",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Ισπανικά",
-                "zs": "Κινέζικα",
-                "ru": "Ρωσικά",
-                "ro": "Ρουμανικά",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Μπενγκάλι",
-                "ja": "Ιαπωνικά",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Καταλανικά",
-                "xz": "Zombie",
-                "cy": "Ουαλικά",
-                "cs": "Τσέχικα",
-                "pt": "Πορτογαλικά",
-                "lt": "Lithuanian",
-                "pa": "Παντζαπικά (Γκουρμούκι)",
-                "pl": "Πολωνικά",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Υψηλά Βαλυριανά",
-                "ht": "Κρεόλ Αϊτής",
-                "hu": "Ουγγρικά",
-                "hi": "Ινδικά",
-                "he": "Εβραϊκά",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Ουκρανικά",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Ολλανδικά",
-                "af": "Afrikaans",
-                "vi": "Βιετναμέζικα",
-                "is": "Icelandic",
-                "it": "Ιταλικά",
-                "kn": "Kannada",
-                "zt": "Κινέζικα (Παραδοσιακά)",
-                "as": "Assamese",
-                "ar": "Αραβικά",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Ινδονησιακά",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Νορβηγικά",
-                "nb": "Νορβηγικά (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Γαλλικά",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Σουαχίλι",
-                "sv": "Σουηδικά",
-                "km": "Khmer",
-                "kl": "Κλίνγκον",
-                "sk": "Slovak",
-                "sn": "Σίνταριν",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "en": {
-                "level": "level",
-                "gu": "Gujarati",
-                "ga": "Irish",
-                "gn": "Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Turkish",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "Thai",
-                "te": "Telugu",
-                "ta": "Tamil",
-                "yi": "Yiddish",
-                "dk": "Dothraki",
-                "de": "German",
-                "db": "Dutch (Belgium)",
-                "ko": "Korean",
-                "da": "Danish",
-                "uz": "Uzbek",
-                "el": "Greek",
-                "eo": "Esperanto",
-                "en": "English",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Spanish",
-                "zs": "Chinese",
-                "ru": "Russian",
-                "ro": "Romanian",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bengali",
-                "ja": "Japanese",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Catalan",
-                "xz": "Zombie",
-                "cy": "Welsh",
-                "cs": "Czech",
-                "pt": "Portuguese",
-                "lt": "Lithuanian",
-                "pa": "Punjabi (Gurmukhi)",
-                "pl": "Polish",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "High Valyrian",
-                "ht": "Haitian Creole",
-                "hu": "Hungarian",
-                "hi": "Hindi",
-                "he": "Hebrew",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Ukrainian",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Dutch",
-                "af": "Afrikaans",
-                "vi": "Vietnamese",
-                "is": "Icelandic",
-                "it": "Italian",
-                "kn": "Kannada",
-                "zt": "Chinese (Traditional)",
-                "as": "Assamese",
-                "ar": "Arabic",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Indonesian",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Norwegian",
-                "nb": "Norwegian (Bokmål)",
-                "ne": "Nepali",
-                "fr": "French",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Swahili",
-                "sv": "Swedish",
-                "km": "Khmer",
-                "kl": "Klingon",
-                "sk": "Slovak",
-                "sn": "Sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "vi": {
-                "level": "trình độ",
-                "gu": "Gujarati",
-                "ga": "Tiếng Ai-len",
-                "gn": "Tiếng Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Tiếng Thổ Nhĩ Kỳ",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "Tiếng Thái",
-                "te": "Telugu",
-                "ta": "Tamil",
-                "yi": "Tiếng Yiddish",
-                "dk": "Tiếng Dothraki",
-                "de": "Tiếng Đức",
-                "db": "Dutch (Belgium)",
-                "ko": "Tiếng Hàn Quốc",
-                "da": "Tiếng Đan Mạch",
-                "uz": "Uzbek",
-                "el": "Tiếng Hy Lạp",
-                "eo": "Tiếng Esperanto",
-                "en": "Tiếng Anh",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Tiếng Tây Ban Nha",
-                "zs": "Tiếng Trung Quốc",
-                "ru": "Tiếng Nga",
-                "ro": "Tiếng Rumani",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Tiếng Bengal",
-                "ja": "Tiếng Nhật",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Catalan",
-                "xz": "Zombie",
-                "cy": "Tiếng Wales",
-                "cs": "Tiếng Séc",
-                "pt": "Tiếng Bồ Đào Nha",
-                "lt": "Lithuanian",
-                "pa": "Tiếng Punjab (Gurmukhi)",
-                "pl": "Tiếng Ba Lan",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Tiếng High Valyrian",
-                "ht": "Thổ ngữ Pháp ở Haiti",
-                "hu": "Tiếng Hungary",
-                "hi": "Tiếng Hindi",
-                "he": "Tiếng Do Thái",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Tiếng Ukraina",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Tiếng Hà Lan",
-                "af": "Afrikaans",
-                "vi": "Tiếng Việt",
-                "is": "Icelandic",
-                "it": "Tiếng Ý",
-                "kn": "Kannada",
-                "zt": "Tiếng Trung Quốc (phồn thể)",
-                "as": "Assamese",
-                "ar": "Tiếng A-rập",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Tiếng Bahasa Indonesia",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Na-uy",
-                "nb": "Tiếng Na-uy",
-                "ne": "Nepali",
-                "fr": "Tiếng Pháp",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Swahili",
-                "sv": "Tiếng Thụy Điển",
-                "km": "Khmer",
-                "kl": "Tiếng Klingon",
-                "sk": "Slovak",
-                "sn": "Tiếng Sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "it": {
-                "level": "livello",
-                "gu": "Gujarati",
-                "ga": "irlandese",
-                "gn": "Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "turco",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "tailandese",
-                "te": "telugu",
-                "ta": "tamil",
-                "yi": "yiddish",
-                "dk": "dothraki",
-                "de": "tedesco",
-                "db": "Dutch (Belgium)",
-                "ko": "coreano",
-                "da": "danese",
-                "uz": "Uzbek",
-                "el": "greco",
-                "eo": "esperanto",
-                "en": "inglese",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "spagnolo",
-                "zs": "cinese",
-                "ru": "russo",
-                "ro": "rumeno",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "bengali",
-                "ja": "giapponese",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Catalano",
-                "xz": "Zombie",
-                "cy": "Gallese",
-                "cs": "ceco",
-                "pt": "portoghese",
-                "lt": "Lithuanian",
-                "pa": "punjabi (gurmukhi)",
-                "pl": "polacco",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Alto Valiriano",
-                "ht": "creolo haitiano",
-                "hu": "ungherese",
-                "hi": "hindi",
-                "he": "ebraico",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "ucraino",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "olandese",
-                "af": "Afrikaans",
-                "vi": "vietnamita",
-                "is": "Icelandic",
-                "it": "italiano",
-                "kn": "Kannada",
-                "zt": "cinese (tradizionale)",
-                "as": "Assamese",
-                "ar": "arabo",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "indonesiano",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Norvegese",
-                "nb": "norvegese (Bokmål)",
-                "ne": "Nepali",
-                "fr": "francese",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Swahili",
-                "sv": "svedese",
-                "km": "Khmer",
-                "kl": "klingon",
-                "sk": "Slovak",
-                "sn": "Sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "ar": {
-                "level": "مستوى",
-                "gu": "الغوجاراتية",
-                "ga": "الإيرلندية",
-                "gn": "الجوارانية (اليوبارا)",
-                "gl": "الجاليكية",
-                "la": "لاتينية",
-                "tt": "التتار",
-                "tr": "التركية",
-                "lv": "اللاتفية",
-                "tl": "التاغلوغية",
-                "th": "التايلنديّة",
-                "te": "تيلوجو",
-                "ta": "تاميل",
-                "yi": "الييدية",
-                "dk": "الدوثراكية",
-                "de": "الألمانية",
-                "db": "الهولندية (بلجيكا)",
-                "ko": "الكوريّة",
-                "da": "الدنماركية",
-                "uz": "الأوزبكي",
-                "el": "اليونانية",
-                "eo": "الإسبرانتو",
-                "en": "الإنجليزية",
-                "zc": "الصينية (الكانتونية)",
-                "eu": "الباسكي",
-                "et": "الإستونية",
-                "ep": "الإنجليزية (القراصنة)",
-                "es": "الإسبانية",
-                "zs": "الصينية",
-                "ru": "الروسية",
-                "ro": "الرومانية",
-                "be": "البيلاروسية",
-                "bg": "البلغارية",
-                "ms": "لغة الملايو",
-                "bn": "البنغالي",
-                "ja": "اليابانية",
-                "or": "الأوريا",
-                "xl": "Lolcat",
-                "ca": "الكتالانية",
-                "xz": "Zombie",
-                "cy": "الويلزية",
-                "cs": "التشيكية",
-                "pt": "البرتغالية",
-                "lt": "اللتوانية",
-                "pa": "البنجابية",
-                "pl": "البولندية",
-                "hy": "الأرميني",
-                "hr": "الكرواتية",
-                "hv": "الفاليرية العُليا",
-                "ht": "الكريولية الهايتية",
-                "hu": "المجرية",
-                "hi": "الهندية",
-                "he": "العبرية",
-                "mb": "الماليزية (بروناي)",
-                "mm": "الملايو (ماليزيا)",
-                "ml": "المالايالامية",
-                "mn": "المنغولية",
-                "mk": "المقدونية",
-                "ur": "الأردية",
-                "kk": "الكازاخية",
-                "uk": "الأوكرانية",
-                "mr": "المهاراتية",
-                "my": "البورمية",
-                "dn": "الهولندية",
-                "af": "الأفريكانية",
-                "vi": "الفييتنامية",
-                "is": "أيسلندي",
-                "it": "الإيطالية",
-                "kn": "الكانادا",
-                "zt": "الصينية (التقليدية)",
-                "as": "الأسامية",
-                "ar": "العربية",
-                "zu": "الزولو",
-                "az": "اذربيجان",
-                "id": "الإندونيسية",
-                "nn": "النرويجية (نينورسك)",
-                "no": "النرويجية",
-                "nb": "النرويجية",
-                "ne": "النيبالية",
-                "fr": "الفرنسية",
-                "fa": "الفارسية",
-                "fi": "اللغة الفنلندية",
-                "fo": "جزر فارو",
-                "ka": "الجورجية",
-                "ss": "السويدية (السويد)",
-                "sq": "الألبانية",
-                "sw": "السواحيلية",
-                "sv": "السويدية",
-                "km": "الخمير",
-                "kl": "الكلينجون",
-                "sk": "السلوفاكية",
-                "sn": "السِّندَرين",
-                "sl": "سلوفيني",
-                "ky": "قيرغيزستان",
-                "sf": "السويدية (فنلندا)"
-            },
-            "cs": {
-                "level": "hladina",
-                "gu": "Gujarati",
-                "ga": "Irština",
-                "gn": "Guaranština (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Turečtina",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "Thajština",
-                "te": "Telugština",
-                "ta": "Tamilština",
-                "yi": "Jidiš",
-                "dk": "Dothračtina",
-                "de": "Němčina",
-                "db": "Dutch (Belgium)",
-                "ko": "Korejština",
-                "da": "Dánština",
-                "uz": "Uzbek",
-                "el": "�?ečtina",
-                "eo": "Esperanto",
-                "en": "Angličtina",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Španělština",
-                "zs": "Čínština",
-                "ru": "Ruština",
-                "ro": "Rumunština",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bengálština",
-                "ja": "Japonština",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Katalánština",
-                "xz": "Zombie",
-                "cy": "Velština",
-                "cs": "Čeština",
-                "pt": "Portugalština",
-                "lt": "Lithuanian",
-                "pa": "Paňdžábština (gurmukhi)",
-                "pl": "Polština",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Vznešená valyrijština",
-                "ht": "Haitská kreolština",
-                "hu": "Maďarština",
-                "hi": "Hindština",
-                "he": "Hebrejština",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Ukrajinština",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Holandština",
-                "af": "Afrikaans",
-                "vi": "Vietnamština",
-                "is": "Icelandic",
-                "it": "Italština",
-                "kn": "Kannada",
-                "zt": "Čínština (tradiční)",
-                "as": "Assamese",
-                "ar": "Arabština",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Indonéština",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Norština",
-                "nb": "Norština (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Francouzština",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Svahilština",
-                "sv": "Švédština",
-                "km": "Khmer",
-                "kl": "Klingonština",
-                "sk": "Slovak",
-                "sn": "Sindarština",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "id": {
-                "level": "tingkat",
-                "gu": "Gujarati",
-                "ga": "Bahasa Irlandia",
-                "gn": "Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Bahasa Turki",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "Bahasa Thai",
-                "te": "Telugu",
-                "ta": "Tamil",
-                "yi": "Bahasa Yiddi",
-                "dk": "Bahasa Dothraki",
-                "de": "Bahasa Jerman",
-                "db": "Dutch (Belgium)",
-                "ko": "Bahasa Korea",
-                "da": "Bahasa Denmark",
-                "uz": "Uzbek",
-                "el": "Bahasa Yunani",
-                "eo": "Bahasa Esperanto",
-                "en": "Bahasa Inggris",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Bahasa Spanyol",
-                "zs": "Bahasa Tionghoa",
-                "ru": "Bahasa Rusia",
-                "ro": "Bahasa Rumania",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bahasa Bengali",
-                "ja": "Bahasa Jepang",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Bahasa Katala",
-                "xz": "Zombie",
-                "cy": "Wales",
-                "cs": "Bahasa Ceska",
-                "pt": "Bahasa Portugis",
-                "lt": "Lithuanian",
-                "pa": "Punjabi (Gurmukhi)",
-                "pl": "Bahasa Polandia",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Bahasa Valyria Tingkat Tinggi",
-                "ht": "Bahasa Kreole Haiti",
-                "hu": "Bahasa Hungaria",
-                "hi": "Bahasa Hindi",
-                "he": "Bahasa Ibrani",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Bahasa Ukraina",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Bahasa Belanda",
-                "af": "Afrikaans",
-                "vi": "Bahasa Vietnam",
-                "is": "Icelandic",
-                "it": "Bahasa Italia",
-                "kn": "Kannada",
-                "zt": "Cina (Tradisional)",
-                "as": "Assamese",
-                "ar": "Bahasa Arab",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Bahasa Indonesia",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Bahasa Norwegia",
-                "nb": "Bahasa Norwegia (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Bahasa Perancis",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Swahili",
-                "sv": "Bahasa Swedia",
-                "km": "Khmer",
-                "kl": "Bahasa Klingon",
-                "sk": "Slovak",
-                "sn": "Bahasa Sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "es": {
-                "level": "nivel",
-                "gu": "Gujarati",
-                "ga": "irlandés",
-                "gn": "Guaraní (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "turco",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "tailandés",
-                "te": "Télugu",
-                "ta": "Tamil",
-                "yi": "Yidis",
-                "dk": "dothraki",
-                "de": "alemán",
-                "db": "Dutch (Belgium)",
-                "ko": "coreano",
-                "da": "danés",
-                "uz": "Uzbek",
-                "el": "griego",
-                "eo": "esperanto",
-                "en": "inglés",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "español",
-                "zs": "chino",
-                "ru": "ruso",
-                "ro": "rumano",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "bengalí",
-                "ja": "japonés",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "catalán",
-                "xz": "Zombie",
-                "cy": "Galés",
-                "cs": "checo",
-                "pt": "portugués",
-                "lt": "Lithuanian",
-                "pa": "Panyabí (Gurmukhi)",
-                "pl": "polaco",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Alto Valyrio",
-                "ht": "Criollo haitiano",
-                "hu": "húngaro",
-                "hi": "hindi",
-                "he": "hebreo",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "ucraniano",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "neerlandés",
-                "af": "Afrikaans",
-                "vi": "vietnamita",
-                "is": "Icelandic",
-                "it": "italiano",
-                "kn": "Kannada",
-                "zt": "chino (tradicional)",
-                "as": "Assamese",
-                "ar": "árabe",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "indonesio",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Noruego",
-                "nb": "noruego (bokmål)",
-                "ne": "Nepali",
-                "fr": "francés",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Swahili",
-                "sv": "sueco",
-                "km": "Khmer",
-                "kl": "klingon",
-                "sk": "Slovak",
-                "sn": "sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "zs": {
-                "level": "水平",
-                "gu": "Gujarati",
-                "ga": "爱尔兰语",
-                "gn": "瓜拉尼语（何帕拉语）",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "土耳其语",
-                "lv": "Latvian",
-                "tl": "塔加拉族语",
-                "th": "泰语",
-                "te": "泰卢固语",
-                "ta": "泰米尔语",
-                "yi": "意第绪语",
-                "dk": "多斯拉克语",
-                "de": "德语",
-                "db": "Dutch (Belgium)",
-                "ko": "韩语",
-                "da": "丹麦语",
-                "uz": "Uzbek",
-                "el": "希腊语",
-                "eo": "世界语",
-                "en": "英语",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "西班牙语",
-                "zs": "中文",
-                "ru": "俄语",
-                "ro": "罗马尼亚语",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "孟加拉语",
-                "ja": "日语",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "加泰罗尼亚语",
-                "xz": "Zombie",
-                "cy": "威尔士语",
-                "cs": "捷克语",
-                "pt": "葡萄牙语",
-                "lt": "Lithuanian",
-                "pa": "旁遮普语（果鲁穆奇语）",
-                "pl": "波兰语",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "�?等瓦雷利亚语",
-                "ht": "海地人讲的法语",
-                "hu": "匈牙利语",
-                "hi": "印地语",
-                "he": "希伯来语",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "乌克兰语",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "荷兰语",
-                "af": "Afrikaans",
-                "vi": "越南语",
-                "is": "Icelandic",
-                "it": "意大利语",
-                "kn": "Kannada",
-                "zt": "中文",
-                "as": "Assamese",
-                "ar": "�?�拉伯语",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "印尼语",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "挪威语",
-                "nb": "挪威语（书面语）",
-                "ne": "Nepali",
-                "fr": "法语",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "斯瓦希里语",
-                "sv": "瑞典语",
-                "km": "Khmer",
-                "kl": "克林贡语",
-                "sk": "Slovak",
-                "sn": "辛达林语",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "ru": {
-                "level": "уровень",
-                "gu": "гуджарати",
-                "ga": "ирландский",
-                "gn": "гуарани (дёпара)",
-                "gl": "Галицкая",
-                "la": "латинский",
-                "tt": "татарский",
-                "tr": "турецкий",
-                "lv": "Латышский",
-                "tl": "Тагалог",
-                "th": "тайский",
-                "te": "телугу",
-                "ta": "тамильский",
-                "yi": "идиш",
-                "dk": "дотракийский",
-                "de": "немецкий",
-                "db": "Голландский (Бельгия)",
-                "ko": "корейский",
-                "da": "датский",
-                "uz": "узбекский ",
-                "el": "греческий",
-                "eo": "эсперанто",
-                "en": "английский",
-                "zc": "Китайский (кантонский)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "испанский",
-                "zs": "китайский",
-                "ru": "русский",
-                "ro": "румынский",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "бенгальский",
-                "ja": "японский",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "каталанский",
-                "xz": "Zombie",
-                "cy": "валлийский",
-                "cs": "чешский",
-                "pt": "португальский",
-                "lt": "Lithuanian",
-                "pa": "Панджаби (Гурмукхи)",
-                "pl": "польский",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "высокий валирийский",
-                "ht": "гаитянский креольский",
-                "hu": "венгерский",
-                "hi": "хинди",
-                "he": "иврит",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "украинский",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "голландский",
-                "af": "Afrikaans",
-                "vi": "вьетнамский",
-                "is": "Icelandic",
-                "it": "итальянский",
-                "kn": "Kannada",
-                "zt": "китайский (традиционный)",
-                "as": "Assamese",
-                "ar": "арабский",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "индонезийский",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "норвежский",
-                "nb": "норвежский (букмол)",
-                "ne": "Nepali",
-                "fr": "французский",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "суахили",
-                "sv": "шведский",
-                "km": "Khmer",
-                "kl": "клингонский",
-                "sk": "Slovak",
-                "sn": "синдарин",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "pt": {
-                "level": "nível",
-                "gu": "Gujarati",
-                "ga": "Irlandês",
-                "gn": "Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Turco",
-                "lv": "Latvian",
-                "tl": "Tagalo",
-                "th": "Tailandês",
-                "te": "Telugu",
-                "ta": "Tâmil",
-                "yi": "Ídiche",
-                "dk": "Dothraki",
-                "de": "Alemão",
-                "db": "Dutch (Belgium)",
-                "ko": "Coreano",
-                "da": "Dinamarquês",
-                "uz": "Uzbek",
-                "el": "Grego",
-                "eo": "Esperanto",
-                "en": "Inglês",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Espanhol",
-                "zs": "Chinês",
-                "ru": "Russo",
-                "ro": "Romeno",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bengali",
-                "ja": "Japonês",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Catalão",
-                "xz": "Zombie",
-                "cy": "Galês",
-                "cs": "Tcheco",
-                "pt": "Português",
-                "lt": "Lithuanian",
-                "pa": "panjabi (gurmukhi)",
-                "pl": "Polonês",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Alto Valiriano",
-                "ht": "Crioulo haitiano",
-                "hu": "Húngaro",
-                "hi": "Híndi",
-                "he": "Hebraico",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Ucraniano",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Holandês",
-                "af": "Afrikaans",
-                "vi": "Vietnamita",
-                "is": "Icelandic",
-                "it": "Italiano",
-                "kn": "Kannada",
-                "zt": "Chinês (Tradicional)",
-                "as": "Assamese",
-                "ar": "Árabe",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Indonésio",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Norueguês",
-                "nb": "Norueguês (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Francês",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Suaíli",
-                "sv": "Sueco",
-                "km": "Khmer",
-                "kl": "Klingon",
-                "sk": "Slovak",
-                "sn": "Sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "tr": {
-                "level": "Seviye",
-                "gu": "Gujarati",
-                "ga": "İrlandaca",
-                "gn": "Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Türkçe",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "Tayca",
-                "te": "Telugu Dili",
-                "ta": "Tamil Dili",
-                "yi": "Yidiş",
-                "dk": "Dothraki",
-                "de": "Almanca",
-                "db": "Dutch (Belgium)",
-                "ko": "Korece",
-                "da": "Danca",
-                "uz": "Uzbek",
-                "el": "Yunanca",
-                "eo": "Esperanto",
-                "en": "İngilizce",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "İspanyolca",
-                "zs": "Çince",
-                "ru": "Rusça",
-                "ro": "Rumence",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bengalce",
-                "ja": "Japonca",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Katalanca",
-                "xz": "Zombie",
-                "cy": "Galce",
-                "cs": "Çekçe",
-                "pt": "Portekizce",
-                "lt": "Lithuanian",
-                "pa": "Pencap Dili (Gurmukhi)",
-                "pl": "Lehçe",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Yüksek Valyria Dili",
-                "ht": "Haiti Kreyolu",
-                "hu": "Macarca",
-                "hi": "Hintçe",
-                "he": "İbranice",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Ukraynaca",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Flemenkçe",
-                "af": "Afrikaans",
-                "vi": "Vietnamca",
-                "is": "Icelandic",
-                "it": "İtalyanca",
-                "kn": "Kannada",
-                "zt": "Çince (Geleneksel)",
-                "as": "Assamese",
-                "ar": "Arapça",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Endonezce",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Norveççe",
-                "nb": "Norveççe (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Fransızca",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Svahili",
-                "sv": "İsveççe",
-                "km": "Khmer",
-                "kl": "Klingon",
-                "sk": "Slovak",
-                "sn": "Sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "ro": {
-                "level": "nivel",
-                "gu": "Gujarati",
-                "ga": "Irlandeză",
-                "gn": "Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Turcă",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "Thailandeză",
-                "te": "Telugu",
-                "ta": "Tamilă",
-                "yi": "Idiș",
-                "dk": "Dothraki",
-                "de": "Germană",
-                "db": "Dutch (Belgium)",
-                "ko": "Coreeană",
-                "da": "Daneză",
-                "uz": "Uzbek",
-                "el": "Greacă",
-                "eo": "Esperanto",
-                "en": "Engleză",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Spaniolă",
-                "zs": "Chineză",
-                "ru": "Rusă",
-                "ro": "Română",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bengaleză",
-                "ja": "Japoneză",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Catalană",
-                "xz": "Zombie",
-                "cy": "Galeză",
-                "cs": "Cehă",
-                "pt": "Portugheză",
-                "lt": "Lithuanian",
-                "pa": "Punjabi (Gurmukhi)",
-                "pl": "Poloneză",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Valyriană înaltă",
-                "ht": "Creolă haitiană",
-                "hu": "Maghiară",
-                "hi": "Hindi",
-                "he": "Ebraică",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Ucraineană",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Neerlandeză",
-                "af": "Afrikaans",
-                "vi": "Vietnameză",
-                "is": "Icelandic",
-                "it": "Italiană",
-                "kn": "Kannada",
-                "zt": "Chineză (tradițională)",
-                "as": "Assamese",
-                "ar": "Arabă",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Indoneziană",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Norvegiană",
-                "nb": "Norvegiană (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Franceză",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Swahili",
-                "sv": "Suedeză",
-                "km": "Khmer",
-                "kl": "Klingon",
-                "sk": "Slovak",
-                "sn": "Sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "pl": {
-                "level": "poziom",
-                "gu": "Gujarati",
-                "ga": "Irlandzki",
-                "gn": "guarani (jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Turecki",
-                "lv": "Latvian",
-                "tl": "tagalog",
-                "th": "Tajski",
-                "te": "telugu",
-                "ta": "tamilski",
-                "yi": "Jidysz",
-                "dk": "Dothraki",
-                "de": "Niemiecki",
-                "db": "Dutch (Belgium)",
-                "ko": "Koreański",
-                "da": "Duński",
-                "uz": "Uzbek",
-                "el": "Grecki",
-                "eo": "Esperanto",
-                "en": "Angielski",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Hiszpański",
-                "zs": "Chiński",
-                "ru": "Rosyjski",
-                "ro": "Rumuński",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bengalski",
-                "ja": "Japoński",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Kataloński",
-                "xz": "Zombie",
-                "cy": "Walijski",
-                "cs": "Czeski",
-                "pt": "Portugalski",
-                "lt": "Lithuanian",
-                "pa": "pendżabski (gurmukhi)",
-                "pl": "Polski",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Wysoki valyriański",
-                "ht": "Kreolski haitański",
-                "hu": "Węgierski",
-                "hi": "Hindi",
-                "he": "Hebrajski",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Ukraiński",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Holenderski",
-                "af": "Afrikaans",
-                "vi": "Wietnamski",
-                "is": "Icelandic",
-                "it": "Włoski",
-                "kn": "Kannada",
-                "zt": "Chiński (Tradycyjny)",
-                "as": "Assamese",
-                "ar": "Arabski",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Indonezyjski",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Norweski",
-                "nb": "Norweski (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Francuski",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Suahili",
-                "sv": "Szwedzki",
-                "km": "Khmer",
-                "kl": "klingońskiego",
-                "sk": "Slovak",
-                "sn": "Sindariński",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "dn": {
-                "level": "niveau",
-                "gu": "Gujarati",
-                "ga": "Iers",
-                "gn": "Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Turks",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "Thai",
-                "te": "Telugu",
-                "ta": "Tamil",
-                "yi": "Jiddisch",
-                "dk": "Dothraki",
-                "de": "Duits",
-                "db": "Dutch (Belgium)",
-                "ko": "Koreaans",
-                "da": "Deens",
-                "uz": "Uzbek",
-                "el": "Grieks",
-                "eo": "Esperanto",
-                "en": "Engels",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Spaans",
-                "zs": "Chinees",
-                "ru": "Russisch",
-                "ro": "Roemeens",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bengaals",
-                "ja": "Japans",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Catalaans",
-                "xz": "Zombie",
-                "cy": "Welsh",
-                "cs": "Tsjechisch",
-                "pt": "Portugees",
-                "lt": "Lithuanian",
-                "pa": "Punjabi (Gurmukhi)",
-                "pl": "Pools",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Hoog-Valyrisch",
-                "ht": "Haïtiaans-Creools",
-                "hu": "Hongaars",
-                "hi": "Hindi",
-                "he": "Hebreeuws",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Oekraïens",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Nederlands",
-                "af": "Afrikaans",
-                "vi": "Vietnamees",
-                "is": "Icelandic",
-                "it": "Italiaans",
-                "kn": "Kannada",
-                "zt": "Chinese (Traditioneel)",
-                "as": "Assamese",
-                "ar": "Arabisch",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Indonesisch",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Noors",
-                "nb": "Noors (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Frans",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Swahili",
-                "sv": "Zweeds",
-                "km": "Khmer",
-                "kl": "Klingon",
-                "sk": "Slovak",
-                "sn": "Sindarijns",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "fr": {
-                "level": "niveau",
-                "gu": "Gujarati",
-                "ga": "irlandais",
-                "gn": "guarani (jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "turc",
-                "lv": "Latvian",
-                "tl": "tagalog",
-                "th": "Thaïlandais",
-                "te": "Télougou",
-                "ta": "Tamoul",
-                "yi": "Yiddish",
-                "dk": "dothraki",
-                "de": "allemand",
-                "db": "Dutch (Belgium)",
-                "ko": "coréen",
-                "da": "Danois",
-                "uz": "Uzbek",
-                "el": "grec",
-                "eo": "Esperanto",
-                "en": "anglais",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "espagnol",
-                "zs": "Chinois",
-                "ru": "russe",
-                "ro": "roumain",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "bengali",
-                "ja": "japonais",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "catalan",
-                "xz": "Zombie",
-                "cy": "gallois",
-                "cs": "Tchèque",
-                "pt": "portugais",
-                "lt": "Lithuanian",
-                "pa": "panjabi (gurmukhi)",
-                "pl": "polonais",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "haut valyrien",
-                "ht": "créole haïtien",
-                "hu": "hongrois",
-                "hi": "hindi",
-                "he": "hébreu",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "ukrainien",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "néerlandais",
-                "af": "Afrikaans",
-                "vi": "Vietnamien",
-                "is": "Icelandic",
-                "it": "italien",
-                "kn": "Kannada",
-                "zt": "Chinois (Traditionnel)",
-                "as": "Assamese",
-                "ar": "Arabe",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "indonésien",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "norvégien",
-                "nb": "Norvégien (Bokmål)",
-                "ne": "Nepali",
-                "fr": "français",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "swahili",
-                "sv": "suédois",
-                "km": "Khmer",
-                "kl": "klingon",
-                "sk": "Slovak",
-                "sn": "sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "de": {
-                "level": "Ebene",
-                "gu": "Gujarati",
-                "ga": "Irisch",
-                "gn": "Guarani (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Türkisch",
-                "lv": "Latvian",
-                "tl": "Tagalog",
-                "th": "Thai",
-                "te": "Telugu",
-                "ta": "Tamil",
-                "yi": "Jiddisch",
-                "dk": "Dothraki",
-                "de": "Deutsch",
-                "db": "Dutch (Belgium)",
-                "ko": "Koreanisch",
-                "da": "Dänisch",
-                "uz": "Uzbek",
-                "el": "Griechisch",
-                "eo": "Esperanto",
-                "en": "Englisch",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Spanisch",
-                "zs": "Chinesisch",
-                "ru": "Russisch",
-                "ro": "Rumänisch",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Bengalisch",
-                "ja": "Japanisch",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Katalanisch",
-                "xz": "Zombie",
-                "cy": "Walisisch",
-                "cs": "Tschechisch",
-                "pt": "Portugiesisch",
-                "lt": "Lithuanian",
-                "pa": "Pandschabi (Gurmukhi)",
-                "pl": "Polnisch",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Hochvalyrisch",
-                "ht": "Haitianisches Creole",
-                "hu": "Ungarisch",
-                "hi": "Hindi",
-                "he": "Hebräisch",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "ukrainisch",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Niederländisch",
-                "af": "Afrikaans",
-                "vi": "Vietnamesisch",
-                "is": "Icelandic",
-                "it": "Italienisch",
-                "kn": "Kannada",
-                "zt": "Chinesisch (traditionell)",
-                "as": "Assamese",
-                "ar": "Arabisch",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Indonesisch",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Norwegisch",
-                "nb": "Norwegisch (Bokmål)",
-                "ne": "Nepali",
-                "fr": "Französisch",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "Swahili",
-                "sv": "Schwedisch",
-                "km": "Khmer",
-                "kl": "Klingonisch",
-                "sk": "Slovak",
-                "sn": "Sindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "hu": {
-                "level": "szint",
-                "gu": "Gujarati",
-                "ga": "ír",
-                "gn": "(jopará) guaraní",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "török",
-                "lv": "Latvian",
-                "tl": "tagalog",
-                "th": "thai",
-                "te": "telugu",
-                "ta": "tamil",
-                "yi": "jiddis",
-                "dk": "dothraki",
-                "de": "német",
-                "db": "Dutch (Belgium)",
-                "ko": "koreai",
-                "da": "dán",
-                "uz": "Uzbek",
-                "el": "görög",
-                "eo": "eszperantó",
-                "en": "angol",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "spanyol",
-                "zs": "kínai",
-                "ru": "orosz",
-                "ro": "román",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "bengáli",
-                "ja": "japán",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "katalán",
-                "xz": "Zombie",
-                "cy": "walesi",
-                "cs": "cseh",
-                "pt": "portugál",
-                "lt": "Lithuanian",
-                "pa": "(gurmuki) pandzsábi",
-                "pl": "lengyel",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "nemes valyr",
-                "ht": "haiti kreol",
-                "hu": "magyar",
-                "hi": "hindi",
-                "he": "héber",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "ukrán",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "holland",
-                "af": "Afrikaans",
-                "vi": "vietnami",
-                "is": "Icelandic",
-                "it": "olasz",
-                "kn": "Kannada",
-                "zt": "kínai (hagyományos)",
-                "as": "Assamese",
-                "ar": "arab",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "indonéz",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "norvég",
-                "nb": "(bokmål) norvég",
-                "ne": "Nepali",
-                "fr": "francia",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "szuahéli",
-                "sv": "svéd",
-                "km": "Khmer",
-                "kl": "klingon",
-                "sk": "Slovak",
-                "sn": "szindarin",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "hi": {
-                "level": "स्तर",
-                "gu": "Gujarati",
-                "ga": "आयरिश भाषा",
-                "gn": "गूरानी (Jopará)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "तुर्कीयाई",
-                "lv": "Latvian",
-                "tl": "टेगालॉग",
-                "th": "थाई",
-                "te": "तेलुगु",
-                "ta": "तमिल",
-                "yi": "Yiddish",
-                "dk": "डोथ्राकी",
-                "de": "जर्मन",
-                "db": "Dutch (Belgium)",
-                "ko": "कोरियाई",
-                "da": "डेनिश",
-                "uz": "Uzbek",
-                "el": "यूनानी",
-                "eo": "एस्पेरांतो",
-                "en": "अंग्रेज़ी",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "स्पेनी",
-                "zs": "चीनी",
-                "ru": "रूसी",
-                "ro": "रोमानियाई",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "बंगाली",
-                "ja": "जापानी",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "कैटलन",
-                "xz": "Zombie",
-                "cy": "वेल्श",
-                "cs": "चेक",
-                "pt": "पुर्तगाली",
-                "lt": "Lithuanian",
-                "pa": "पंजाबी (गुरुमुखी)",
-                "pl": "पोलिश भाषा",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "हाई वैलिरियन",
-                "ht": "हाईटियन क्रियोल",
-                "hu": "हंगेरियाई",
-                "hi": "हिन्दी",
-                "he": "यहूदी",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "यूक्रेनी",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "डच",
-                "af": "Afrikaans",
-                "vi": "वियतनामी",
-                "is": "Icelandic",
-                "it": "इतालवी",
-                "kn": "Kannada",
-                "zt": "चीनी (पारंपरिक)",
-                "as": "Assamese",
-                "ar": "अरबी",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "इंडोनेशियाई",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "नार्वेजियन",
-                "nb": "नॉर्वेजियाई (बूकमॉल)",
-                "ne": "Nepali",
-                "fr": "फ़्रांसीसी",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "स्वाहिली",
-                "sv": "स्वीडिश",
-                "km": "Khmer",
-                "kl": "क्लिंगऑन",
-                "sk": "Slovak",
-                "sn": "सिंदारिन",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "ja": {
-                "level": "レベル",
-                "gu": "Gujarati",
-                "ga": "アイルランド語",
-                "gn": "グアラニ（ジョパラ）",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "トルコ語",
-                "lv": "Latvian",
-                "tl": "タガログ語",
-                "th": "タイ語",
-                "te": "テルグ語",
-                "ta": "タミル語",
-                "yi": "イディッシュ語",
-                "dk": "ドスラク語",
-                "de": "ドイツ語",
-                "db": "Dutch (Belgium)",
-                "ko": "韓国語",
-                "da": "デンマーク語",
-                "uz": "Uzbek",
-                "el": "ギリシャ語",
-                "eo": "エスペラント語",
-                "en": "英語",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "スペイン語",
-                "zs": "中国語",
-                "ru": "ロシア語",
-                "ro": "ルーマニア語",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "ベンガル語",
-                "ja": "日本語",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "カタルーニャ語",
-                "xz": "Zombie",
-                "cy": "ウェールズ語",
-                "cs": "チェコ語",
-                "pt": "ポルトガル語",
-                "lt": "Lithuanian",
-                "pa": "パンジャブ語 (グルムキー)",
-                "pl": "ポーランド語",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "ハイ・ヴァリリアン",
-                "ht": "ハイチクレオール",
-                "hu": "ハンガリー語",
-                "hi": "ヒンディー語",
-                "he": "�?ブライ語",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "ウクライナ語",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "オランダ語",
-                "af": "Afrikaans",
-                "vi": "ベトナム語",
-                "is": "Icelandic",
-                "it": "イタリア語",
-                "kn": "Kannada",
-                "zt": "中国語 (繁体)",
-                "as": "Assamese",
-                "ar": "アラビア語",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "インドネシア語",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "ノルウェー語",
-                "nb": "ノルウェー語 (ブークモール)",
-                "ne": "Nepali",
-                "fr": "フランス語",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "スワヒリ語",
-                "sv": "スウェーデン語",
-                "km": "Khmer",
-                "kl": "クリンゴン語",
-                "sk": "Slovak",
-                "sn": "シンダール語",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "ko": {
-                "level": "�?평",
-                "gu": "Gujarati",
-                "ga": "아일랜드어",
-                "gn": "과라니어 (조파라)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "터키어",
-                "lv": "Latvian",
-                "tl": "필리핀어",
-                "th": "태국어",
-                "te": "텔루구어",
-                "ta": "타밀어",
-                "yi": "이디시어",
-                "dk": "도뜨라키어",
-                "de": "독일어",
-                "db": "Dutch (Belgium)",
-                "ko": "한국어",
-                "da": "덴마크어",
-                "uz": "Uzbek",
-                "el": "그리스어",
-                "eo": "에스�?란토어",
-                "en": "�?�어",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "스�?인어",
-                "zs": "중국어",
-                "ru": "러시아어",
-                "ro": "루마니아어",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "벵골어",
-                "ja": "일본어",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "카탈루냐어",
-                "xz": "Zombie",
-                "cy": "웨일스어",
-                "cs": "체코어",
-                "pt": "포르투갈어",
-                "lt": "Lithuanian",
-                "pa": "펀자브어 (구르무키)",
-                "pl": "폴란드어",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "고지 발라리아어",
-                "ht": "아이티어",
-                "hu": "헝가리어",
-                "hi": "힌두어",
-                "he": "히브리어",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "우크라이�?어",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "네덜란드어",
-                "af": "Afrikaans",
-                "vi": "베트남어",
-                "is": "Icelandic",
-                "it": "이탈리아어",
-                "kn": "Kannada",
-                "zt": "중국어 (정체)",
-                "as": "Assamese",
-                "ar": "아랍어",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "인도네시아어",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "노르웨이어",
-                "nb": "노르웨이어 (보크몰)",
-                "ne": "Nepali",
-                "fr": "프랑스어",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "스와힐리어",
-                "sv": "스웨덴어",
-                "km": "Khmer",
-                "kl": "클링�?�어",
-                "sk": "Slovak",
-                "sn": "신다린어",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            },
-            "uk": {
-                "level": "рівень",
-                "gu": "Gujarati",
-                "ga": "Ірландська",
-                "gn": "Гуарані (йопара)",
-                "gl": "Galician",
-                "la": "Latin",
-                "tt": "Tatar",
-                "tr": "Турецька",
-                "lv": "Latvian",
-                "tl": "Тагальська мова",
-                "th": "Тайська",
-                "te": "Телугу",
-                "ta": "Таміл",
-                "yi": "Ідиш",
-                "dk": "Дотракійська",
-                "de": "Німецька",
-                "db": "Dutch (Belgium)",
-                "ko": "Корейська",
-                "da": "Данська",
-                "uz": "Uzbek",
-                "el": "Грецька",
-                "eo": "Есперанто",
-                "en": "Англійська",
-                "zc": "Chinese (Cantonese)",
-                "eu": "Basque",
-                "et": "Estonian",
-                "ep": "English (Pirate)",
-                "es": "Іспанська",
-                "zs": "Китайська",
-                "ru": "Російська",
-                "ro": "Румунська",
-                "be": "Belarusian",
-                "bg": "Bulgarian",
-                "ms": "Malay",
-                "bn": "Бенгальська",
-                "ja": "Японська",
-                "or": "Oriya",
-                "xl": "Lolcat",
-                "ca": "Каталонська",
-                "xz": "Zombie",
-                "cy": "валлійська",
-                "cs": "Чеська",
-                "pt": "Португальська",
-                "lt": "Lithuanian",
-                "pa": "Панджабі (гурмукхі)",
-                "pl": "Польська",
-                "hy": "Armenian",
-                "hr": "Croatian",
-                "hv": "Валірійська",
-                "ht": "Гаїтянська креольська мова",
-                "hu": "Угорська",
-                "hi": "Гінді",
-                "he": "Іврит",
-                "mb": "Malay (Brunei)",
-                "mm": "Malay (Malaysia)",
-                "ml": "Malayalam",
-                "mn": "Mongolian",
-                "mk": "Macedonian",
-                "ur": "Urdu",
-                "kk": "Kazakh",
-                "uk": "Українська",
-                "mr": "Marathi",
-                "my": "Burmese",
-                "dn": "Голандська",
-                "af": "Afrikaans",
-                "vi": "В’єтнамська",
-                "is": "Icelandic",
-                "it": "Італійська",
-                "kn": "Kannada",
-                "zt": "Китайська (традиційна)",
-                "as": "Assamese",
-                "ar": "Арабська",
-                "zu": "Zulu",
-                "az": "Azeri",
-                "id": "Індонезійська",
-                "nn": "Norwegian (Nynorsk)",
-                "no": "Норвезька",
-                "nb": "Норвезька (Букмол)",
-                "ne": "Nepali",
-                "fr": "Французька",
-                "fa": "Farsi",
-                "fi": "Finnish",
-                "fo": "Faroese",
-                "ka": "Georgian",
-                "ss": "Swedish (Sweden)",
-                "sq": "Albanian",
-                "sw": "суахілі",
-                "sv": "Шведська",
-                "km": "Khmer",
-                "kl": "Клінгонська",
-                "sk": "Slovak",
-                "sn": "Синдарин",
-                "sl": "Slovenian",
-                "ky": "Kyrgyz",
-                "sf": "Swedish (Finland)"
-            }
-        },
-        "supported": function (lang) {
-            let result = lang;
-            try {
-                result = result || userInfo.duoState.user.learningLanguage;
-                if (basekeys.layout_map[result]) {
-                    result = basekeys.supported_lang[basekeys.layout_map[result]];
-                }
-            } catch (e) {
-                result = -1;
-            }
-            return result;
+      }
+      return result;
+    },
+    "refresh": function(shouldntRefresh) {
+      if (userInfo.firstrefresh) userInfo.tools.clearLocalStorage();
+      userInfo.firstrefresh = false;
+      let localStorage = userInfo.tools.getLocalStorage(shouldntRefresh);
+      let duoStateSTR = localStorage["duo.state"];
+      let result = {
+        courses: {},
+        user: {
+          "learningLanguage": "",
+          "fromLanguage": "",
+          "accessible": false,
+          "finishedLevels": 0,
+          "levels": 0,
+          "finishedLessons": 0,
+          "lessons": 0,
+          "URI": "",
+          "urlName": ""
         }
-    };
-    var virtKeyboard = {
-        //"rawgit": "https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/",
-        "version": "0.1.0.002",
-        "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/352da72d38cf7e0827ee8dc05a0db8976e383ccd/xtnsn/",
-        "test": true,
-        "show": true,
-        "apply": true,
-        "fixCss": false,
-        "checklocation": function () {
-            return (/^\/skill/.test(location.pathname) ||
-                /^\/bigtest/.test(location.pathname) ||
-                /^\/practice/.test(location.pathname) ||
-                /^\/DuoVirtKeyboard/.test(location.pathname));
-        },
-        "shift": false,
-        "caps": false,
-        "newcodepage": false,
-        "newlang": "",
-        "mainlang": "",
-        "secondlang": "",
-        "uiLanguage": "",
-        "body": "<div id='virt-keyboard' class='vrt-hidden'><header class='vrt-topbar'><div class='vrt-toggledropdown vrt-main'><span class='vrt-langspan vrt-main'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-main' id='vrt-mainlang' data-language='en'></ul></div><div class='vrt-keycodesetting vrt-normal-key vrt-hidden'><input id='vrt-normal-key' placeholder='Regular character' /></div><div class='v-logo v-big'><ul class='vrt-download vrt-arrow-top'></ul></div><div class='vrt-keycodesetting vrt-shift-key vrt-hidden'><input id='vrt-shift-key' placeholder='Shift character' /></div><div class='vrt-toggledropdown vrt-secondary'><span class='vrt-langspan vrt-secondary'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-secondary' id='vrt-secondarylang' data-language='en'></ul></div><div class='v-close'><span class='v-close'></span></div></header><div class='vrt-section'></div></div>",
-        "fillKeyboard": function (lang0, lang1) {
-            console.debug("fillKeyboard(" + lang0 + "," + lang1 + ")");
-            if (!lang0) {
-                lang0 = virtKeyboard.mainlang;
-                virtKeyboard.mainlang = lang0;
-            }
-            if (!lang1) {
-                if (lang0 === virtKeyboard.secondlang) {
-                    lang1 = lang0;
-                    lang0 = virtKeyboard.mainlang
-                } else {
-                    lang1 = virtKeyboard.secondlang;
-                }
-            }
-            if (!(lang0 && lang1)) {
-                console.error("Language keycodes not provided.");
-                return false;
-            }
-            virtKeyboard.mainlang = lang0 = basekeys.supported(lang0);
-            virtKeyboard.secondlang = lang1 = basekeys.supported(lang1);
+      };
 
-            for (let keycode in basekeys[lang0]) {
-                let mainlabel = basekeys[lang0][keycode];
-                let secondarylabel = {};
-                let mainclass = "l4";
-                let updatekey = "." + keycode;
-                $(updatekey).html("");
-                let span0 = $("<span>");
-                if (lang1 && lang1 !== lang0 && basekeys[lang1] && basekeys[lang1][keycode]) {
-                    secondarylabel = basekeys[lang1][keycode];
-                    let span2 = $("<span>");
-                    if (secondarylabel.normal !== mainlabel.normal) {
-                        mainclass = "l0";
-                        span2.addClass("l8");
-                        span2[0].textContent = secondarylabel.normal.toUpperCase();
-                        $(updatekey).append(span2);
-                    }
-                    if (secondarylabel.shift !== mainlabel.shift && secondarylabel.shift.toLowerCase() !== secondarylabel.normal) {
-                        mainclass = "l0";
-                        let span3 = $("<span>");
-                        span3.addClass("l2");
-                        span3[0].textContent = secondarylabel.shift;
-                        $(updatekey).append(span3);
-                    }
-                }
-                if (mainlabel.normal === mainlabel.shift.toLowerCase()) {
-                    span0.addClass(mainclass);
-                    span0[0].textContent = mainlabel.shift;
-                    $(updatekey).append(span0);
-                } else {
-                    let span1 = $("<span>");
-                    span0.addClass("l0");
-                    span0[0].textContent = mainlabel.shift;
-                    span1.addClass("l6");
-                    span1[0].textContent = mainlabel.normal;
-                    $(updatekey).append(span0);
-                    $(updatekey).append(span1);
-                }
-            }
-        },
-        "typecustomchar": function (inputf, charcode, key) {
-            console.debug("typecustomchar: inputf {" + inputf + "}\n\t charcode {" + charcode + "}\n\tkey {" + key + "}");
-            let jq_inputf = $(inputf);
-            let input_lang = basekeys.supported(jq_inputf.attr("lang"));
-            if ($(".fixmain").hasClass("hover"))
-                input_lang = $("#vrt-mainlang").data("language");
-            console.debug("typecustomchar: using lang [" + input_lang + "]");
-            if (input_lang === -1) {
-                input_lang = userInfo.duoState.user.learningLanguage;
-            }
-            if (basekeys.dublicate && key && key.originalEvent) {
-                charcode = basekeys.dublicate[key.originalEvent.code] || charcode;
-            }
-            if (charcode === 0) {
-                console.error("Couldn't assosiate a key. [keyboard.originalEvent.code: " + key.originalEvent.code + "]");
-                return false;
-            }
-            if ((charcode !== 8 && charcode !== 32) && (!(basekeys[input_lang]) || (charcode !== 32 && !basekeys[input_lang][charcode]) || key && (key.altKey || key.ctrlKey))) {
-                return false;
-            }
-            let inputtext = jq_inputf.val();
-            let selStart = jq_inputf[0].selectionStart;
-            let selEnd = jq_inputf[0].selectionEnd;
-            if (selStart === undefined) {
-                selStart = selEnd = inputtext.length;
-            }
-            let inputs = "";
-            if (basekeys[input_lang][charcode]) {
-                let changecase = "";
-                let shift_left = $(".shift.left");
-                if (virtKeyboard.shift) {
-                    if (!shift_left.hasClass("hover")) {
-                        shift_left.addClass("hover");
-                    }
-                    inputs = basekeys[input_lang][charcode].shift;
-                    changecase = "toLowerCase";
-                } else {
-                    if (shift_left.hasClass("hover")) {
-                        shift_left.removeClass("hover");
-                    }
-                    inputs = basekeys[input_lang][charcode].normal;
-                    changecase = "toUpperCase";
-                }
-                let jq_caps = $(".caps");
-                if (virtKeyboard.caps) {
-                    try {
-                        inputs = inputs[changecase]();
-                    } catch (e) {
-                    }
-                    if (!jq_caps.hasClass("hover")) {
-                        jq_caps.addClass("hover");
-                    }
-                } else {
-                    if (jq_caps.hasClass("hover")) {
-                        jq_caps.removeClass("hover");
-                    }
-                }
-            } else {
-                if (charcode === 8) {
-                    selStart = selStart > 0 ? selStart - 1 : 0;
-                }
-                if (charcode === 32) {
-                    inputs = " ";
-                }
-            }
-            let z = inputtext.slice(0, selStart) + inputs + inputtext.slice(selEnd);
-            jq_inputf.focus();
-            jq_inputf.val(z);
-            jq_inputf.attr("value", z);
-            jq_inputf[0].selectionStart = jq_inputf[0].selectionEnd = selStart + inputs.length;
-            let virt_keyboard = $("#virt-keyboard");
-            let restore = !virt_keyboard.hasClass("vrt-keep");
-            if (restore)
-                virt_keyboard.addClass("vrt-keep");
-            jq_inputf.blur();
-            if (restore)
-                virt_keyboard.removeClass("vrt-keep");
-            jq_inputf.focus();
-            return true;
-        },
-        "updatesecondary": function () {
-            let divider = $("<li>");
-            divider.addClass("vrt-divider vrt-new");
-            let jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
-            jq_dd_sec.addClass("vrt-settings");
-            jq_dd_sec.append(divider);
-            for (let langcode in basekeys.language_names_ui[virtKeyboard.mainlang]) {
-                if (langcode !== "level" && basekeys.supported_lang.indexOf(langcode) === -1) {
-                    let langname = basekeys.language_names_ui[virtKeyboard.mainlang][langcode];
-                    let newentry = $("<li>");
-                    newentry.addClass("vrt-data-choice vrt-new");
-                    newentry.data("language", langcode);
-                    newentry[0].textContent = langname;
-                    jq_dd_sec.append(newentry);
-                }
-            }
-        },
-        "updatecodepages": function (newlangcode, update) {
-            if (!basekeys[newlangcode] || update) {
-                virtKeyboard.newcodepage = true;
-                virtKeyboard.newlang = newlangcode;
-                $(".vrt-keycodesetting").show();
-            }
-        },
-        "getlanguagename": function (langcode, ui_main) {
-            if (!ui_main)
-                ui_main = virtKeyboard.uiLanguage = duo.uiLanguage || userInfo.duoState.user.fromLanguage || virtKeyboard.secondlang;
-            let ui_langs = basekeys.language_names_ui[ui_main];
-            let langname = ui_langs[langcode].split("");
-            langname[0] = langname[0].toUpperCase();
-            return langname.join("");
-        },
-        "updatesupportedlangs": function (isDL) {
-            let ddclass = isDL ? ".vrt-download" : ".vrt-dropdown";
-            let dchclass = isDL ? "vrt-dl-choice" : "vrt-data-choice";
-            let main_node = $("#vrt-mainlang >." + dchclass);
-            let secondary_node = $("#vrt-secondarylang >." + dchclass);
-            if (isDL) {
-                $(ddclass + " > a").remove();
-            } else {
-                $(ddclass + " > li").remove();
-            }
-            let namednodes = {
-                main: {
-                    name: virtKeyboard.getlanguagename(virtKeyboard.mainlang),
-                    node: main_node[0],
-                    code: virtKeyboard.mainlang
-                },
-                secondary: {
-                    name: virtKeyboard.getlanguagename(virtKeyboard.secondlang),
-                    node: secondary_node[0],
-                    code: virtKeyboard.secondlang
-                }
-            };
-
-            let active_langs_supported = userInfo.getLangs(true /* Return only not mapped languages */);
-            for (let langcode in active_langs_supported) {
-                if (!active_langs_supported[langcode]) continue;
-                let newentry = $("<li>");
-                newentry.addClass(dchclass);
-                newentry.data("language", langcode);
-                newentry[0].textContent = virtKeyboard.getlanguagename(langcode);
-                if (isDL) {
-                    let a_link = $("<a>");
-                    a_link.addClass("v-download");
-                    let temp = {
-                        "lang": langcode,
-                        "keysmap": basekeys[langcode]
-                    };
-                    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(temp));
-                    a_link.attr("href", dataStr);
-                    a_link.attr("download", "keyboard." + langcode + ".json");
-                    a_link.append(newentry.append($("<i class=\x22material-icons\x22>save</i>")));
-                    $(ddclass).append(a_link);
-                } else {
-                    $(ddclass).append(newentry);
-                }
-                let node = undefined;
-                if (virtKeyboard.mainlang === langcode) {
-                    node = main_node[main_node.length - 1];
-                    namednodes.main.name = virtKeyboard.getlanguagename(langcode);
-                    namednodes.main.node = node;
-                    namednodes.main.code = langcode;
-                }
-                if (virtKeyboard.secondlang === langcode) {
-                    node = secondary_node[main_node.length - 1];
-                    namednodes.secondary.name = virtKeyboard.getlanguagename(langcode);
-                    namednodes.secondary.node = node;
-                    namednodes.secondary.code = langcode;
-                }
-            }
-            if (!isDL) {
-                for (let nodetype in namednodes) {
-                    let tnode = namednodes[nodetype].node || $("#vrt-" + nodetype + "lang >." + dchclass)[0];
-                    $(tnode).addClass("vrt-active").siblings().removeClass("vrt-active");
-                    $("#vrt-" + nodetype + "lang").data("language", namednodes[nodetype].code);
-                    $("span.vrt-langspan.vrt-" + nodetype)[0].textContent = namednodes[nodetype].name;
-                }
-            }
-        },
-        "sethotkey": function (){
-            let buttons = $('div._30i_q').children('button');
-
-            let hotkey = $('span.hotkeyhint');
-            if (buttons.length > 0) {
-                $('div.hotkeydiv').remove();
-                hotkey.remove();
-                for (var x=0;x<buttons.length;x++) {
-                    let charcode = (48 + parseInt(x,17));
-                    buttons[x].id = 'button_' + charcode;
-                    let HKeyButton = $(buttons[x]);
-                    let HKeyDiv = $("<div class='hotkeydiv'>");
-                    HKeyDiv.append(HKeyButton);
-                    HKeyDiv.append('<span class="hotkeyhint">'+String.fromCharCode(charcode)+'</span>');
-                    $('div._30i_q').append(HKeyDiv);
-                }
-                //$('div._30i_q').children('button').remove();
-            }
-        },
-        "drawKeyboard": function () {
-            let jq_vrt_section = $(".vrt-section");
-            jq_vrt_section.html("");
-            let baseraws = basekeys.base.raw;
-            for (let i in baseraws) {
-                let virtkeyraw = baseraws[i];
-                let ul = $("<ul>");
-                ul.addClass("row");
-                ul.addClass(i);
-                for (let n in virtkeyraw) {
-                    let li = $("<li class=\x22key\x22>");
-                    let keyhtml = $("<div data-keycode=\x22" + virtkeyraw[n].code + "\x22 class=\x22keylabel " + virtkeyraw[n].code + "\x22>");
-                    if (virtkeyraw[n].name) {
-                        keyhtml.data("name", virtkeyraw[n].name);
-                    }
-                    if (virtkeyraw[n].type !== "keylabel") {
-                        li.addClass(virtkeyraw[n].type);
-                        li.data("type", virtkeyraw[n].type);
-                    }
-                    ul.append(li.append(keyhtml));
-                }
-                jq_vrt_section.append(ul);
-            }
-        },
-        "updateLangs": function (update) {
-            if (!update) {
-                update = {};
-            }
-            let jq_ml = $("#vrt-mainlang").data("language");
-            let jq_sl = $("#vrt-secondarylang").data("language");
-            for (let lcode in update) {
-                if (basekeys.supported_lang.indexOf(lcode) !== -1) {
-                    $.ajax({
-                        type: "get",
-                        url: virtKeyboard.rawgit + "duo/keyboard." + lcode + ".json"
-                    }).done(function (json) {
-                        basekeys[json.lang] = json.keysmap;
-                        if (json.lang === jq_ml || json.lang === jq_sl) {
-                            console.debug("updateLangs:fillKeyboard:ajax");
-                            virtKeyboard.fillKeyboard(jq_ml, jq_sl);
-                        }
-                        userInfo.tools.saveToLocalStorage("keys", basekeys);
-                    });
-                }
-            }
-            console.debug("updateLangs:fillKeyboard:afterajax");
-            virtKeyboard.fillKeyboard(jq_ml, jq_sl);
-            virtKeyboard.virtKeyOnClick();
-        },
-        "virtKeyOnClick": function () {
-            let virt_keyboard = $("#virt-keyboard");
-            let virt_tdd = $(".vrt-toggledropdown");
-            virt_keyboard.on("click", ".key", function () {
-                let inputfield = $("textarea");
-                let keycode = $(this).find("div").data("keycode");
-                let keyname = $(this).find("div").data("name");
-                let jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
-                let jq_ks = $(".vrt-keycodesetting");
-                let jq_dd_sec_new = $(".vrt-dropdown.vrt-secondary > li.vrt-new");
-                if ($(this).hasClass("home")) {
-                    let jq_home = $(".home");
-                    if (!jq_home.hasClass("switch")) {
-                        jq_home.addClass("switch");
-                    }
-                    if (!jq_dd_sec.hasClass("vrt-settings")) {
-                        virtKeyboard.updatesecondary();
-                    } else {
-                        virtKeyboard.newcodepage = false;
-                        jq_ks.hide();
-                        jq_dd_sec.removeClass("vrt-settings");
-                        jq_dd_sec.removeClass("vrt-update");
-                        jq_dd_sec_new.remove();
-                        userInfo.tools.saveToLocalStorage("keys", basekeys);
-                        virtKeyboard.updatesupportedlangs();
-                    }
-                }
-                if ($(this).hasClass("menu")) {
-                    let jq_menu = $(".menu");
-                    if (!jq_menu.hasClass("switch")) {
-                        jq_menu.addClass("switch");
-                    }
-                }
-                if ($(this).hasClass("special")) {
-                    $(this).toggleClass("hover");
-                    if ($(this).hasClass("shift") && $(this).hasClass("left")) {
-                        virtKeyboard.shift = !virtKeyboard.shift;
-                    }
-                    if ($(this).hasClass("caps")) {
-                        virtKeyboard.caps = !virtKeyboard.caps;
-                    }
-                    let keypressed = jQuery.Event({
-                        "type": "keypress",
-                        "keyCode": keycode,
-                        "which": keycode,
-                        "shiftKey": virtKeyboard.shift,
-                        "key": keyname
-                    });
-                    let jq_if = $(inputfield);
-                    jq_if.trigger(keypressed);
-                    jq_if.focus();
-                    return true;
-                }
-                if (!virtKeyboard.newcodepage) {
-                    if (inputfield) {
-                        virtKeyboard.typecustomchar(inputfield, keycode);
-                    }
-                } else {
-                    let jq_ml = $("#vrt-mainlang").data("language");
-                    let nfield = $("#vrt-normal-key");
-                    let sfield = $("#vrt-shift-key");
-                    if (basekeys.supported_lang.indexOf(virtKeyboard.newlang) === -1) {
-                        basekeys.supported_lang.push(virtKeyboard.newlang);
-                    }
-                    if (!basekeys[virtKeyboard.newlang]) {
-                        basekeys[virtKeyboard.newlang] = JSON.parse(JSON.stringify(basekeys[jq_ml]));
-                    }
-                    if (nfield.val() !== "") {
-                        basekeys[virtKeyboard.newlang][keycode].normal = nfield.val();
-                    }
-                    if (sfield.val() !== "") {
-                        basekeys[virtKeyboard.newlang][keycode].shift = sfield.val();
-                    }
-                    console.debug("virtKeyOnClick:fillKeyboard");
-                    virtKeyboard.fillKeyboard(jq_ml, virtKeyboard.newlang);
-                }
-            });
-            virt_keyboard.on("click", ".vrt-data-choice", function () {
-                if (!$(this).hasClass("vrt-active") && !$(this).hasClass("vrt-new")) {
-                    $(this).addClass("vrt-active").siblings().removeClass("vrt-active");
-                }
-                $(this).parent().data("language", $(this).data("language"));
-                $(this).parent().parent().find("span.vrt-langspan")[0].textContent = $(this)[0].textContent;
-                let jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
-                if (jq_dd_sec.hasClass("vrt-settings")) {
-                    virtKeyboard.updatecodepages($(this).data("language"), $(this).parent().hasClass("vrt-update"));
-                }
-                let jq_ml = $("#vrt-mainlang").data("language");
-                let jq_sl = $("#vrt-secondarylang").data("language");
-                console.debug("virtKeyOnClick:fillKeyboard");
-                virtKeyboard.fillKeyboard(jq_ml, jq_sl);
-                $(this).parent().off("mouseleave");
-                $(this).parent().slideUp("medium");
-            });
-            virt_tdd.on("click", function () {
-                let dropdownmenu = $(this).find("ul.vrt-dropdown");
-                if (dropdownmenu.is(":visible")) {
-                    dropdownmenu.slideUp("medium");
-                    virt_tdd.off("mouseleave");
-                } else {
-                    virt_tdd.on("mouseleave", function () {
-                        dropdownmenu.slideUp("medium");
-                    });
-                    dropdownmenu.slideDown("medium");
-                }
-                dropdownmenu.off("mouseleave");
-                dropdownmenu.on("mouseleave", function () {
-                    virt_tdd.off("mouseleave");
-                    dropdownmenu.slideUp("medium");
-                });
-            });
-            $(".v-big").on("click", function () {
-                virtKeyboard.updatesupportedlangs(true);
-                let dropdownmenu = $(this).find("ul.vrt-download");
-                if (dropdownmenu.is(":visible")) {
-                    dropdownmenu.slideUp("medium");
-                } else {
-                    dropdownmenu.slideDown("medium");
-                }
-                dropdownmenu.off("mouseleave");
-                dropdownmenu.on("mouseleave", function () {
-                    dropdownmenu.slideUp("medium");
-                });
-            });
-            $(document).on("keydown", "textarea, input", function (keypressed) {
-                userInfo.fixCss(document.dir);
-                if (virtKeyboard.apply && virtKeyboard.checklocation()) {
-                    let virtkey = $("." + keypressed.keyCode).parent();
-                    virtkey.addClass("virthover");
-                    setTimeout(function () {
-                        virtkey.removeClass("virthover");
-                    }, 600);
-                    virtKeyboard.shift = keypressed.shiftKey;
-                    if (virtKeyboard.typecustomchar(this, keypressed.keyCode, keypressed))
-                        keypressed.preventDefault();
-                }
-            });
-        },
-        "completeInit": function () {
-            let userLanguages = userInfo.getLangs();
-            if (Object.keys(userLanguages).length === 0 || basekeys.supported_lang.length === 0) {
-                setTimeout(function () {
-                    virtKeyboard.completeInit();
-                }, 300);
-                return;
-            }
-            $("#vrt-mainlang").data("language", virtKeyboard.mainlang = userInfo.duoState.user.learningLanguage || "en");
-            $("#vrt-secondarylang").data("language", virtKeyboard.secondlang = userInfo.duoState.user.fromLanguage || "en");
-            virtKeyboard.updateLangs(userLanguages);
-            virtKeyboard.drawKeyboard();
-            virtKeyboard.updatesupportedlangs();
-            virtKeyboard.uiLanguage = virtKeyboard.uiLanguage ? virtKeyboard.uiLanguage : duo ? duo.uiLanguage : userInfo ? userInfo.duoState ? userInfo.duoState.user ? userInfo.duoState.user.fromLanguage : virtKeyboard.secondlang : "en" : "en";
-        },
-        "init": function () {
-            if (userInfo.firstrefresh) {
-                setTimeout(function () {
-                    virtKeyboard.init();
-                }, 300);
-                return;
-            }
-            $("body").append(virtKeyboard.body);
-            let virt_keyboard = $("#virt-keyboard");
-            virt_keyboard.hover(
-                function () {
-                    $(this).addClass("vrt-keep");
-                }, function () {
-                    $(this).removeClass("vrt-keep");
-                });
-            $(document).on("click", ".v-logoOnTop", function () {
-                let virt_keyboard = $("#virt-keyboard");
-                let jq_logo = $(".v-logoOnTop");
-                virtKeyboard.show = !virtKeyboard.show;
-                virtKeyboard.apply = true;
-                jq_logo.removeClass("v-disabled");
-                if (virtKeyboard.show) {
-                    if (!$(this).hasClass("v-show"))
-                        $(this).addClass("v-show");
-                } else {
-                    if ($(this).hasClass("v-show"))
-                        $(this).removeClass("v-show");
-                    virt_keyboard.hide();
-                }
-                userInfo.tools.saveToLocalStorage("settings", virtKeyboard);
-            });
-            $(document).on("click", ".v-close", function () {
-                let virt_keyboard = $("#virt-keyboard");
-                let jq_logo = $(".v-logoOnTop");
-                virtKeyboard.show = false;
-                jq_logo.removeClass("v-show");
-                jq_logo.addClass("v-disabled");
-                virtKeyboard.apply = false;
-                virt_keyboard.hide();
-                userInfo.tools.saveToLocalStorage("settings", virtKeyboard);
-            });
-            $(document).on("focus", "textarea, input[type='text']", function () {
-                let virt_keyboard = $("#virt-keyboard");
-                if (virtKeyboard.checklocation()) {
-                    $(this).val($(this).attr("value"));
-                    try {
-                        $(this)[0].innerText = $(this).attr("value");
-                    } catch (e) {
-                    }
-                    let visible = $("#virt-keyboard:visible").length > 0;
-                    if (virtKeyboard.show && !visible) {
-                        virtKeyboard.updatesupportedlangs();
-                        console.debug("init.textarea.onfocus:fillKeyboard");
-                        virtKeyboard.fillKeyboard($(this).attr("lang"));
-                        virt_keyboard.show("slow");
-                    }
-                }
-            });
-            $(document).on("focusout", "textarea, input[type='text']", function () {
-                let virt_keyboard = $("#virt-keyboard");
-                if (virtKeyboard.checklocation()) {
-                    $(this).val($(this).attr("value"));
-                    try {
-                        $(this)[0].innerText = $(this).attr("value");
-                    } catch (e) {
-                    }
-                    if (!virt_keyboard.hasClass("vrt-keep")) {
-                        virt_keyboard.hide();
-                    }
-                }
-            });
-            $(document).on("keydown", null, function (keypressed) {
-                if ($("textarea, input[type='text']").length===0) {
-                    virtKeyboard.sethotkey();
-                    let hotkey = $('button#button_'+ keypressed.keyCode);
-                    //console.info(hotkey);
-                    hotkey.click();
-                }
-            });
-            virtKeyboard.sethotkey();
-            virtKeyboard.completeInit();
-            virt_keyboard.draggable();
-        },
-        "preinit": function () {
-            if (!window.jQuery) {
-                setTimeout(function () {
-                    virtKeyboard.preinit();
-                }, 300);
-                return;
-            }
-            let settings = userInfo.tools.getFromLocalStorage("settings");
-            if (settings) {
-                console.info("Local version is:" + settings.version);
-                console.info("Remote version is:" + virtKeyboard.version);
-                if (settings.version !== virtKeyboard.version) {
-                    userInfo.tools.clearLocalStorage("keys");
-                    userInfo.tools.clearLocalStorage("weakspan");
-                    userInfo.tools.clearLocalStorage("newspan");
-                }
-                settings.version = virtKeyboard.version;
-                settings.rawgit = virtKeyboard.rawgit;
-                userInfo.tools.updateBase(virtKeyboard, settings);
-            }
-            $.fn.draggable = function () {
-                var $this = this,
-                    ns = 'draggable_' + (Math.random() + '').replace('.', ''),
-                    mm = 'mousemove.' + ns,
-                    mu = 'mouseup.' + ns,
-                    $w = $(window),
-                    rtl = $("html").attr("dir") === "rtl",
-                    isFixed = ($this.css('position') === 'fixed'),
-                    adjX = 0,
-                    adjY = 0;
-                $this.mousedown(function (ev) {
-                    var pos = $this.position();
-                    if (isFixed) {
-                        adjX = ($w.scrollLeft());
-                        adjY = $w.scrollTop();
-                    }
-                    var ox = (ev.pageX - pos.left),
-                        oy = (ev.pageY - pos.top);
-                    $this.data(ns, {
-                        x: ox,
-                        y: oy
-                    });
-                    $w.on(mm, function (ev) {
-                        ev.preventDefault();
-                        ev.stopPropagation();
-                        if (isFixed) {
-                            adjX = ($w.scrollLeft());
-                            adjY = $w.scrollTop();
-                        }
-                        var offset = $this.data(ns);
-                        $this.css({
-                            left: (ev.pageX - adjX - offset.x),
-                            top: (ev.pageY - adjY - offset.y)
-                        });
-                    });
-                    $w.on(mu, function () {
-                        $w.off(mm + ' ' + mu).removeData(ns);
-                    });
-                });
-                return this;
-            };
-            userInfo.duoState = userInfo.refresh();
-            let oldkeys = userInfo.tools.getFromLocalStorage("keys");
-            if (!oldkeys || oldkeys.supported_lang.length === 0) {
-                $.ajax({
-                    type: "get",
-                    url: virtKeyboard.rawgit + "duo/keyboard.base.json"
-                }).done(function (json) {
-                    userInfo.tools.updateBase(basekeys, json);
-                    userInfo.tools.saveToLocalStorage("keys", basekeys);
-                });
-            } else {
-                userInfo.tools.updateBase(basekeys, oldkeys);
-            }
-            if ($(".v-logo").length === 0) {
-                let vKeyboardLogo = $("<span>");
-                vKeyboardLogo.addClass("v-logo");
-                vKeyboardLogo.addClass("v-logoOnTop");
-                if (virtKeyboard.show) {
-                    vKeyboardLogo.addClass("v-show");
-                }
-                if (!virtKeyboard.apply) {
-                    vKeyboardLogo.addClass("v-disabled");
-                }
-                $("body").after(vKeyboardLogo);
-            }
-            console.info("VirtKeyboard: v." + virtKeyboard.version);
-            userInfo.tools.saveToLocalStorage("settings", virtKeyboard);
-            virtKeyboard.init();
-        }
-    };
-    var sidepanel = {
-        "version": "0.0.15",
-        "html": "<div class='sidepanel'><div class='panel panel-upper panel-border'></div><div class='panel panel-inner'></div><div class='panel panel-lower panel-border'></div></div>",
-        "hidden": true,
-        "init": function () {
-            console.debug("sidepanel.init()");
-            if (!window.jQuery) {
-                setTimeout(function () {
-                    sidepanel.init();
-                }, 300);
-                return;
-            }
-            console.info("sidepanel: v." + sidepanel.version);
-            $("body").append(this.html);
-            userInfo.duoState = userInfo.refresh();
-            sidepanel.refresh(".panel-inner");
-        },
-        "refresh": function (activeElelment) {
-            if ($(activeElelment).children().length > 0)
-                $(activeElelment).children()[0].remove();
-            let courseslist = $("<ul class='courses'>");
-            if (!userInfo.duoState) {
-                userInfo.duoState = {
-                    courses: {},
-                    currentCourse:{},
-                    user: {
-                        "learningLanguage": "",
-                        "fromLanguage": ""
-                    }
-                };
-                userInfo.refresh();
-            }
-            let sortedCourses = Object.keys(userInfo.duoState.courses).sort(function (a, b) {
-                return (userInfo.duoState.courses[a].fromLanguage.localeCompare(userInfo.duoState.courses[b].fromLanguage))
-            });
-            let currentCourse;
-            for (let x in sortedCourses) {
-                let course = sortedCourses[x];
-                let currCourse = userInfo.duoState.courses[course];
-                let courseLevel = userInfo.tools.getFromLocalStorage("courseLevel") || {};
-                let li = $("<li class='course'>");
-                let span1 = $("<span>");
-                let span2 = $("<span>");
-                span1.addClass(userInfo.dict.flag + " from flag");
-                span2.addClass(userInfo.dict.flag + " to flag");
-                let fromLanguage = currCourse.fromLanguage;
-                let learningLanguage = currCourse.learningLanguage;
-                let courseid = currCourse.id;
-                li.data("fromLanguage", fromLanguage);
-                li.data("learningLanguage", learningLanguage);
-                span1.addClass(userInfo.dict[fromLanguage] + " flag-svg-small flag-" + fromLanguage);
-                span2.addClass(userInfo.dict[learningLanguage] + " flag-svg-small flag-" + learningLanguage);
-                let weakspan = $("<div class='skill weak'>");
-                let addweakspan = false;
-                let newspan = $("<div class='skill new'>");
-                let weakSkills = userInfo.getSkills("weak", fromLanguage, learningLanguage)[courseid];
-                let newSkills = userInfo.getSkills("new", fromLanguage, learningLanguage)[courseid];
-                let skill;
-                let nClone;
-                if (learningLanguage === userInfo.duoState.user.learningLanguage
-                    && fromLanguage === userInfo.duoState.user.fromLanguage) {
-                    let empty_node = $("");
-                    let prevWeak = $(userInfo.tools.getFromLocalStorage("weakspan").html) || empty_node;
-                    let prevNew = $(userInfo.tools.getFromLocalStorage("newspan").html) || empty_node;
-                    li.addClass("active");
-                    for (skill in weakSkills) {
-                        weakspan.append(sidepanel.activeSkillsEl(weakSkills[skill].URI, prevWeak, weakSkills[skill].shortName));
-                        addweakspan = true;
-                    }
-                    for (skill in newSkills) {
-                        newspan.append(sidepanel.activeSkillsEl(newSkills[skill].URI, prevNew, newSkills[skill].shortName));
-                    }
-                    /*Add general practice button to weakspan*/
-                    let practiceArr = $("a[href='/practice']");
-                    if (practiceArr[0] && practiceArr[0].attributes) {
-                        weakspan.append(sidepanel.activeSkillsEl(practiceArr[0].attributes.href.value, prevWeak, "", "practice"));
-                        addweakspan = true;
-                    }
-                    /*Add shortcuts to bigtest section to newspan*/
-                    practiceArr = $("a[href*='/bigtest']");
-                    for (let bigtest in practiceArr) {
-                        if (practiceArr[bigtest] && practiceArr[bigtest].attributes)
-                            newspan.append(sidepanel.activeSkillsEl(practiceArr[bigtest].attributes.href.value, prevNew, "", "practice"));
-                    }
-
-                    userInfo.tools.saveToLocalStorage("weakspan", {
-                        "html": weakspan.html()
-                    });
-                    userInfo.tools.saveToLocalStorage("newspan", {
-                        "html": newspan.html()
-                    });
-                    courseLevel[course] = userInfo.duoState.user.trackingProperties.level;
-                    userInfo.tools.saveToLocalStorage("courseLevel", courseLevel);
-                } else {
-                    let color = ["red", "blue", "green"];
-                    let i = 0;
-                    for (skill in weakSkills) {
-                        i++;
-                        nClone = $("<span class='skills'>");
-                        nClone.addClass(userInfo.dict[color[i % 3]] + " bg-" + color[i % 3]);
-                        weakspan.append(nClone);
-                    }
-                    for (skill in newSkills) {
-                        i++;
-                        nClone = $("<span class='skills'>");
-                        nClone.addClass(userInfo.dict[color[i % 3]] + " bg-" + color[i % 3]);
-                        newspan.append(nClone);
-                    }
-                }
-                li.append(span1);
-                let levelString = (basekeys.language_names_ui[virtKeyboard.uiLanguage || "en"].level || "LEVEL").toUpperCase() + " " + (courseLevel[course] || "[ ]");
-                li.append($("<span class='sp-level'>" + levelString + "</span>"));
-                li.append(span2);
-                addweakspan = addweakspan || weakspan.find("span").length > 0;
-                if (addweakspan)
-                    li.append(weakspan);
-                if (newspan.find("span").length > 0)
-                    li.append(newspan);
-                if (fromLanguage === userInfo.duoState.user.fromLanguage) {
-                    if (learningLanguage === userInfo.duoState.user.learningLanguage) {
-                        currentCourse = li;
-                    } else {
-                        courseslist.prepend(li);
-                    }
-                } else {
-                    courseslist.append(li);
-                }
-            }
-            courseslist.prepend(currentCourse);
-            $(activeElelment).append(courseslist);
-            $("li.course").on("click", function () {
-                if ($(this).data("learningLanguage") !== userInfo.duoState.user.learningLanguage || $(this).data("fromLanguage") !== userInfo.duoState.user.fromLanguage) {
-                    userInfo.switchLanguage($(this).data("fromLanguage"), $(this).data("learningLanguage"));
-                }
-            });
-            $(".sidepanel").hover(function () {
-                if (sidepanel.hidden) {
-                    sidepanel.refresh(".panel-inner");
-                    $(this).addClass("show");
-                    sidepanel.hidden = false;
-                }
-            }, function () {
-                if (!sidepanel.hidden) {
-                    $(this).removeClass("show");
-                    sidepanel.hidden = true;
-                }
-            });
-        },
-        "activeSkillsEl": function (skillURI, prevSkills, skillName, class2add) {
-            if (!class2add)
-                class2add = "micro";
-            let color = ["red", "blue", "green"];
-            let a_href = "a[href='" + skillURI + "']";
-            let zClone = $(a_href).clone();
-            let oClone = prevSkills.filter(a_href).clone();
-            let nClone = $("<span class='skills'>");
-            let i = (skillURI.length + prevSkills.length);
-            nClone.addClass(userInfo.dict[color[i % 3]] + " bg-" + color[i % 3]);
-
-            if ((zClone.length + oClone.length) > 0) {
-                nClone = zClone.length > 0 ? zClone : oClone;
-                for (let nclass in userInfo.dict) {
-                    let zzz = nClone.filter("." + userInfo.dict[nclass]);
-                    if (zzz.length > 0) {
-                        zzz.addClass(nclass);
-                    }
-                }
-                nClone.find("._2TMjc").addClass("lightbg");
-                if (skillName === "")
-                    nClone.addClass(class2add);
-            } else {
-                nClone.appendTo($("<a class='item' href='" + skillURI + "'>"));
-                nClone.after($("<span class='name'>").text(skillName));
-                zClone = nClone.parent().appendTo("<span class='item-box'>");
-                return zClone.parent();
-            }
-            return nClone;
-        }
-    };
-    var chrome = chrome || {
-        "extension": false
-    };
-    var duo = window.duo || {};
-    if (chrome) {
-        if (!chrome.extension) {
-            /*
-            let script = document.createElement('script');
-            script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js";
-            document.getElementsByTagName('head')[0].appendChild(script);
-            */
+      if (duoStateSTR) {
+        userInfo.tools.saveToLocalStorage("duo.state", duoStateSTR);
+        return JSON.parse(duoStateSTR);
+      } else {
+        userInfo.loggedInUser = userInfo.getLoggedInUserId();
+        if (userInfo.loggedInUser) {
+          result = userInfo.enrichUser();
         } else {
-            /** @namespace document.scripts */
-            virtKeyboard.rawgit="./"
-            for (let normalScript in document.scripts) {
-                let patternDuo = new RegExp("window\.duo");
-                if (patternDuo.test(document.scripts[normalScript].text)) {
-                    let splitted = document.scripts[normalScript].text.split("=");
-                    let jprs1 = JSON.parse(splitted[1]);
-                    if (/version/.test(splitted[0])) {
-                        duo.version = jprs1;
-                    } else {
-                        userInfo.tools.updateBase(duo, jprs1);
-                    }
-                }
-            }
+          result = userInfo.tools.getFromLocalStorage("duo.state");
         }
-    }
-    var cssList = [
-        {
-            "href": virtKeyboard.rawgit + "css/newduo.css",
-            "dir": ["ltr", "rtl", "new", "fix"]
-        }, {
-            "href": virtKeyboard.rawgit + "css/rtl-newduo.css",
-            "dir": ["rtl", "new", "fix"]
-        }, {
-            "href": virtKeyboard.rawgit + "css/rtl-duofix.css",
-            "dir": ["rtl", "fix"]
-        },
-        {
-            "href": "https://fonts.googleapis.com/icon?family=Material+Icons",
-            "dir": ["ltr", "rtl"]
-        }, {
-            "href": virtKeyboard.rawgit + "css/style.css",
-            "dir": ["ltr", "rtl"]
-        }];
-    let documentDir = document.dir ? document.dir : "ltr";
+        userInfo.tools.saveToLocalStorage("duo.state", result);
+        return result;
+      }
+    },
+    "enrichUser": function(params) {
+      userInfo.needrefresh = false;
+      if (!params)
+        params = "courses,currentCourse,fromLanguage,learningLanguage";
+      userInfo.firstrefresh = false;
+      $.ajax({
+        type: "get",
+        url: "//www.duolingo.com/2016-04-13/users/" + userInfo.loggedInUser,
+        data: {
+          "fields": params
+        }
+      }).done(function(json) {
+        let jsonDuoState = {};
+        if (!userInfo.firstrefresh) {
+          jsonDuoState = JSON.parse(localStorage["duo.state"]);
+        }
+        if (json.fromLanguage) {
+          jsonDuoState.user = {
+            "fromLanguage": json.fromLanguage
+          };
+          jsonDuoState.user.learningLanguage = json.learningLanguage;
+        }
+        if (json.courses) {
+          if (!jsonDuoState.courses)
+            jsonDuoState.courses = {};
+          userInfo.tools.updateBase(jsonDuoState.courses, json.courses);
+        }
+        if (json.currentCourse) {
+          if (!jsonDuoState.courses)
+            jsonDuoState.courses = {};
+          jsonDuoState.courses[json.currentCourse.id] = json.currentCourse;
+          if (!jsonDuoState.skills)
+            jsonDuoState.skills = {};
+          userInfo.tools.updateBase(jsonDuoState.skills, json.currentCourse.skills);
+        }
+        localStorage["duo.state"] = JSON.stringify(jsonDuoState);
+        return jsonDuoState;
+      });
+    },
+    "getCookie": function(name) {
+      let cookies = document.cookie.split(';');
+      for (let i in cookies) {
+        if (cookies[i].indexOf(name) === 1) {
+          return cookies[i].split("=")[1];
+        }
+      }
+      return "";
+    },
+    "getLoggedInUserId": function() {
+      let e = userInfo.getCookie("auth_tkt") || "";
+      let t = e.match(/[0-9a-f]{40}(\d+)!/);
+      if (t)
+        return parseInt(t[1], 10);
+    },
+    "getSkills": function(skillsType, courseId) {
+      let result = {};
+      let currentCourse = this.duoState.courses[courseId];
+      for (var skillArrayNo in currentCourse.skills) {
+        let skillArray = currentCourse.skills[skillArrayNo];
+        for (var skillNo in skillArray) {
+          let skill = skillArray[skillNo];
+          let currentSkill = this.duoState.skills[skill];
+          let willReturn = currentSkill.accessible &&
+            ((skillsType === "weak") ? (
+              currentSkill.finishedLevels > 0 && (
+                currentSkill.finishedLessons < currentSkill.lessons ||
+                currentSkill.finishedLevels < currentSkill.levels
+              )
+            ) : (
+              currentSkill.finishedLessons < currentSkill.lessons &&
+              currentSkill.finishedLevels === 0
+            ));
+          if (willReturn) {
+            if (!result[courseId]) {
+              result[courseId] = {};
+            }
+            let nextLesson = 0;
+            if (currentSkill.finishedLessons < currentSkill.lessons)
+              nextLesson = currentSkill.finishedLessons + 1;
+            if (virtKeyboard.test)
+              nextLesson = "test";
+            currentSkill.URI = "/skill/" +
+              currentSkill.learningLanguage + "/" +
+              currentSkill.urlName + "/" +
+              nextLesson;
+            result[courseId][currentSkill.name] = currentSkill;
+          }
+        }
+      }
+      return result;
+    },
+    "switchLanguage": function(fromLanguage, learningLanguage) {
+      let courseid = "DUOLINGO_" + learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
+      userInfo.needrefresh = (userInfo.duoState && userInfo.duoState.courses && (!userInfo.duoState.courses[courseid] || !userInfo.duoState.courses[courseid].fluency));
+      userInfo.tools.sendAjax({
+        type: "POST",
+        url: "/api/1/me/switch_language",
+        data: {
+          from_language: fromLanguage,
+          learning_language: learningLanguage
+        }
+      }, function() {
+        if (userInfo.needrefresh && !duo.version)
+          userInfo.enrichUser();
+        document.location.href = document.location.protocol + "//" + document.location.hostname;
+      });
+    },
+    "fixCss": function(documentDir) {
+      console.info("fixCss(" + documentDir + ")");
+      if (documentDir === userInfo.documentdir) {
+        return;
+      }
+      userInfo.documentdir = documentDir;
+      console.info("duo: " + typeof duo === 'object');
+      console.info("duo.version: " + duo.version);
+      cssList.forEach(function(cssElement) {
+        console.debug("cssElement.dir.indexOf(new) !== -1: " + (cssElement.dir.indexOf("new") !== -1));
+        console.debug("cssElement.dir.indexOf(" + documentDir + ") !== -1: " + cssElement.dir.indexOf(documentDir) !== -1);
+        let isApply = (typeof duo === 'object' &&
+          (
+            (!duo.version && cssElement.dir.indexOf("new") !== -1) ||
+            cssElement.dir.indexOf("new") === -1
+          ) &&
+          cssElement.dir.indexOf(documentDir) !== -1
+        ) && ((cssElement.dir.indexOf("fix") !== -1) ? virtKeyboard.fixCss : true) /* if this is a fix css then act according to fixCss value */ ;
+        console.info("isApply: " + isApply + "\thref:" + cssElement.href);
+        if (isApply) {
+          let vrtcss = document.createElement('link');
+          vrtcss.rel = "stylesheet";
+          vrtcss.href = cssElement.href;
+          document.getElementsByTagName('head')[0].appendChild(vrtcss);
+        }
+      });
+    },
+    "tools": {
+      "updateBase": function(lObject, jsonObj, depth) {
+        depth = (!depth) ? 0 : depth + 1;
+        for (let subObj in jsonObj) {
+          if (typeof jsonObj[subObj] === 'object' && typeof lObject[subObj] === 'object') {
+            if (depth < 10)
+              userInfo.tools.updateBase(lObject[subObj], jsonObj[subObj], depth);
+          } else {
+            lObject[subObj] = jsonObj[subObj];
+          }
+        }
+      },
+      "getLocalStorage": function(sync) {
+        /** @namespace chrome.storage */
+        /** @namespace chrome.storage.sync */
+        if (sync && chrome && chrome.storage)
+          return chrome.storage.sync;
+        if (window.localStorage)
+          return window.localStorage;
 
-    userInfo.fixCss(documentDir);
-    virtKeyboard.preinit();
-    sidepanel.init();
+        return null;
+      },
+      "saveToLocalStorage": function(parameter, value) {
+        let localStorage = userInfo.tools.getLocalStorage(true);
+        if (localStorage) {
+          localStorage["keyboard." + parameter] = JSON.stringify(value);
+          return true;
+        }
+        return false;
+      },
+      "clearLocalStorage": function(parameter) {
+        if (parameter) {
+          let localStorage = userInfo.tools.getLocalStorage(true);
+          if (localStorage) {
+            localStorage.removeItem("keyboard." + parameter);
+            return true;
+          }
+        }
+        window.localStorage.clear();
+        return false;
+      },
+      "getFromLocalStorage": function(parameter) {
+        let localStorage = userInfo.tools.getLocalStorage(true);
+        if (localStorage) {
+          let param = localStorage["keyboard." + parameter];
+          if (param)
+            return JSON.parse(param);
+        }
+        return false;
+      },
+      "sendAjax": function(options, callBack) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+            callBack(xhr.response);
+          }
+        };
+        var data = "";
+        if (!options.contentType) options.contentType = "application/json;charset=UTF-8";
+        if (options.data) data = JSON.stringify(options.data);
+        xhr.open(options.type, encodeURI(location.href + options.url), true);
+        xhr.setRequestHeader("Content-Type", options.contentType);
+        xhr.send(data);
+      }
+    },
+    "dict": {
+      "circle": "_3hKMG",
+      "circle-hoverable": "_1z_vo _3hKMG",
+      "blue": "_2VAWl",
+      "gray": "_39kLK",
+      "green": "_1na3J",
+      "purple": "_2wyKI",
+      "red": "_3E0y_",
+      "gold": "ewiWc",
+      "topbar-brand": "NJXKT _1nAJB cCL9P",
+      "flag": "_3viv6",
+      "flag-cell": "_3I51r _3HsQj _2OF7V",
+      "practice-button": "_6Hq2p _1AthD _1lig4 _3IS_q _2cWmF",
+      "fr": "_2KQN3",
+      "es": "u5W-o",
+      "de": "oboa9",
+      "pt": "pmGwL",
+      "it": "_1PruQ",
+      "en": "_2cR-E",
+      "ga": "_1vhNM",
+      "hu": "_1S3hi",
+      "ru": "_1eqxJ",
+      "pl": "_3uusw",
+      "ro": "_12U6e",
+      "nl-NL": "_1fajz",
+      "tr": "_1tJJ2",
+      "id": "_107sn",
+      "ja": "_2N-Uj",
+      "uk": "_1zZsN",
+      "zh": "xi6jQ",
+      "el": "_2tQo9",
+      "bn": "_2TXAL",
+      "ar": "_1ARRD",
+      "hi": "OgUIe",
+      "he": "_PDrK",
+      "ko": "_2lkzc",
+      "vi": "_1KtzC",
+      "sv": "_2DMfV",
+      "zs": "_2gNgd",
+      "cs": "_1uPQW",
+      "th": "_2oTcA",
+      "un": "t-XH-",
+      "eo": "pWj0w",
+      "kl": "_6mRM",
+      "da": "_1h0xh",
+      "dk": "_3AA1F",
+      "sn": "q_PD-",
+      "no-BO": "_200jU",
+      "ca": "mc4rg",
+      "cy": "_1jO8h",
+      "gn": "_24xu4",
+      "sw": "_3T1km",
+      "tl": "_1q_MQ",
+      "_circle-flag": "_2XSZu",
+      "medium-circle-flag": "_1ct7y _2XSZu",
+      "micro-circle-flag": "_3i5IF _2XSZu",
+      "small-circle-flag": "_3PU7E _2XSZu"
+    }
+  };
+  var basekeys = {
+    "supported_lang": [],
+    "layout_map": {},
+    "base": {
+      "raw": {
+        "0": [{
+          "type": "keylabel",
+          "code": "192"
+        }, {
+          "type": "keylabel",
+          "code": "49"
+        }, {
+          "type": "keylabel",
+          "code": "50"
+        }, {
+          "type": "keylabel",
+          "code": "51"
+        }, {
+          "type": "keylabel",
+          "code": "52"
+        }, {
+          "type": "keylabel",
+          "code": "53"
+        }, {
+          "type": "keylabel",
+          "code": "54"
+        }, {
+          "type": "keylabel",
+          "code": "55"
+        }, {
+          "type": "keylabel",
+          "code": "56"
+        }, {
+          "type": "keylabel",
+          "code": "57"
+        }, {
+          "type": "keylabel",
+          "code": "48"
+        }, {
+          "type": "keylabel",
+          "code": "189"
+        }, {
+          "type": "keylabel",
+          "code": "187"
+        }, {
+          "type": "backspace",
+          "code": "8",
+          "name": "Backspace"
+        }],
+        "1": [{
+          "type": "tab special disabled",
+          "code": "9",
+          "name": "Tab"
+        }, {
+          "type": "keylabel",
+          "code": "81"
+        }, {
+          "type": "keylabel",
+          "code": "87"
+        }, {
+          "type": "keylabel",
+          "code": "69"
+        }, {
+          "type": "keylabel",
+          "code": "82"
+        }, {
+          "type": "keylabel",
+          "code": "84"
+        }, {
+          "type": "keylabel",
+          "code": "89"
+        }, {
+          "type": "keylabel",
+          "code": "85"
+        }, {
+          "type": "keylabel",
+          "code": "73"
+        }, {
+          "type": "keylabel",
+          "code": "79"
+        }, {
+          "type": "keylabel",
+          "code": "80"
+        }, {
+          "type": "keylabel",
+          "code": "219"
+        }, {
+          "type": "keylabel",
+          "code": "221"
+        }, {
+          "type": "slash",
+          "code": "220"
+        }],
+        "2": [{
+          "type": "caps special switch",
+          "code": "20",
+          "name": "CapsLock"
+        }, {
+          "type": "keylabel",
+          "code": "65"
+        }, {
+          "type": "keylabel",
+          "code": "83"
+        }, {
+          "type": "keylabel",
+          "code": "68"
+        }, {
+          "type": "keylabel",
+          "code": "70"
+        }, {
+          "type": "keylabel",
+          "code": "71"
+        }, {
+          "type": "keylabel",
+          "code": "72"
+        }, {
+          "type": "keylabel",
+          "code": "74"
+        }, {
+          "type": "keylabel",
+          "code": "75"
+        }, {
+          "type": "keylabel",
+          "code": "76"
+        }, {
+          "type": "keylabel",
+          "code": "186"
+        }, {
+          "type": "keylabel",
+          "code": "222"
+        }, {
+          "type": "enter special disabled",
+          "code": "13",
+          "name": "Enter"
+        }],
+        "3": [{
+          "type": "shift left special switch",
+          "code": "16",
+          "name": "Shift"
+        }, {
+          "type": "keylabel",
+          "code": "90"
+        }, {
+          "type": "keylabel",
+          "code": "88"
+        }, {
+          "type": "keylabel",
+          "code": "67"
+        }, {
+          "type": "keylabel",
+          "code": "86"
+        }, {
+          "type": "keylabel",
+          "code": "66"
+        }, {
+          "type": "keylabel",
+          "code": "78"
+        }, {
+          "type": "keylabel",
+          "code": "77"
+        }, {
+          "type": "keylabel",
+          "code": "188"
+        }, {
+          "type": "keylabel",
+          "code": "190"
+        }, {
+          "type": "keylabel",
+          "code": "191"
+        }, {
+          "type": "shift right special disabled",
+          "code": "16",
+          "name": "Shift"
+        }],
+        "4": [{
+          "type": "ctrl special disabled",
+          "code": "17",
+          "name": "Control"
+        }, {
+          "type": "home special",
+          "code": "91",
+          "name": "Meta"
+        }, {
+          "type": "alt special disabled",
+          "code": "18",
+          "name": "Alt"
+        }, {
+          "type": "space",
+          "code": "32",
+          "name": " "
+        }, {
+          "type": "alt special disabled",
+          "code": "18",
+          "name": "Alt"
+        }, {
+          "type": "menu special",
+          "code": "93",
+          "name": "ContextMenu"
+        }, {
+          "type": "ctrl right special disabled",
+          "code": "17",
+          "name": "Control"
+        }]
+      }
+    },
+    "dublicate": {
+      "Semicolon": "186",
+      "Comma": "188",
+      "Period": "190",
+      "Slash": "191",
+      "Backquote": "192",
+      "BracketLeft": "219",
+      "Backslash": "220",
+      "BracketRight": "221",
+      "Quote": "222"
+    },
+    "language_names_ui": {
+      "el": {
+        "level": "επίπεδο",
+        "gu": "Gujarati",
+        "ga": "Ιρλανδικά",
+        "gn": "Γουαρανί (Υοπαρά)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Τουρκικά",
+        "lv": "Latvian",
+        "tl": "Ταγκάλογκ",
+        "th": "Ταϊλανδέζικα",
+        "te": "Τελούγκου",
+        "ta": "Ταμίλ",
+        "yi": "Γίντις",
+        "dk": "Ντοθράκι",
+        "de": "Γερμανικά",
+        "db": "Dutch (Belgium)",
+        "ko": "Κορεατικά",
+        "da": "Δανέζικα",
+        "uz": "Uzbek",
+        "el": "Ελληνικά",
+        "eo": "Εσπεράντο",
+        "en": "Αγγλικά",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Ισπανικά",
+        "zs": "Κινέζικα",
+        "ru": "Ρωσικά",
+        "ro": "Ρουμανικά",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Μπενγκάλι",
+        "ja": "Ιαπωνικά",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Καταλανικά",
+        "xz": "Zombie",
+        "cy": "Ουαλικά",
+        "cs": "Τσέχικα",
+        "pt": "Πορτογαλικά",
+        "lt": "Lithuanian",
+        "pa": "Παντζαπικά (Γκουρμούκι)",
+        "pl": "Πολωνικά",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Υψηλά Βαλυριανά",
+        "ht": "Κρεόλ Αϊτής",
+        "hu": "Ουγγρικά",
+        "hi": "Ινδικά",
+        "he": "Εβραϊκά",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Ουκρανικά",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Ολλανδικά",
+        "af": "Afrikaans",
+        "vi": "Βιετναμέζικα",
+        "is": "Icelandic",
+        "it": "Ιταλικά",
+        "kn": "Kannada",
+        "zt": "Κινέζικα (Παραδοσιακά)",
+        "as": "Assamese",
+        "ar": "Αραβικά",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Ινδονησιακά",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Νορβηγικά",
+        "nb": "Νορβηγικά (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Γαλλικά",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Σουαχίλι",
+        "sv": "Σουηδικά",
+        "km": "Khmer",
+        "kl": "Κλίνγκον",
+        "sk": "Slovak",
+        "sn": "Σίνταριν",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "en": {
+        "level": "level",
+        "gu": "Gujarati",
+        "ga": "Irish",
+        "gn": "Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Turkish",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "Thai",
+        "te": "Telugu",
+        "ta": "Tamil",
+        "yi": "Yiddish",
+        "dk": "Dothraki",
+        "de": "German",
+        "db": "Dutch (Belgium)",
+        "ko": "Korean",
+        "da": "Danish",
+        "uz": "Uzbek",
+        "el": "Greek",
+        "eo": "Esperanto",
+        "en": "English",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Spanish",
+        "zs": "Chinese",
+        "ru": "Russian",
+        "ro": "Romanian",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bengali",
+        "ja": "Japanese",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Catalan",
+        "xz": "Zombie",
+        "cy": "Welsh",
+        "cs": "Czech",
+        "pt": "Portuguese",
+        "lt": "Lithuanian",
+        "pa": "Punjabi (Gurmukhi)",
+        "pl": "Polish",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "High Valyrian",
+        "ht": "Haitian Creole",
+        "hu": "Hungarian",
+        "hi": "Hindi",
+        "he": "Hebrew",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Ukrainian",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Dutch",
+        "af": "Afrikaans",
+        "vi": "Vietnamese",
+        "is": "Icelandic",
+        "it": "Italian",
+        "kn": "Kannada",
+        "zt": "Chinese (Traditional)",
+        "as": "Assamese",
+        "ar": "Arabic",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Indonesian",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Norwegian",
+        "nb": "Norwegian (Bokmål)",
+        "ne": "Nepali",
+        "fr": "French",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Swahili",
+        "sv": "Swedish",
+        "km": "Khmer",
+        "kl": "Klingon",
+        "sk": "Slovak",
+        "sn": "Sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "vi": {
+        "level": "trình độ",
+        "gu": "Gujarati",
+        "ga": "Tiếng Ai-len",
+        "gn": "Tiếng Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Tiếng Thổ Nhĩ Kỳ",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "Tiếng Thái",
+        "te": "Telugu",
+        "ta": "Tamil",
+        "yi": "Tiếng Yiddish",
+        "dk": "Tiếng Dothraki",
+        "de": "Tiếng Đức",
+        "db": "Dutch (Belgium)",
+        "ko": "Tiếng Hàn Quốc",
+        "da": "Tiếng Đan Mạch",
+        "uz": "Uzbek",
+        "el": "Tiếng Hy Lạp",
+        "eo": "Tiếng Esperanto",
+        "en": "Tiếng Anh",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Tiếng Tây Ban Nha",
+        "zs": "Tiếng Trung Quốc",
+        "ru": "Tiếng Nga",
+        "ro": "Tiếng Rumani",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Tiếng Bengal",
+        "ja": "Tiếng Nhật",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Catalan",
+        "xz": "Zombie",
+        "cy": "Tiếng Wales",
+        "cs": "Tiếng Séc",
+        "pt": "Tiếng Bồ Đào Nha",
+        "lt": "Lithuanian",
+        "pa": "Tiếng Punjab (Gurmukhi)",
+        "pl": "Tiếng Ba Lan",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Tiếng High Valyrian",
+        "ht": "Thổ ngữ Pháp ở Haiti",
+        "hu": "Tiếng Hungary",
+        "hi": "Tiếng Hindi",
+        "he": "Tiếng Do Thái",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Tiếng Ukraina",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Tiếng Hà Lan",
+        "af": "Afrikaans",
+        "vi": "Tiếng Việt",
+        "is": "Icelandic",
+        "it": "Tiếng Ý",
+        "kn": "Kannada",
+        "zt": "Tiếng Trung Quốc (phồn thể)",
+        "as": "Assamese",
+        "ar": "Tiếng A-rập",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Tiếng Bahasa Indonesia",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Na-uy",
+        "nb": "Tiếng Na-uy",
+        "ne": "Nepali",
+        "fr": "Tiếng Pháp",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Swahili",
+        "sv": "Tiếng Thụy Điển",
+        "km": "Khmer",
+        "kl": "Tiếng Klingon",
+        "sk": "Slovak",
+        "sn": "Tiếng Sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "it": {
+        "level": "livello",
+        "gu": "Gujarati",
+        "ga": "irlandese",
+        "gn": "Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "turco",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "tailandese",
+        "te": "telugu",
+        "ta": "tamil",
+        "yi": "yiddish",
+        "dk": "dothraki",
+        "de": "tedesco",
+        "db": "Dutch (Belgium)",
+        "ko": "coreano",
+        "da": "danese",
+        "uz": "Uzbek",
+        "el": "greco",
+        "eo": "esperanto",
+        "en": "inglese",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "spagnolo",
+        "zs": "cinese",
+        "ru": "russo",
+        "ro": "rumeno",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "bengali",
+        "ja": "giapponese",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Catalano",
+        "xz": "Zombie",
+        "cy": "Gallese",
+        "cs": "ceco",
+        "pt": "portoghese",
+        "lt": "Lithuanian",
+        "pa": "punjabi (gurmukhi)",
+        "pl": "polacco",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Alto Valiriano",
+        "ht": "creolo haitiano",
+        "hu": "ungherese",
+        "hi": "hindi",
+        "he": "ebraico",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "ucraino",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "olandese",
+        "af": "Afrikaans",
+        "vi": "vietnamita",
+        "is": "Icelandic",
+        "it": "italiano",
+        "kn": "Kannada",
+        "zt": "cinese (tradizionale)",
+        "as": "Assamese",
+        "ar": "arabo",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "indonesiano",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Norvegese",
+        "nb": "norvegese (Bokmål)",
+        "ne": "Nepali",
+        "fr": "francese",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Swahili",
+        "sv": "svedese",
+        "km": "Khmer",
+        "kl": "klingon",
+        "sk": "Slovak",
+        "sn": "Sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "ar": {
+        "level": "مستوى",
+        "gu": "الغوجاراتية",
+        "ga": "الإيرلندية",
+        "gn": "الجوارانية (اليوبارا)",
+        "gl": "الجاليكية",
+        "la": "لاتينية",
+        "tt": "التتار",
+        "tr": "التركية",
+        "lv": "اللاتفية",
+        "tl": "التاغلوغية",
+        "th": "التايلنديّة",
+        "te": "تيلوجو",
+        "ta": "تاميل",
+        "yi": "الييدية",
+        "dk": "الدوثراكية",
+        "de": "الألمانية",
+        "db": "الهولندية (بلجيكا)",
+        "ko": "الكوريّة",
+        "da": "الدنماركية",
+        "uz": "الأوزبكي",
+        "el": "اليونانية",
+        "eo": "الإسبرانتو",
+        "en": "الإنجليزية",
+        "zc": "الصينية (الكانتونية)",
+        "eu": "الباسكي",
+        "et": "الإستونية",
+        "ep": "الإنجليزية (القراصنة)",
+        "es": "الإسبانية",
+        "zs": "الصينية",
+        "ru": "الروسية",
+        "ro": "الرومانية",
+        "be": "البيلاروسية",
+        "bg": "البلغارية",
+        "ms": "لغة الملايو",
+        "bn": "البنغالي",
+        "ja": "اليابانية",
+        "or": "الأوريا",
+        "xl": "Lolcat",
+        "ca": "الكتالانية",
+        "xz": "Zombie",
+        "cy": "الويلزية",
+        "cs": "التشيكية",
+        "pt": "البرتغالية",
+        "lt": "اللتوانية",
+        "pa": "البنجابية",
+        "pl": "البولندية",
+        "hy": "الأرميني",
+        "hr": "الكرواتية",
+        "hv": "الفاليرية العُليا",
+        "ht": "الكريولية الهايتية",
+        "hu": "المجرية",
+        "hi": "الهندية",
+        "he": "العبرية",
+        "mb": "الماليزية (بروناي)",
+        "mm": "الملايو (ماليزيا)",
+        "ml": "المالايالامية",
+        "mn": "المنغولية",
+        "mk": "المقدونية",
+        "ur": "الأردية",
+        "kk": "الكازاخية",
+        "uk": "الأوكرانية",
+        "mr": "المهاراتية",
+        "my": "البورمية",
+        "dn": "الهولندية",
+        "af": "الأفريكانية",
+        "vi": "الفييتنامية",
+        "is": "أيسلندي",
+        "it": "الإيطالية",
+        "kn": "الكانادا",
+        "zt": "الصينية (التقليدية)",
+        "as": "الأسامية",
+        "ar": "العربية",
+        "zu": "الزولو",
+        "az": "اذربيجان",
+        "id": "الإندونيسية",
+        "nn": "النرويجية (نينورسك)",
+        "no": "النرويجية",
+        "nb": "النرويجية",
+        "ne": "النيبالية",
+        "fr": "الفرنسية",
+        "fa": "الفارسية",
+        "fi": "اللغة الفنلندية",
+        "fo": "جزر فارو",
+        "ka": "الجورجية",
+        "ss": "السويدية (السويد)",
+        "sq": "الألبانية",
+        "sw": "السواحيلية",
+        "sv": "السويدية",
+        "km": "الخمير",
+        "kl": "الكلينجون",
+        "sk": "السلوفاكية",
+        "sn": "السِّندَرين",
+        "sl": "سلوفيني",
+        "ky": "قيرغيزستان",
+        "sf": "السويدية (فنلندا)"
+      },
+      "cs": {
+        "level": "hladina",
+        "gu": "Gujarati",
+        "ga": "Irština",
+        "gn": "Guaranština (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Turečtina",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "Thajština",
+        "te": "Telugština",
+        "ta": "Tamilština",
+        "yi": "Jidiš",
+        "dk": "Dothračtina",
+        "de": "Němčina",
+        "db": "Dutch (Belgium)",
+        "ko": "Korejština",
+        "da": "Dánština",
+        "uz": "Uzbek",
+        "el": "�?ečtina",
+        "eo": "Esperanto",
+        "en": "Angličtina",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Španělština",
+        "zs": "Čínština",
+        "ru": "Ruština",
+        "ro": "Rumunština",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bengálština",
+        "ja": "Japonština",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Katalánština",
+        "xz": "Zombie",
+        "cy": "Velština",
+        "cs": "Čeština",
+        "pt": "Portugalština",
+        "lt": "Lithuanian",
+        "pa": "Paňdžábština (gurmukhi)",
+        "pl": "Polština",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Vznešená valyrijština",
+        "ht": "Haitská kreolština",
+        "hu": "Maďarština",
+        "hi": "Hindština",
+        "he": "Hebrejština",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Ukrajinština",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Holandština",
+        "af": "Afrikaans",
+        "vi": "Vietnamština",
+        "is": "Icelandic",
+        "it": "Italština",
+        "kn": "Kannada",
+        "zt": "Čínština (tradiční)",
+        "as": "Assamese",
+        "ar": "Arabština",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Indonéština",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Norština",
+        "nb": "Norština (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Francouzština",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Svahilština",
+        "sv": "Švédština",
+        "km": "Khmer",
+        "kl": "Klingonština",
+        "sk": "Slovak",
+        "sn": "Sindarština",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "id": {
+        "level": "tingkat",
+        "gu": "Gujarati",
+        "ga": "Bahasa Irlandia",
+        "gn": "Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Bahasa Turki",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "Bahasa Thai",
+        "te": "Telugu",
+        "ta": "Tamil",
+        "yi": "Bahasa Yiddi",
+        "dk": "Bahasa Dothraki",
+        "de": "Bahasa Jerman",
+        "db": "Dutch (Belgium)",
+        "ko": "Bahasa Korea",
+        "da": "Bahasa Denmark",
+        "uz": "Uzbek",
+        "el": "Bahasa Yunani",
+        "eo": "Bahasa Esperanto",
+        "en": "Bahasa Inggris",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Bahasa Spanyol",
+        "zs": "Bahasa Tionghoa",
+        "ru": "Bahasa Rusia",
+        "ro": "Bahasa Rumania",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bahasa Bengali",
+        "ja": "Bahasa Jepang",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Bahasa Katala",
+        "xz": "Zombie",
+        "cy": "Wales",
+        "cs": "Bahasa Ceska",
+        "pt": "Bahasa Portugis",
+        "lt": "Lithuanian",
+        "pa": "Punjabi (Gurmukhi)",
+        "pl": "Bahasa Polandia",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Bahasa Valyria Tingkat Tinggi",
+        "ht": "Bahasa Kreole Haiti",
+        "hu": "Bahasa Hungaria",
+        "hi": "Bahasa Hindi",
+        "he": "Bahasa Ibrani",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Bahasa Ukraina",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Bahasa Belanda",
+        "af": "Afrikaans",
+        "vi": "Bahasa Vietnam",
+        "is": "Icelandic",
+        "it": "Bahasa Italia",
+        "kn": "Kannada",
+        "zt": "Cina (Tradisional)",
+        "as": "Assamese",
+        "ar": "Bahasa Arab",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Bahasa Indonesia",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Bahasa Norwegia",
+        "nb": "Bahasa Norwegia (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Bahasa Perancis",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Swahili",
+        "sv": "Bahasa Swedia",
+        "km": "Khmer",
+        "kl": "Bahasa Klingon",
+        "sk": "Slovak",
+        "sn": "Bahasa Sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "es": {
+        "level": "nivel",
+        "gu": "Gujarati",
+        "ga": "irlandés",
+        "gn": "Guaraní (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "turco",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "tailandés",
+        "te": "Télugu",
+        "ta": "Tamil",
+        "yi": "Yidis",
+        "dk": "dothraki",
+        "de": "alemán",
+        "db": "Dutch (Belgium)",
+        "ko": "coreano",
+        "da": "danés",
+        "uz": "Uzbek",
+        "el": "griego",
+        "eo": "esperanto",
+        "en": "inglés",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "español",
+        "zs": "chino",
+        "ru": "ruso",
+        "ro": "rumano",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "bengalí",
+        "ja": "japonés",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "catalán",
+        "xz": "Zombie",
+        "cy": "Galés",
+        "cs": "checo",
+        "pt": "portugués",
+        "lt": "Lithuanian",
+        "pa": "Panyabí (Gurmukhi)",
+        "pl": "polaco",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Alto Valyrio",
+        "ht": "Criollo haitiano",
+        "hu": "húngaro",
+        "hi": "hindi",
+        "he": "hebreo",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "ucraniano",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "neerlandés",
+        "af": "Afrikaans",
+        "vi": "vietnamita",
+        "is": "Icelandic",
+        "it": "italiano",
+        "kn": "Kannada",
+        "zt": "chino (tradicional)",
+        "as": "Assamese",
+        "ar": "árabe",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "indonesio",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Noruego",
+        "nb": "noruego (bokmål)",
+        "ne": "Nepali",
+        "fr": "francés",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Swahili",
+        "sv": "sueco",
+        "km": "Khmer",
+        "kl": "klingon",
+        "sk": "Slovak",
+        "sn": "sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "zs": {
+        "level": "水平",
+        "gu": "Gujarati",
+        "ga": "爱尔兰语",
+        "gn": "瓜拉尼语（何帕拉语）",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "土耳其语",
+        "lv": "Latvian",
+        "tl": "塔加拉族语",
+        "th": "泰语",
+        "te": "泰卢固语",
+        "ta": "泰米尔语",
+        "yi": "意第绪语",
+        "dk": "多斯拉克语",
+        "de": "德语",
+        "db": "Dutch (Belgium)",
+        "ko": "韩语",
+        "da": "丹麦语",
+        "uz": "Uzbek",
+        "el": "希腊语",
+        "eo": "世界语",
+        "en": "英语",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "西班牙语",
+        "zs": "中文",
+        "ru": "俄语",
+        "ro": "罗马尼亚语",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "孟加拉语",
+        "ja": "日语",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "加泰罗尼亚语",
+        "xz": "Zombie",
+        "cy": "威尔士语",
+        "cs": "捷克语",
+        "pt": "葡萄牙语",
+        "lt": "Lithuanian",
+        "pa": "旁遮普语（果鲁穆奇语）",
+        "pl": "波兰语",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "�?等瓦雷利亚语",
+        "ht": "海地人讲的法语",
+        "hu": "匈牙利语",
+        "hi": "印地语",
+        "he": "希伯来语",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "乌克兰语",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "荷兰语",
+        "af": "Afrikaans",
+        "vi": "越南语",
+        "is": "Icelandic",
+        "it": "意大利语",
+        "kn": "Kannada",
+        "zt": "中文",
+        "as": "Assamese",
+        "ar": "�?�拉伯语",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "印尼语",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "挪威语",
+        "nb": "挪威语（书面语）",
+        "ne": "Nepali",
+        "fr": "法语",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "斯瓦希里语",
+        "sv": "瑞典语",
+        "km": "Khmer",
+        "kl": "克林贡语",
+        "sk": "Slovak",
+        "sn": "辛达林语",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "ru": {
+        "level": "уровень",
+        "gu": "гуджарати",
+        "ga": "ирландский",
+        "gn": "гуарани (дёпара)",
+        "gl": "Галицкая",
+        "la": "латинский",
+        "tt": "татарский",
+        "tr": "турецкий",
+        "lv": "Латышский",
+        "tl": "Тагалог",
+        "th": "тайский",
+        "te": "телугу",
+        "ta": "тамильский",
+        "yi": "идиш",
+        "dk": "дотракийский",
+        "de": "немецкий",
+        "db": "Голландский (Бельгия)",
+        "ko": "корейский",
+        "da": "датский",
+        "uz": "узбекский ",
+        "el": "греческий",
+        "eo": "эсперанто",
+        "en": "английский",
+        "zc": "Китайский (кантонский)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "испанский",
+        "zs": "китайский",
+        "ru": "русский",
+        "ro": "румынский",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "бенгальский",
+        "ja": "японский",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "каталанский",
+        "xz": "Zombie",
+        "cy": "валлийский",
+        "cs": "чешский",
+        "pt": "португальский",
+        "lt": "Lithuanian",
+        "pa": "Панджаби (Гурмукхи)",
+        "pl": "польский",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "высокий валирийский",
+        "ht": "гаитянский креольский",
+        "hu": "венгерский",
+        "hi": "хинди",
+        "he": "иврит",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "украинский",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "голландский",
+        "af": "Afrikaans",
+        "vi": "вьетнамский",
+        "is": "Icelandic",
+        "it": "итальянский",
+        "kn": "Kannada",
+        "zt": "китайский (традиционный)",
+        "as": "Assamese",
+        "ar": "арабский",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "индонезийский",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "норвежский",
+        "nb": "норвежский (букмол)",
+        "ne": "Nepali",
+        "fr": "французский",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "суахили",
+        "sv": "шведский",
+        "km": "Khmer",
+        "kl": "клингонский",
+        "sk": "Slovak",
+        "sn": "синдарин",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "pt": {
+        "level": "nível",
+        "gu": "Gujarati",
+        "ga": "Irlandês",
+        "gn": "Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Turco",
+        "lv": "Latvian",
+        "tl": "Tagalo",
+        "th": "Tailandês",
+        "te": "Telugu",
+        "ta": "Tâmil",
+        "yi": "Ídiche",
+        "dk": "Dothraki",
+        "de": "Alemão",
+        "db": "Dutch (Belgium)",
+        "ko": "Coreano",
+        "da": "Dinamarquês",
+        "uz": "Uzbek",
+        "el": "Grego",
+        "eo": "Esperanto",
+        "en": "Inglês",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Espanhol",
+        "zs": "Chinês",
+        "ru": "Russo",
+        "ro": "Romeno",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bengali",
+        "ja": "Japonês",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Catalão",
+        "xz": "Zombie",
+        "cy": "Galês",
+        "cs": "Tcheco",
+        "pt": "Português",
+        "lt": "Lithuanian",
+        "pa": "panjabi (gurmukhi)",
+        "pl": "Polonês",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Alto Valiriano",
+        "ht": "Crioulo haitiano",
+        "hu": "Húngaro",
+        "hi": "Híndi",
+        "he": "Hebraico",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Ucraniano",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Holandês",
+        "af": "Afrikaans",
+        "vi": "Vietnamita",
+        "is": "Icelandic",
+        "it": "Italiano",
+        "kn": "Kannada",
+        "zt": "Chinês (Tradicional)",
+        "as": "Assamese",
+        "ar": "Árabe",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Indonésio",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Norueguês",
+        "nb": "Norueguês (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Francês",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Suaíli",
+        "sv": "Sueco",
+        "km": "Khmer",
+        "kl": "Klingon",
+        "sk": "Slovak",
+        "sn": "Sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "tr": {
+        "level": "Seviye",
+        "gu": "Gujarati",
+        "ga": "İrlandaca",
+        "gn": "Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Türkçe",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "Tayca",
+        "te": "Telugu Dili",
+        "ta": "Tamil Dili",
+        "yi": "Yidiş",
+        "dk": "Dothraki",
+        "de": "Almanca",
+        "db": "Dutch (Belgium)",
+        "ko": "Korece",
+        "da": "Danca",
+        "uz": "Uzbek",
+        "el": "Yunanca",
+        "eo": "Esperanto",
+        "en": "İngilizce",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "İspanyolca",
+        "zs": "Çince",
+        "ru": "Rusça",
+        "ro": "Rumence",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bengalce",
+        "ja": "Japonca",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Katalanca",
+        "xz": "Zombie",
+        "cy": "Galce",
+        "cs": "Çekçe",
+        "pt": "Portekizce",
+        "lt": "Lithuanian",
+        "pa": "Pencap Dili (Gurmukhi)",
+        "pl": "Lehçe",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Yüksek Valyria Dili",
+        "ht": "Haiti Kreyolu",
+        "hu": "Macarca",
+        "hi": "Hintçe",
+        "he": "İbranice",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Ukraynaca",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Flemenkçe",
+        "af": "Afrikaans",
+        "vi": "Vietnamca",
+        "is": "Icelandic",
+        "it": "İtalyanca",
+        "kn": "Kannada",
+        "zt": "Çince (Geleneksel)",
+        "as": "Assamese",
+        "ar": "Arapça",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Endonezce",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Norveççe",
+        "nb": "Norveççe (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Fransızca",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Svahili",
+        "sv": "İsveççe",
+        "km": "Khmer",
+        "kl": "Klingon",
+        "sk": "Slovak",
+        "sn": "Sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "ro": {
+        "level": "nivel",
+        "gu": "Gujarati",
+        "ga": "Irlandeză",
+        "gn": "Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Turcă",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "Thailandeză",
+        "te": "Telugu",
+        "ta": "Tamilă",
+        "yi": "Idiș",
+        "dk": "Dothraki",
+        "de": "Germană",
+        "db": "Dutch (Belgium)",
+        "ko": "Coreeană",
+        "da": "Daneză",
+        "uz": "Uzbek",
+        "el": "Greacă",
+        "eo": "Esperanto",
+        "en": "Engleză",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Spaniolă",
+        "zs": "Chineză",
+        "ru": "Rusă",
+        "ro": "Română",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bengaleză",
+        "ja": "Japoneză",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Catalană",
+        "xz": "Zombie",
+        "cy": "Galeză",
+        "cs": "Cehă",
+        "pt": "Portugheză",
+        "lt": "Lithuanian",
+        "pa": "Punjabi (Gurmukhi)",
+        "pl": "Poloneză",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Valyriană înaltă",
+        "ht": "Creolă haitiană",
+        "hu": "Maghiară",
+        "hi": "Hindi",
+        "he": "Ebraică",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Ucraineană",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Neerlandeză",
+        "af": "Afrikaans",
+        "vi": "Vietnameză",
+        "is": "Icelandic",
+        "it": "Italiană",
+        "kn": "Kannada",
+        "zt": "Chineză (tradițională)",
+        "as": "Assamese",
+        "ar": "Arabă",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Indoneziană",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Norvegiană",
+        "nb": "Norvegiană (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Franceză",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Swahili",
+        "sv": "Suedeză",
+        "km": "Khmer",
+        "kl": "Klingon",
+        "sk": "Slovak",
+        "sn": "Sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "pl": {
+        "level": "poziom",
+        "gu": "Gujarati",
+        "ga": "Irlandzki",
+        "gn": "guarani (jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Turecki",
+        "lv": "Latvian",
+        "tl": "tagalog",
+        "th": "Tajski",
+        "te": "telugu",
+        "ta": "tamilski",
+        "yi": "Jidysz",
+        "dk": "Dothraki",
+        "de": "Niemiecki",
+        "db": "Dutch (Belgium)",
+        "ko": "Koreański",
+        "da": "Duński",
+        "uz": "Uzbek",
+        "el": "Grecki",
+        "eo": "Esperanto",
+        "en": "Angielski",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Hiszpański",
+        "zs": "Chiński",
+        "ru": "Rosyjski",
+        "ro": "Rumuński",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bengalski",
+        "ja": "Japoński",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Kataloński",
+        "xz": "Zombie",
+        "cy": "Walijski",
+        "cs": "Czeski",
+        "pt": "Portugalski",
+        "lt": "Lithuanian",
+        "pa": "pendżabski (gurmukhi)",
+        "pl": "Polski",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Wysoki valyriański",
+        "ht": "Kreolski haitański",
+        "hu": "Węgierski",
+        "hi": "Hindi",
+        "he": "Hebrajski",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Ukraiński",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Holenderski",
+        "af": "Afrikaans",
+        "vi": "Wietnamski",
+        "is": "Icelandic",
+        "it": "Włoski",
+        "kn": "Kannada",
+        "zt": "Chiński (Tradycyjny)",
+        "as": "Assamese",
+        "ar": "Arabski",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Indonezyjski",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Norweski",
+        "nb": "Norweski (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Francuski",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Suahili",
+        "sv": "Szwedzki",
+        "km": "Khmer",
+        "kl": "klingońskiego",
+        "sk": "Slovak",
+        "sn": "Sindariński",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "dn": {
+        "level": "niveau",
+        "gu": "Gujarati",
+        "ga": "Iers",
+        "gn": "Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Turks",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "Thai",
+        "te": "Telugu",
+        "ta": "Tamil",
+        "yi": "Jiddisch",
+        "dk": "Dothraki",
+        "de": "Duits",
+        "db": "Dutch (Belgium)",
+        "ko": "Koreaans",
+        "da": "Deens",
+        "uz": "Uzbek",
+        "el": "Grieks",
+        "eo": "Esperanto",
+        "en": "Engels",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Spaans",
+        "zs": "Chinees",
+        "ru": "Russisch",
+        "ro": "Roemeens",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bengaals",
+        "ja": "Japans",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Catalaans",
+        "xz": "Zombie",
+        "cy": "Welsh",
+        "cs": "Tsjechisch",
+        "pt": "Portugees",
+        "lt": "Lithuanian",
+        "pa": "Punjabi (Gurmukhi)",
+        "pl": "Pools",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Hoog-Valyrisch",
+        "ht": "Haïtiaans-Creools",
+        "hu": "Hongaars",
+        "hi": "Hindi",
+        "he": "Hebreeuws",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Oekraïens",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Nederlands",
+        "af": "Afrikaans",
+        "vi": "Vietnamees",
+        "is": "Icelandic",
+        "it": "Italiaans",
+        "kn": "Kannada",
+        "zt": "Chinese (Traditioneel)",
+        "as": "Assamese",
+        "ar": "Arabisch",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Indonesisch",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Noors",
+        "nb": "Noors (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Frans",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Swahili",
+        "sv": "Zweeds",
+        "km": "Khmer",
+        "kl": "Klingon",
+        "sk": "Slovak",
+        "sn": "Sindarijns",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "fr": {
+        "level": "niveau",
+        "gu": "Gujarati",
+        "ga": "irlandais",
+        "gn": "guarani (jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "turc",
+        "lv": "Latvian",
+        "tl": "tagalog",
+        "th": "Thaïlandais",
+        "te": "Télougou",
+        "ta": "Tamoul",
+        "yi": "Yiddish",
+        "dk": "dothraki",
+        "de": "allemand",
+        "db": "Dutch (Belgium)",
+        "ko": "coréen",
+        "da": "Danois",
+        "uz": "Uzbek",
+        "el": "grec",
+        "eo": "Esperanto",
+        "en": "anglais",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "espagnol",
+        "zs": "Chinois",
+        "ru": "russe",
+        "ro": "roumain",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "bengali",
+        "ja": "japonais",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "catalan",
+        "xz": "Zombie",
+        "cy": "gallois",
+        "cs": "Tchèque",
+        "pt": "portugais",
+        "lt": "Lithuanian",
+        "pa": "panjabi (gurmukhi)",
+        "pl": "polonais",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "haut valyrien",
+        "ht": "créole haïtien",
+        "hu": "hongrois",
+        "hi": "hindi",
+        "he": "hébreu",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "ukrainien",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "néerlandais",
+        "af": "Afrikaans",
+        "vi": "Vietnamien",
+        "is": "Icelandic",
+        "it": "italien",
+        "kn": "Kannada",
+        "zt": "Chinois (Traditionnel)",
+        "as": "Assamese",
+        "ar": "Arabe",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "indonésien",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "norvégien",
+        "nb": "Norvégien (Bokmål)",
+        "ne": "Nepali",
+        "fr": "français",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "swahili",
+        "sv": "suédois",
+        "km": "Khmer",
+        "kl": "klingon",
+        "sk": "Slovak",
+        "sn": "sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "de": {
+        "level": "Ebene",
+        "gu": "Gujarati",
+        "ga": "Irisch",
+        "gn": "Guarani (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Türkisch",
+        "lv": "Latvian",
+        "tl": "Tagalog",
+        "th": "Thai",
+        "te": "Telugu",
+        "ta": "Tamil",
+        "yi": "Jiddisch",
+        "dk": "Dothraki",
+        "de": "Deutsch",
+        "db": "Dutch (Belgium)",
+        "ko": "Koreanisch",
+        "da": "Dänisch",
+        "uz": "Uzbek",
+        "el": "Griechisch",
+        "eo": "Esperanto",
+        "en": "Englisch",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Spanisch",
+        "zs": "Chinesisch",
+        "ru": "Russisch",
+        "ro": "Rumänisch",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Bengalisch",
+        "ja": "Japanisch",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Katalanisch",
+        "xz": "Zombie",
+        "cy": "Walisisch",
+        "cs": "Tschechisch",
+        "pt": "Portugiesisch",
+        "lt": "Lithuanian",
+        "pa": "Pandschabi (Gurmukhi)",
+        "pl": "Polnisch",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Hochvalyrisch",
+        "ht": "Haitianisches Creole",
+        "hu": "Ungarisch",
+        "hi": "Hindi",
+        "he": "Hebräisch",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "ukrainisch",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Niederländisch",
+        "af": "Afrikaans",
+        "vi": "Vietnamesisch",
+        "is": "Icelandic",
+        "it": "Italienisch",
+        "kn": "Kannada",
+        "zt": "Chinesisch (traditionell)",
+        "as": "Assamese",
+        "ar": "Arabisch",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Indonesisch",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Norwegisch",
+        "nb": "Norwegisch (Bokmål)",
+        "ne": "Nepali",
+        "fr": "Französisch",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "Swahili",
+        "sv": "Schwedisch",
+        "km": "Khmer",
+        "kl": "Klingonisch",
+        "sk": "Slovak",
+        "sn": "Sindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "hu": {
+        "level": "szint",
+        "gu": "Gujarati",
+        "ga": "ír",
+        "gn": "(jopará) guaraní",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "török",
+        "lv": "Latvian",
+        "tl": "tagalog",
+        "th": "thai",
+        "te": "telugu",
+        "ta": "tamil",
+        "yi": "jiddis",
+        "dk": "dothraki",
+        "de": "német",
+        "db": "Dutch (Belgium)",
+        "ko": "koreai",
+        "da": "dán",
+        "uz": "Uzbek",
+        "el": "görög",
+        "eo": "eszperantó",
+        "en": "angol",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "spanyol",
+        "zs": "kínai",
+        "ru": "orosz",
+        "ro": "román",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "bengáli",
+        "ja": "japán",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "katalán",
+        "xz": "Zombie",
+        "cy": "walesi",
+        "cs": "cseh",
+        "pt": "portugál",
+        "lt": "Lithuanian",
+        "pa": "(gurmuki) pandzsábi",
+        "pl": "lengyel",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "nemes valyr",
+        "ht": "haiti kreol",
+        "hu": "magyar",
+        "hi": "hindi",
+        "he": "héber",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "ukrán",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "holland",
+        "af": "Afrikaans",
+        "vi": "vietnami",
+        "is": "Icelandic",
+        "it": "olasz",
+        "kn": "Kannada",
+        "zt": "kínai (hagyományos)",
+        "as": "Assamese",
+        "ar": "arab",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "indonéz",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "norvég",
+        "nb": "(bokmål) norvég",
+        "ne": "Nepali",
+        "fr": "francia",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "szuahéli",
+        "sv": "svéd",
+        "km": "Khmer",
+        "kl": "klingon",
+        "sk": "Slovak",
+        "sn": "szindarin",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "hi": {
+        "level": "स्तर",
+        "gu": "Gujarati",
+        "ga": "आयरिश भाषा",
+        "gn": "गूरानी (Jopará)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "तुर्कीयाई",
+        "lv": "Latvian",
+        "tl": "टेगालॉग",
+        "th": "थाई",
+        "te": "तेलुगु",
+        "ta": "तमिल",
+        "yi": "Yiddish",
+        "dk": "डोथ्राकी",
+        "de": "जर्मन",
+        "db": "Dutch (Belgium)",
+        "ko": "कोरियाई",
+        "da": "डेनिश",
+        "uz": "Uzbek",
+        "el": "यूनानी",
+        "eo": "एस्पेरांतो",
+        "en": "अंग्रेज़ी",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "स्पेनी",
+        "zs": "चीनी",
+        "ru": "रूसी",
+        "ro": "रोमानियाई",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "बंगाली",
+        "ja": "जापानी",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "कैटलन",
+        "xz": "Zombie",
+        "cy": "वेल्श",
+        "cs": "चेक",
+        "pt": "पुर्तगाली",
+        "lt": "Lithuanian",
+        "pa": "पंजाबी (गुरुमुखी)",
+        "pl": "पोलिश भाषा",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "हाई वैलिरियन",
+        "ht": "हाईटियन क्रियोल",
+        "hu": "हंगेरियाई",
+        "hi": "हिन्दी",
+        "he": "यहूदी",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "यूक्रेनी",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "डच",
+        "af": "Afrikaans",
+        "vi": "वियतनामी",
+        "is": "Icelandic",
+        "it": "इतालवी",
+        "kn": "Kannada",
+        "zt": "चीनी (पारंपरिक)",
+        "as": "Assamese",
+        "ar": "अरबी",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "इंडोनेशियाई",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "नार्वेजियन",
+        "nb": "नॉर्वेजियाई (बूकमॉल)",
+        "ne": "Nepali",
+        "fr": "फ़्रांसीसी",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "स्वाहिली",
+        "sv": "स्वीडिश",
+        "km": "Khmer",
+        "kl": "क्लिंगऑन",
+        "sk": "Slovak",
+        "sn": "सिंदारिन",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "ja": {
+        "level": "レベル",
+        "gu": "Gujarati",
+        "ga": "アイルランド語",
+        "gn": "グアラニ（ジョパラ）",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "トルコ語",
+        "lv": "Latvian",
+        "tl": "タガログ語",
+        "th": "タイ語",
+        "te": "テルグ語",
+        "ta": "タミル語",
+        "yi": "イディッシュ語",
+        "dk": "ドスラク語",
+        "de": "ドイツ語",
+        "db": "Dutch (Belgium)",
+        "ko": "韓国語",
+        "da": "デンマーク語",
+        "uz": "Uzbek",
+        "el": "ギリシャ語",
+        "eo": "エスペラント語",
+        "en": "英語",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "スペイン語",
+        "zs": "中国語",
+        "ru": "ロシア語",
+        "ro": "ルーマニア語",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "ベンガル語",
+        "ja": "日本語",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "カタルーニャ語",
+        "xz": "Zombie",
+        "cy": "ウェールズ語",
+        "cs": "チェコ語",
+        "pt": "ポルトガル語",
+        "lt": "Lithuanian",
+        "pa": "パンジャブ語 (グルムキー)",
+        "pl": "ポーランド語",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "ハイ・ヴァリリアン",
+        "ht": "ハイチクレオール",
+        "hu": "ハンガリー語",
+        "hi": "ヒンディー語",
+        "he": "�?ブライ語",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "ウクライナ語",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "オランダ語",
+        "af": "Afrikaans",
+        "vi": "ベトナム語",
+        "is": "Icelandic",
+        "it": "イタリア語",
+        "kn": "Kannada",
+        "zt": "中国語 (繁体)",
+        "as": "Assamese",
+        "ar": "アラビア語",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "インドネシア語",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "ノルウェー語",
+        "nb": "ノルウェー語 (ブークモール)",
+        "ne": "Nepali",
+        "fr": "フランス語",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "スワヒリ語",
+        "sv": "スウェーデン語",
+        "km": "Khmer",
+        "kl": "クリンゴン語",
+        "sk": "Slovak",
+        "sn": "シンダール語",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "ko": {
+        "level": "�?평",
+        "gu": "Gujarati",
+        "ga": "아일랜드어",
+        "gn": "과라니어 (조파라)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "터키어",
+        "lv": "Latvian",
+        "tl": "필리핀어",
+        "th": "태국어",
+        "te": "텔루구어",
+        "ta": "타밀어",
+        "yi": "이디시어",
+        "dk": "도뜨라키어",
+        "de": "독일어",
+        "db": "Dutch (Belgium)",
+        "ko": "한국어",
+        "da": "덴마크어",
+        "uz": "Uzbek",
+        "el": "그리스어",
+        "eo": "에스�?란토어",
+        "en": "�?�어",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "스�?인어",
+        "zs": "중국어",
+        "ru": "러시아어",
+        "ro": "루마니아어",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "벵골어",
+        "ja": "일본어",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "카탈루냐어",
+        "xz": "Zombie",
+        "cy": "웨일스어",
+        "cs": "체코어",
+        "pt": "포르투갈어",
+        "lt": "Lithuanian",
+        "pa": "펀자브어 (구르무키)",
+        "pl": "폴란드어",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "고지 발라리아어",
+        "ht": "아이티어",
+        "hu": "헝가리어",
+        "hi": "힌두어",
+        "he": "히브리어",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "우크라이�?어",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "네덜란드어",
+        "af": "Afrikaans",
+        "vi": "베트남어",
+        "is": "Icelandic",
+        "it": "이탈리아어",
+        "kn": "Kannada",
+        "zt": "중국어 (정체)",
+        "as": "Assamese",
+        "ar": "아랍어",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "인도네시아어",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "노르웨이어",
+        "nb": "노르웨이어 (보크몰)",
+        "ne": "Nepali",
+        "fr": "프랑스어",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "스와힐리어",
+        "sv": "스웨덴어",
+        "km": "Khmer",
+        "kl": "클링�?�어",
+        "sk": "Slovak",
+        "sn": "신다린어",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      },
+      "uk": {
+        "level": "рівень",
+        "gu": "Gujarati",
+        "ga": "Ірландська",
+        "gn": "Гуарані (йопара)",
+        "gl": "Galician",
+        "la": "Latin",
+        "tt": "Tatar",
+        "tr": "Турецька",
+        "lv": "Latvian",
+        "tl": "Тагальська мова",
+        "th": "Тайська",
+        "te": "Телугу",
+        "ta": "Таміл",
+        "yi": "Ідиш",
+        "dk": "Дотракійська",
+        "de": "Німецька",
+        "db": "Dutch (Belgium)",
+        "ko": "Корейська",
+        "da": "Данська",
+        "uz": "Uzbek",
+        "el": "Грецька",
+        "eo": "Есперанто",
+        "en": "Англійська",
+        "zc": "Chinese (Cantonese)",
+        "eu": "Basque",
+        "et": "Estonian",
+        "ep": "English (Pirate)",
+        "es": "Іспанська",
+        "zs": "Китайська",
+        "ru": "Російська",
+        "ro": "Румунська",
+        "be": "Belarusian",
+        "bg": "Bulgarian",
+        "ms": "Malay",
+        "bn": "Бенгальська",
+        "ja": "Японська",
+        "or": "Oriya",
+        "xl": "Lolcat",
+        "ca": "Каталонська",
+        "xz": "Zombie",
+        "cy": "валлійська",
+        "cs": "Чеська",
+        "pt": "Португальська",
+        "lt": "Lithuanian",
+        "pa": "Панджабі (гурмукхі)",
+        "pl": "Польська",
+        "hy": "Armenian",
+        "hr": "Croatian",
+        "hv": "Валірійська",
+        "ht": "Гаїтянська креольська мова",
+        "hu": "Угорська",
+        "hi": "Гінді",
+        "he": "Іврит",
+        "mb": "Malay (Brunei)",
+        "mm": "Malay (Malaysia)",
+        "ml": "Malayalam",
+        "mn": "Mongolian",
+        "mk": "Macedonian",
+        "ur": "Urdu",
+        "kk": "Kazakh",
+        "uk": "Українська",
+        "mr": "Marathi",
+        "my": "Burmese",
+        "dn": "Голандська",
+        "af": "Afrikaans",
+        "vi": "В’єтнамська",
+        "is": "Icelandic",
+        "it": "Італійська",
+        "kn": "Kannada",
+        "zt": "Китайська (традиційна)",
+        "as": "Assamese",
+        "ar": "Арабська",
+        "zu": "Zulu",
+        "az": "Azeri",
+        "id": "Індонезійська",
+        "nn": "Norwegian (Nynorsk)",
+        "no": "Норвезька",
+        "nb": "Норвезька (Букмол)",
+        "ne": "Nepali",
+        "fr": "Французька",
+        "fa": "Farsi",
+        "fi": "Finnish",
+        "fo": "Faroese",
+        "ka": "Georgian",
+        "ss": "Swedish (Sweden)",
+        "sq": "Albanian",
+        "sw": "суахілі",
+        "sv": "Шведська",
+        "km": "Khmer",
+        "kl": "Клінгонська",
+        "sk": "Slovak",
+        "sn": "Синдарин",
+        "sl": "Slovenian",
+        "ky": "Kyrgyz",
+        "sf": "Swedish (Finland)"
+      }
+    },
+    "supported": function(lang) {
+      let result = lang;
+      try {
+        result = result || userInfo.duoState.user.learningLanguage;
+        if (basekeys.layout_map[result]) {
+          result = basekeys.supported_lang[basekeys.layout_map[result]];
+        }
+      } catch (e) {
+        result = -1;
+      }
+      return result;
+    }
+  };
+  var virtKeyboard = {
+    //"rawgit": "https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/",
+    "version": "0.1.0.002",
+    "rawgit": "https://cdn.rawgit.com/i-algurabi/DuoVirtKeyboard/352da72d38cf7e0827ee8dc05a0db8976e383ccd/xtnsn/",
+    "test": true,
+    "show": true,
+    "apply": true,
+    "fixCss": false,
+    "checklocation": function() {
+      return (/^\/skill/.test(location.pathname) ||
+        /^\/bigtest/.test(location.pathname) ||
+        /^\/practice/.test(location.pathname) ||
+        /^\/DuoVirtKeyboard/.test(location.pathname));
+    },
+    "shift": false,
+    "caps": false,
+    "newcodepage": false,
+    "newlang": "",
+    "mainlang": "",
+    "secondlang": "",
+    "uiLanguage": "",
+    "body": "<div id='virt-keyboard' class='vrt-hidden'><header class='vrt-topbar'><div class='vrt-toggledropdown vrt-main'><span class='vrt-langspan vrt-main'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-main' id='vrt-mainlang' data-language='en'></ul></div><div class='vrt-keycodesetting vrt-normal-key vrt-hidden'><input id='vrt-normal-key' placeholder='Regular character' /></div><div class='v-logo v-big'><ul class='vrt-download vrt-arrow-top'></ul></div><div class='vrt-keycodesetting vrt-shift-key vrt-hidden'><input id='vrt-shift-key' placeholder='Shift character' /></div><div class='vrt-toggledropdown vrt-secondary'><span class='vrt-langspan vrt-secondary'>English</span><ul class='vrt-dropdown vrt-arrow-top vrt-secondary' id='vrt-secondarylang' data-language='en'></ul></div><div class='v-close'><span class='v-close'></span></div></header><div class='vrt-section'></div></div>",
+    "fillKeyboard": function(lang0, lang1) {
+      console.debug("fillKeyboard(" + lang0 + "," + lang1 + ")");
+      if (!lang0) {
+        lang0 = virtKeyboard.mainlang;
+        virtKeyboard.mainlang = lang0;
+      }
+      if (!lang1) {
+        if (lang0 === virtKeyboard.secondlang) {
+          lang1 = lang0;
+          lang0 = virtKeyboard.mainlang
+        } else {
+          lang1 = virtKeyboard.secondlang;
+        }
+      }
+      if (!(lang0 && lang1)) {
+        console.error("Language keycodes not provided.");
+        return false;
+      }
+      virtKeyboard.mainlang = lang0 = basekeys.supported(lang0);
+      virtKeyboard.secondlang = lang1 = basekeys.supported(lang1);
+
+      for (let keycode in basekeys[lang0]) {
+        let mainlabel = basekeys[lang0][keycode];
+        let secondarylabel = {};
+        let mainclass = "l4";
+        let updatekey = "." + keycode;
+        $(updatekey).html("");
+        let span0 = $("<span>");
+        if (lang1 && lang1 !== lang0 && basekeys[lang1] && basekeys[lang1][keycode]) {
+          secondarylabel = basekeys[lang1][keycode];
+          let span2 = $("<span>");
+          if (secondarylabel.normal !== mainlabel.normal) {
+            mainclass = "l0";
+            span2.addClass("l8");
+            span2[0].textContent = secondarylabel.normal.toUpperCase();
+            $(updatekey).append(span2);
+          }
+          if (secondarylabel.shift !== mainlabel.shift && secondarylabel.shift.toLowerCase() !== secondarylabel.normal) {
+            mainclass = "l0";
+            let span3 = $("<span>");
+            span3.addClass("l2");
+            span3[0].textContent = secondarylabel.shift;
+            $(updatekey).append(span3);
+          }
+        }
+        if (mainlabel.normal === mainlabel.shift.toLowerCase()) {
+          span0.addClass(mainclass);
+          span0[0].textContent = mainlabel.shift;
+          $(updatekey).append(span0);
+        } else {
+          let span1 = $("<span>");
+          span0.addClass("l0");
+          span0[0].textContent = mainlabel.shift;
+          span1.addClass("l6");
+          span1[0].textContent = mainlabel.normal;
+          $(updatekey).append(span0);
+          $(updatekey).append(span1);
+        }
+      }
+    },
+    "typecustomchar": function(inputf, charcode, key) {
+      console.debug("typecustomchar: inputf {" + inputf + "}\n\t charcode {" + charcode + "}\n\tkey {" + key + "}");
+      let jq_inputf = $(inputf);
+      let input_lang = basekeys.supported(jq_inputf.attr("lang"));
+      if ($(".fixmain").hasClass("hover"))
+        input_lang = $("#vrt-mainlang").data("language");
+      console.debug("typecustomchar: using lang [" + input_lang + "]");
+      if (input_lang === -1) {
+        input_lang = userInfo.duoState.user.learningLanguage;
+      }
+      if (basekeys.dublicate && key && key.originalEvent) {
+        charcode = basekeys.dublicate[key.originalEvent.code] || charcode;
+      }
+      if (charcode === 0) {
+        console.error("Couldn't assosiate a key. [keyboard.originalEvent.code: " + key.originalEvent.code + "]");
+        return false;
+      }
+      if ((charcode !== 8 && charcode !== 32) && (!(basekeys[input_lang]) || (charcode !== 32 && !basekeys[input_lang][charcode]) || key && (key.altKey || key.ctrlKey))) {
+        return false;
+      }
+      let inputtext = jq_inputf.val();
+      let selStart = jq_inputf[0].selectionStart;
+      let selEnd = jq_inputf[0].selectionEnd;
+      if (selStart === undefined) {
+        selStart = selEnd = inputtext.length;
+      }
+      let inputs = "";
+      if (basekeys[input_lang][charcode]) {
+        let changecase = "";
+        let shift_left = $(".shift.left");
+        if (virtKeyboard.shift) {
+          if (!shift_left.hasClass("hover")) {
+            shift_left.addClass("hover");
+          }
+          inputs = basekeys[input_lang][charcode].shift;
+          changecase = "toLowerCase";
+        } else {
+          if (shift_left.hasClass("hover")) {
+            shift_left.removeClass("hover");
+          }
+          inputs = basekeys[input_lang][charcode].normal;
+          changecase = "toUpperCase";
+        }
+        let jq_caps = $(".caps");
+        if (virtKeyboard.caps) {
+          try {
+            inputs = inputs[changecase]();
+          } catch (e) {}
+          if (!jq_caps.hasClass("hover")) {
+            jq_caps.addClass("hover");
+          }
+        } else {
+          if (jq_caps.hasClass("hover")) {
+            jq_caps.removeClass("hover");
+          }
+        }
+      } else {
+        if (charcode === 8) {
+          selStart = selStart > 0 ? selStart - 1 : 0;
+        }
+        if (charcode === 32) {
+          inputs = " ";
+        }
+      }
+      let z = inputtext.slice(0, selStart) + inputs + inputtext.slice(selEnd);
+      jq_inputf.focus();
+      jq_inputf.val(z);
+      jq_inputf.attr("value", z);
+      jq_inputf[0].selectionStart = jq_inputf[0].selectionEnd = selStart + inputs.length;
+      let virt_keyboard = $("#virt-keyboard");
+      let restore = !virt_keyboard.hasClass("vrt-keep");
+      if (restore)
+        virt_keyboard.addClass("vrt-keep");
+      jq_inputf.blur();
+      if (restore)
+        virt_keyboard.removeClass("vrt-keep");
+      jq_inputf.focus();
+      return true;
+    },
+    "updatesecondary": function() {
+      let divider = $("<li>");
+      divider.addClass("vrt-divider vrt-new");
+      let jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
+      jq_dd_sec.addClass("vrt-settings");
+      jq_dd_sec.append(divider);
+      for (let langcode in basekeys.language_names_ui[virtKeyboard.mainlang]) {
+        if (langcode !== "level" && basekeys.supported_lang.indexOf(langcode) === -1) {
+          let langname = basekeys.language_names_ui[virtKeyboard.mainlang][langcode];
+          let newentry = $("<li>");
+          newentry.addClass("vrt-data-choice vrt-new");
+          newentry.data("language", langcode);
+          newentry[0].textContent = langname;
+          jq_dd_sec.append(newentry);
+        }
+      }
+    },
+    "updatecodepages": function(newlangcode, update) {
+      if (!basekeys[newlangcode] || update) {
+        virtKeyboard.newcodepage = true;
+        virtKeyboard.newlang = newlangcode;
+        $(".vrt-keycodesetting").show();
+      }
+    },
+    "getlanguagename": function(langcode, ui_main) {
+      if (!ui_main)
+        ui_main = virtKeyboard.uiLanguage = duo.uiLanguage || userInfo.duoState.user.fromLanguage || virtKeyboard.secondlang;
+      let ui_langs = basekeys.language_names_ui[ui_main];
+      let langname = ui_langs[langcode].split("");
+      langname[0] = langname[0].toUpperCase();
+      return langname.join("");
+    },
+    "updatesupportedlangs": function(isDL) {
+      let ddclass = isDL ? ".vrt-download" : ".vrt-dropdown";
+      let dchclass = isDL ? "vrt-dl-choice" : "vrt-data-choice";
+      let main_node = $("#vrt-mainlang >." + dchclass);
+      let secondary_node = $("#vrt-secondarylang >." + dchclass);
+      if (isDL) {
+        $(ddclass + " > a").remove();
+      } else {
+        $(ddclass + " > li").remove();
+      }
+      let namednodes = {
+        main: {
+          name: virtKeyboard.getlanguagename(virtKeyboard.mainlang),
+          node: main_node[0],
+          code: virtKeyboard.mainlang
+        },
+        secondary: {
+          name: virtKeyboard.getlanguagename(virtKeyboard.secondlang),
+          node: secondary_node[0],
+          code: virtKeyboard.secondlang
+        }
+      };
+
+      let active_langs_supported = userInfo.getLangs(true /* Return only not mapped languages */ );
+      for (let langcode in active_langs_supported) {
+        if (!active_langs_supported[langcode]) continue;
+        let newentry = $("<li>");
+        newentry.addClass(dchclass);
+        newentry.data("language", langcode);
+        newentry[0].textContent = virtKeyboard.getlanguagename(langcode);
+        if (isDL) {
+          let a_link = $("<a>");
+          a_link.addClass("v-download");
+          let temp = {
+            "lang": langcode,
+            "keysmap": basekeys[langcode]
+          };
+          let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(temp));
+          a_link.attr("href", dataStr);
+          a_link.attr("download", "keyboard." + langcode + ".json");
+          a_link.append(newentry.append($("<i class=\x22material-icons\x22>save</i>")));
+          $(ddclass).append(a_link);
+        } else {
+          $(ddclass).append(newentry);
+        }
+        let node = undefined;
+        if (virtKeyboard.mainlang === langcode) {
+          node = main_node[main_node.length - 1];
+          namednodes.main.name = virtKeyboard.getlanguagename(langcode);
+          namednodes.main.node = node;
+          namednodes.main.code = langcode;
+        }
+        if (virtKeyboard.secondlang === langcode) {
+          node = secondary_node[main_node.length - 1];
+          namednodes.secondary.name = virtKeyboard.getlanguagename(langcode);
+          namednodes.secondary.node = node;
+          namednodes.secondary.code = langcode;
+        }
+      }
+      if (!isDL) {
+        for (let nodetype in namednodes) {
+          let tnode = namednodes[nodetype].node || $("#vrt-" + nodetype + "lang >." + dchclass)[0];
+          $(tnode).addClass("vrt-active").siblings().removeClass("vrt-active");
+          $("#vrt-" + nodetype + "lang").data("language", namednodes[nodetype].code);
+          $("span.vrt-langspan.vrt-" + nodetype)[0].textContent = namednodes[nodetype].name;
+        }
+      }
+    },
+    "sethotkey": function() {
+      let buttons = $('div._30i_q').children('button');
+
+      let hotkey = $('span.hotkeyhint');
+      if (buttons.length > 0) {
+        $('div.hotkeydiv').remove();
+        hotkey.remove();
+        for (var x = 0; x < buttons.length; x++) {
+          let charcode = (48 + parseInt(x, 17));
+          buttons[x].id = 'button_' + charcode;
+          let HKeyButton = $(buttons[x]);
+          let HKeyDiv = $("<div class='hotkeydiv'>");
+          HKeyDiv.append(HKeyButton);
+          HKeyDiv.append('<span class="hotkeyhint">' + String.fromCharCode(charcode) + '</span>');
+          $('div._30i_q').append(HKeyDiv);
+        }
+        //$('div._30i_q').children('button').remove();
+      }
+    },
+    "drawKeyboard": function() {
+      let jq_vrt_section = $(".vrt-section");
+      jq_vrt_section.html("");
+      let baseraws = basekeys.base.raw;
+      for (let i in baseraws) {
+        let virtkeyraw = baseraws[i];
+        let ul = $("<ul>");
+        ul.addClass("row");
+        ul.addClass(i);
+        for (let n in virtkeyraw) {
+          let li = $("<li class=\x22key\x22>");
+          let keyhtml = $("<div data-keycode=\x22" + virtkeyraw[n].code + "\x22 class=\x22keylabel " + virtkeyraw[n].code + "\x22>");
+          if (virtkeyraw[n].name) {
+            keyhtml.data("name", virtkeyraw[n].name);
+          }
+          if (virtkeyraw[n].type !== "keylabel") {
+            li.addClass(virtkeyraw[n].type);
+            li.data("type", virtkeyraw[n].type);
+          }
+          ul.append(li.append(keyhtml));
+        }
+        jq_vrt_section.append(ul);
+      }
+    },
+    "updateLangs": function(update) {
+      if (!update) {
+        update = {};
+      }
+      let jq_ml = $("#vrt-mainlang").data("language");
+      let jq_sl = $("#vrt-secondarylang").data("language");
+      for (let lcode in update) {
+        if (basekeys.supported_lang.indexOf(lcode) !== -1) {
+          $.ajax({
+            type: "get",
+            url: virtKeyboard.rawgit + "duo/keyboard." + lcode + ".json"
+          }).done(function(json) {
+            basekeys[json.lang] = json.keysmap;
+            if (json.lang === jq_ml || json.lang === jq_sl) {
+              console.debug("updateLangs:fillKeyboard:ajax");
+              virtKeyboard.fillKeyboard(jq_ml, jq_sl);
+            }
+            userInfo.tools.saveToLocalStorage("keys", basekeys);
+          });
+        }
+      }
+      console.debug("updateLangs:fillKeyboard:afterajax");
+      virtKeyboard.fillKeyboard(jq_ml, jq_sl);
+      virtKeyboard.virtKeyOnClick();
+    },
+    "virtKeyOnClick": function() {
+      let virt_keyboard = $("#virt-keyboard");
+      let virt_tdd = $(".vrt-toggledropdown");
+      virt_keyboard.on("click", ".key", function() {
+        let inputfield = $("textarea");
+        let keycode = $(this).find("div").data("keycode");
+        let keyname = $(this).find("div").data("name");
+        let jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
+        let jq_ks = $(".vrt-keycodesetting");
+        let jq_dd_sec_new = $(".vrt-dropdown.vrt-secondary > li.vrt-new");
+        if ($(this).hasClass("home")) {
+          let jq_home = $(".home");
+          if (!jq_home.hasClass("switch")) {
+            jq_home.addClass("switch");
+          }
+          if (!jq_dd_sec.hasClass("vrt-settings")) {
+            virtKeyboard.updatesecondary();
+          } else {
+            virtKeyboard.newcodepage = false;
+            jq_ks.hide();
+            jq_dd_sec.removeClass("vrt-settings");
+            jq_dd_sec.removeClass("vrt-update");
+            jq_dd_sec_new.remove();
+            userInfo.tools.saveToLocalStorage("keys", basekeys);
+            virtKeyboard.updatesupportedlangs();
+          }
+        }
+        if ($(this).hasClass("menu")) {
+          let jq_menu = $(".menu");
+          if (!jq_menu.hasClass("switch")) {
+            jq_menu.addClass("switch");
+          }
+        }
+        if ($(this).hasClass("special")) {
+          $(this).toggleClass("hover");
+          if ($(this).hasClass("shift") && $(this).hasClass("left")) {
+            virtKeyboard.shift = !virtKeyboard.shift;
+          }
+          if ($(this).hasClass("caps")) {
+            virtKeyboard.caps = !virtKeyboard.caps;
+          }
+          let keypressed = jQuery.Event({
+            "type": "keypress",
+            "keyCode": keycode,
+            "which": keycode,
+            "shiftKey": virtKeyboard.shift,
+            "key": keyname
+          });
+          let jq_if = $(inputfield);
+          jq_if.trigger(keypressed);
+          jq_if.focus();
+          return true;
+        }
+        if (!virtKeyboard.newcodepage) {
+          if (inputfield) {
+            virtKeyboard.typecustomchar(inputfield, keycode);
+          }
+        } else {
+          let jq_ml = $("#vrt-mainlang").data("language");
+          let nfield = $("#vrt-normal-key");
+          let sfield = $("#vrt-shift-key");
+          if (basekeys.supported_lang.indexOf(virtKeyboard.newlang) === -1) {
+            basekeys.supported_lang.push(virtKeyboard.newlang);
+          }
+          if (!basekeys[virtKeyboard.newlang]) {
+            basekeys[virtKeyboard.newlang] = JSON.parse(JSON.stringify(basekeys[jq_ml]));
+          }
+          if (nfield.val() !== "") {
+            basekeys[virtKeyboard.newlang][keycode].normal = nfield.val();
+          }
+          if (sfield.val() !== "") {
+            basekeys[virtKeyboard.newlang][keycode].shift = sfield.val();
+          }
+          console.debug("virtKeyOnClick:fillKeyboard");
+          virtKeyboard.fillKeyboard(jq_ml, virtKeyboard.newlang);
+        }
+      });
+      virt_keyboard.on("click", ".vrt-data-choice", function() {
+        if (!$(this).hasClass("vrt-active") && !$(this).hasClass("vrt-new")) {
+          $(this).addClass("vrt-active").siblings().removeClass("vrt-active");
+        }
+        $(this).parent().data("language", $(this).data("language"));
+        $(this).parent().parent().find("span.vrt-langspan")[0].textContent = $(this)[0].textContent;
+        let jq_dd_sec = $(".vrt-dropdown.vrt-secondary");
+        if (jq_dd_sec.hasClass("vrt-settings")) {
+          virtKeyboard.updatecodepages($(this).data("language"), $(this).parent().hasClass("vrt-update"));
+        }
+        let jq_ml = $("#vrt-mainlang").data("language");
+        let jq_sl = $("#vrt-secondarylang").data("language");
+        console.debug("virtKeyOnClick:fillKeyboard");
+        virtKeyboard.fillKeyboard(jq_ml, jq_sl);
+        $(this).parent().off("mouseleave");
+        $(this).parent().slideUp("medium");
+      });
+      virt_tdd.on("click", function() {
+        let dropdownmenu = $(this).find("ul.vrt-dropdown");
+        if (dropdownmenu.is(":visible")) {
+          dropdownmenu.slideUp("medium");
+          virt_tdd.off("mouseleave");
+        } else {
+          virt_tdd.on("mouseleave", function() {
+            dropdownmenu.slideUp("medium");
+          });
+          dropdownmenu.slideDown("medium");
+        }
+        dropdownmenu.off("mouseleave");
+        dropdownmenu.on("mouseleave", function() {
+          virt_tdd.off("mouseleave");
+          dropdownmenu.slideUp("medium");
+        });
+      });
+      $(".v-big").on("click", function() {
+        virtKeyboard.updatesupportedlangs(true);
+        let dropdownmenu = $(this).find("ul.vrt-download");
+        if (dropdownmenu.is(":visible")) {
+          dropdownmenu.slideUp("medium");
+        } else {
+          dropdownmenu.slideDown("medium");
+        }
+        dropdownmenu.off("mouseleave");
+        dropdownmenu.on("mouseleave", function() {
+          dropdownmenu.slideUp("medium");
+        });
+      });
+      $(document).on("keydown", "textarea, input", function(keypressed) {
+        userInfo.fixCss(document.dir);
+        if (virtKeyboard.apply && virtKeyboard.checklocation()) {
+          let virtkey = $("." + keypressed.keyCode).parent();
+          virtkey.addClass("virthover");
+          setTimeout(function() {
+            virtkey.removeClass("virthover");
+          }, 600);
+          virtKeyboard.shift = keypressed.shiftKey;
+          if (virtKeyboard.typecustomchar(this, keypressed.keyCode, keypressed))
+            keypressed.preventDefault();
+        }
+      });
+    },
+    "completeInit": function() {
+      let userLanguages = userInfo.getLangs();
+      if (Object.keys(userLanguages).length === 0 || basekeys.supported_lang.length === 0) {
+        setTimeout(function() {
+          virtKeyboard.completeInit();
+        }, 300);
+        return;
+      }
+      $("#vrt-mainlang").data("language", virtKeyboard.mainlang = userInfo.duoState.user.learningLanguage || "en");
+      $("#vrt-secondarylang").data("language", virtKeyboard.secondlang = userInfo.duoState.user.fromLanguage || "en");
+      virtKeyboard.updateLangs(userLanguages);
+      virtKeyboard.drawKeyboard();
+      virtKeyboard.updatesupportedlangs();
+      virtKeyboard.uiLanguage = virtKeyboard.uiLanguage ? virtKeyboard.uiLanguage : duo ? duo.uiLanguage : userInfo ? userInfo.duoState ? userInfo.duoState.user ? userInfo.duoState.user.fromLanguage : virtKeyboard.secondlang : "en" : "en";
+    },
+    "init": function() {
+      if (userInfo.firstrefresh) {
+        setTimeout(function() {
+          virtKeyboard.init();
+        }, 300);
+        return;
+      }
+      $("body").append(virtKeyboard.body);
+      let virt_keyboard = $("#virt-keyboard");
+      virt_keyboard.hover(
+        function() {
+          $(this).addClass("vrt-keep");
+        },
+        function() {
+          $(this).removeClass("vrt-keep");
+        });
+      $(document).on("click", ".v-logoOnTop", function() {
+        let virt_keyboard = $("#virt-keyboard");
+        let jq_logo = $(".v-logoOnTop");
+        virtKeyboard.show = !virtKeyboard.show;
+        virtKeyboard.apply = true;
+        jq_logo.removeClass("v-disabled");
+        if (virtKeyboard.show) {
+          if (!$(this).hasClass("v-show"))
+            $(this).addClass("v-show");
+        } else {
+          if ($(this).hasClass("v-show"))
+            $(this).removeClass("v-show");
+          virt_keyboard.hide();
+        }
+        userInfo.tools.saveToLocalStorage("settings", virtKeyboard);
+      });
+      $(document).on("click", ".v-close", function() {
+        let virt_keyboard = $("#virt-keyboard");
+        let jq_logo = $(".v-logoOnTop");
+        virtKeyboard.show = false;
+        jq_logo.removeClass("v-show");
+        jq_logo.addClass("v-disabled");
+        virtKeyboard.apply = false;
+        virt_keyboard.hide();
+        userInfo.tools.saveToLocalStorage("settings", virtKeyboard);
+      });
+      $(document).on("focus", "textarea, input[type='text']", function() {
+        let virt_keyboard = $("#virt-keyboard");
+        if (virtKeyboard.checklocation()) {
+          $(this).val($(this).attr("value"));
+          try {
+            $(this)[0].innerText = $(this).attr("value");
+          } catch (e) {}
+          let visible = $("#virt-keyboard:visible").length > 0;
+          if (virtKeyboard.show && !visible) {
+            virtKeyboard.updatesupportedlangs();
+            console.debug("init.textarea.onfocus:fillKeyboard");
+            virtKeyboard.fillKeyboard($(this).attr("lang"));
+            virt_keyboard.show("slow");
+          }
+        }
+      });
+      $(document).on("focusout", "textarea, input[type='text']", function() {
+        let virt_keyboard = $("#virt-keyboard");
+        if (virtKeyboard.checklocation()) {
+          $(this).val($(this).attr("value"));
+          try {
+            $(this)[0].innerText = $(this).attr("value");
+          } catch (e) {}
+          if (!virt_keyboard.hasClass("vrt-keep")) {
+            virt_keyboard.hide();
+          }
+        }
+      });
+      $(document).on("keydown", null, function(keypressed) {
+        if ($("textarea, input[type='text']").length === 0) {
+          virtKeyboard.sethotkey();
+          let hotkey = $('button#button_' + keypressed.keyCode);
+          //console.info(hotkey);
+          hotkey.click();
+        }
+      });
+      virtKeyboard.sethotkey();
+      virtKeyboard.completeInit();
+      virt_keyboard.draggable();
+    },
+    "preinit": function() {
+      if (!window.jQuery) {
+        setTimeout(function() {
+          virtKeyboard.preinit();
+        }, 300);
+        return;
+      }
+      let settings = userInfo.tools.getFromLocalStorage("settings");
+      if (settings) {
+        console.info("Local version is:" + settings.version);
+        console.info("Remote version is:" + virtKeyboard.version);
+        if (settings.version !== virtKeyboard.version) {
+          userInfo.tools.clearLocalStorage("keys");
+          userInfo.tools.clearLocalStorage("weakspan");
+          userInfo.tools.clearLocalStorage("newspan");
+        }
+        settings.version = virtKeyboard.version;
+        settings.rawgit = virtKeyboard.rawgit;
+        userInfo.tools.updateBase(virtKeyboard, settings);
+      }
+      $.fn.draggable = function() {
+        var $this = this,
+          ns = 'draggable_' + (Math.random() + '').replace('.', ''),
+          mm = 'mousemove.' + ns,
+          mu = 'mouseup.' + ns,
+          $w = $(window),
+          rtl = $("html").attr("dir") === "rtl",
+          isFixed = ($this.css('position') === 'fixed'),
+          adjX = 0,
+          adjY = 0;
+        $this.mousedown(function(ev) {
+          var pos = $this.position();
+          if (isFixed) {
+            adjX = ($w.scrollLeft());
+            adjY = $w.scrollTop();
+          }
+          var ox = (ev.pageX - pos.left),
+            oy = (ev.pageY - pos.top);
+          $this.data(ns, {
+            x: ox,
+            y: oy
+          });
+          $w.on(mm, function(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (isFixed) {
+              adjX = ($w.scrollLeft());
+              adjY = $w.scrollTop();
+            }
+            var offset = $this.data(ns);
+            $this.css({
+              left: (ev.pageX - adjX - offset.x),
+              top: (ev.pageY - adjY - offset.y)
+            });
+          });
+          $w.on(mu, function() {
+            $w.off(mm + ' ' + mu).removeData(ns);
+          });
+        });
+        return this;
+      };
+      userInfo.duoState = userInfo.refresh(userInfo.needrefresh);
+      let oldkeys = userInfo.tools.getFromLocalStorage("keys");
+      if (!oldkeys || oldkeys.supported_lang.length === 0) {
+        $.ajax({
+          type: "get",
+          url: virtKeyboard.rawgit + "duo/keyboard.base.json"
+        }).done(function(json) {
+          userInfo.tools.updateBase(basekeys, json);
+          userInfo.tools.saveToLocalStorage("keys", basekeys);
+        });
+      } else {
+        userInfo.tools.updateBase(basekeys, oldkeys);
+      }
+      if ($(".v-logo").length === 0) {
+        let vKeyboardLogo = $("<span>");
+        vKeyboardLogo.addClass("v-logo");
+        vKeyboardLogo.addClass("v-logoOnTop");
+        if (virtKeyboard.show) {
+          vKeyboardLogo.addClass("v-show");
+        }
+        if (!virtKeyboard.apply) {
+          vKeyboardLogo.addClass("v-disabled");
+        }
+        $("body").after(vKeyboardLogo);
+      }
+      console.info("VirtKeyboard: v." + virtKeyboard.version);
+      userInfo.tools.saveToLocalStorage("settings", virtKeyboard);
+      virtKeyboard.init();
+    }
+  };
+  var sidepanel = {
+    "version": "0.0.15",
+    "html": "<div class='sidepanel'><div class='panel panel-upper panel-border'></div><div class='panel panel-inner'></div><div class='panel panel-lower panel-border'></div></div>",
+    "hidden": true,
+    "init": function() {
+      console.debug("sidepanel.init()");
+      if (!window.jQuery) {
+        setTimeout(function() {
+          sidepanel.init();
+        }, 300);
+        return;
+      }
+      console.info("sidepanel: v." + sidepanel.version);
+      $("body").append(this.html);
+      userInfo.duoState = userInfo.refresh(userInfo.needrefresh);
+      sidepanel.refresh(".panel-inner");
+    },
+    "refresh": function(activeElelment) {
+      if ($(activeElelment).children().length > 0)
+        $(activeElelment).children()[0].remove();
+      let courseslist = $("<ul class='courses'>");
+      userInfo.duoState = userInfo.refresh(userInfo.needrefresh);
+      if (!userInfo.duoState) {
+        userInfo.duoState = {
+          courses: {},
+          currentCourse: {},
+          user: {
+            "learningLanguage": "",
+            "fromLanguage": ""
+          }
+        };
+      }
+      let sortedCourses = Object.keys(userInfo.duoState.courses).sort(function(a, b) {
+        return (userInfo.duoState.courses[a].fromLanguage.localeCompare(userInfo.duoState.courses[b].fromLanguage))
+      });
+      let currentCourse;
+      let courseLevel = userInfo.tools.getFromLocalStorage("courseLevel") || {};
+      for (let x in sortedCourses) {
+        let course = sortedCourses[x];
+        let currCourse = userInfo.duoState.courses[course];
+        let li = $("<li class='course'>");
+        let span1 = $("<span>");
+        let span2 = $("<span>");
+        span1.addClass("flag" /*userInfo.dict.flag*/ + " from flag");
+        span2.addClass("flag" /*userInfo.dict.flag*/ + " to flag");
+        let fromLanguage = currCourse.fromLanguage;
+        let learningLanguage = currCourse.learningLanguage;
+        let courseid = currCourse.id;
+        li.data("fromLanguage", fromLanguage);
+        li.data("learningLanguage", learningLanguage);
+        span1.addClass(fromLanguage /*userInfo.dict[fromLanguage]*/ + " flag-svg-small flag-" + fromLanguage);
+        span2.addClass(learningLanguage /*userInfo.dict[learningLanguage]*/ + " flag-svg-small flag-" + learningLanguage);
+        let weakspan = $("<div class='skill weak'>");
+        let addweakspan = false;
+        let newspan = $("<div class='skill new'>");
+        let weakSkills = userInfo.getSkills("weak", courseid)[courseid];
+        let newSkills = userInfo.getSkills("new", courseid)[courseid];
+        let skill;
+        let nClone;
+        if (courseid === userInfo.duoState.user.courseId) {
+          let empty_node = $("");
+          let prevWeak = $(userInfo.tools.getFromLocalStorage("weakspan").html) || empty_node;
+          let prevNew = $(userInfo.tools.getFromLocalStorage("newspan").html) || empty_node;
+          li.addClass("active");
+          for (skill in weakSkills) {
+            weakspan.append(sidepanel.activeSkillsEl(weakSkills[skill].URI, prevWeak, weakSkills[skill].shortName));
+            addweakspan = true;
+          }
+          for (skill in newSkills) {
+            newspan.append(sidepanel.activeSkillsEl(newSkills[skill].URI, prevNew, newSkills[skill].shortName));
+          }
+          /*Add general practice button to weakspan*/
+          let practiceArr = $("a[href='/practice']");
+          if (practiceArr[0] && practiceArr[0].attributes) {
+            weakspan.append(sidepanel.activeSkillsEl(practiceArr[0].attributes.href.value, prevWeak, "", "practice"));
+            addweakspan = true;
+          }
+          /*Add shortcuts to bigtest section to newspan*/
+          practiceArr = $("a[href*='/bigtest']");
+          for (let bigtest in practiceArr) {
+            if (practiceArr[bigtest] && practiceArr[bigtest].attributes)
+              newspan.append(sidepanel.activeSkillsEl(practiceArr[bigtest].attributes.href.value, prevNew, "", "practice"));
+          }
+
+          userInfo.tools.saveToLocalStorage("weakspan", {
+            "html": weakspan.html()
+          });
+          userInfo.tools.saveToLocalStorage("newspan", {
+            "html": newspan.html()
+          });
+          courseLevel[course] = userInfo.duoState.user.trackingProperties.level;
+        } else {
+          courseLevel[course] = courseLevel[course] || userInfo.duoState.courses[course].trackingProperties ? userInfo.duoState.courses[course].trackingProperties.max_tree_level : "";
+          let color = ["red", "blue", "green"];
+          let i = 0;
+          for (skill in weakSkills) {
+            i++;
+            nClone = $("<span class='skills'>");
+            nClone.addClass(userInfo.dict[color[i % 3]] + " bg-" + color[i % 3]);
+            weakspan.append(nClone);
+          }
+          for (skill in newSkills) {
+            i++;
+            nClone = $("<span class='skills'>");
+            nClone.addClass(userInfo.dict[color[i % 3]] + " bg-" + color[i % 3]);
+            newspan.append(nClone);
+          }
+        }
+        userInfo.tools.saveToLocalStorage("courseLevel", courseLevel);
+        li.append(span1);
+
+        let levelString = userInfo.duoState.courses[course].title + " :: " + (basekeys.language_names_ui[virtKeyboard.uiLanguage || "en"].level || "LEVEL").toUpperCase() + " " + (courseLevel[course] || "[ ]");
+        li.append($("<span class='sp-level'>" + levelString + "</span>"));
+        li.append(span2);
+        addweakspan = addweakspan || weakspan.find("span").length > 0;
+        if (addweakspan)
+          li.append(weakspan);
+        if (newspan.find("span").length > 0)
+          li.append(newspan);
+        if (fromLanguage === userInfo.duoState.user.fromLanguage) {
+          if (learningLanguage === userInfo.duoState.user.learningLanguage) {
+            currentCourse = li;
+          } else {
+            courseslist.prepend(li);
+          }
+        } else {
+          courseslist.append(li);
+        }
+      }
+      courseslist.prepend(currentCourse);
+      $(activeElelment).append(courseslist);
+      $("li.course").on("click", function() {
+        if ($(this).data("learningLanguage") !== userInfo.duoState.user.learningLanguage || $(this).data("fromLanguage") !== userInfo.duoState.user.fromLanguage) {
+          userInfo.switchLanguage($(this).data("fromLanguage"), $(this).data("learningLanguage"));
+        }
+      });
+      $(".sidepanel").hover(function() {
+        if (sidepanel.hidden) {
+          sidepanel.refresh(".panel-inner");
+          $(this).addClass("show");
+          sidepanel.hidden = false;
+        }
+      }, function() {
+        if (!sidepanel.hidden) {
+          $(this).removeClass("show");
+          sidepanel.hidden = true;
+        }
+      });
+    },
+    "activeSkillsEl": function(skillURI, prevSkills, skillName, class2add) {
+      if (!class2add)
+        class2add = "micro";
+      let color = ["red", "blue", "green"];
+      let a_href = "a[href='" + skillURI + "']";
+      let zClone = $(a_href).clone();
+      let oClone = prevSkills.filter(a_href).clone();
+      let nClone = $("<span class='skills'>");
+      let i = (skillURI.length + prevSkills.length);
+      nClone.addClass(userInfo.dict[color[i % 3]] + " bg-" + color[i % 3]);
+
+      if ((zClone.length + oClone.length) > 0) {
+        nClone = zClone.length > 0 ? zClone : oClone;
+        for (let nclass in userInfo.dict) {
+          let zzz = nClone.filter("." + userInfo.dict[nclass]);
+          if (zzz.length > 0) {
+            zzz.addClass(nclass);
+          }
+        }
+        nClone.find("._2TMjc").addClass("lightbg");
+        if (skillName === "")
+          nClone.addClass(class2add);
+      } else {
+        nClone.appendTo($("<a class='item' href='" + skillURI + "'>"));
+        nClone.after($("<span class='name'>").text(skillName));
+        zClone = nClone.parent().appendTo("<span class='item-box'>");
+        return zClone.parent();
+      }
+      return nClone;
+    }
+  };
+  var chrome = chrome || browser || {
+    "extension": false
+  };
+  var duo = window.duo || {};
+  if (chrome) {
+    if (!chrome.extension) {
+      /*
+      let script = document.createElement('script');
+      script.src = "//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js";
+      document.getElementsByTagName('head')[0].appendChild(script);
+      */
+    } else {
+      /** @namespace document.scripts */
+      //virtKeyboard.rawgit = "./"
+      for (let normalScript in document.scripts) {
+        let patternDuo = new RegExp("window\.duo");
+        if (patternDuo.test(document.scripts[normalScript].text)) {
+          let splitted = document.scripts[normalScript].text.split("=");
+          let jprs1 = JSON.parse(splitted[1]);
+          if (/version/.test(splitted[0])) {
+            duo.version = jprs1;
+          } else {
+            userInfo.tools.updateBase(duo, jprs1);
+          }
+        }
+      }
+    }
+  }
+  var cssList = [{
+    "href": virtKeyboard.rawgit + "css/newduo.css",
+    "dir": ["ltr", "rtl", "new", "fix"]
+  }, {
+    "href": virtKeyboard.rawgit + "css/rtl-newduo.css",
+    "dir": ["rtl", "new", "fix"]
+  }, {
+    "href": virtKeyboard.rawgit + "css/rtl-duofix.css",
+    "dir": ["rtl", "fix"]
+  }, {
+    "href": "https://fonts.googleapis.com/icon?family=Material+Icons",
+    "dir": ["ltr", "rtl"]
+  }, {
+    "href": virtKeyboard.rawgit + "css/style.css",
+    "dir": ["ltr", "rtl"]
+  }];
+  let documentDir = document.dir ? document.dir : "ltr";
+
+  userInfo.fixCss(documentDir);
+  virtKeyboard.preinit();
+  sidepanel.init();
 })
 ([]);

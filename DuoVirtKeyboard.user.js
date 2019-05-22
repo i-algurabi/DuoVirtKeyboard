@@ -2678,10 +2678,12 @@
     "apply": true,
     "fixCss": false,
     "checklocation": function() {
-      return (/^\/skill/.test(location.pathname) ||
+      result = (/^\/skill/.test(location.pathname) ||
         /^\/bigtest/.test(location.pathname) ||
         /^\/practice/.test(location.pathname) ||
         /^\/DuoVirtKeyboard/.test(location.pathname));
+        console.debug("checklocation:" + result);
+      return result;
     },
     "shift": false,
     "caps": false,
