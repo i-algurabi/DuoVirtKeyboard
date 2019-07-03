@@ -2963,7 +2963,7 @@
       }
     },
     "sethotkey": function() {
-      let buttons = $('div._30i_q').children('button');
+      let buttons = $('div._30i_q > div').children('div > button');
 
       let hotkey = $('span.hotkeyhint');
       if (buttons.length > 0) {
