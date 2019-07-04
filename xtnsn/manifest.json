@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "0.1.0.002",
+  "version": "1.0",
   "name": "DuoLingo virtual keyboard",
   "icons": {
     "128": "images/logo-128.png"
@@ -9,7 +9,8 @@
   "content_scripts": [{
     "run_at": "document_end",
     "matches": [
-      "https://*.duolingo.com/*"
+      "https://*.duolingo.com/*",
+      "https://i-algurabi.github.io/DuoVirtKeyboard/*"
     ],
     "js": [
       "jquery.js",
@@ -32,7 +33,7 @@
   "applications": {
     "gecko": {
       "id": "duoVirtKeyboard@i-algurabi.github.io",
-      "strict_min_version": "42.0"
+      "strict_min_version": "53.0"
     }
   }
 }
