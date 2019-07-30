@@ -2,9 +2,9 @@
 // @name         DuoVirtKeyboard
 // @namespace    duolingo
 // @description  This userscript allows you to use a virtual onscreen keyboard with customizable layouts. Adding automatic keyboard layout switching to both virtual and physical keyboards
-// @version      0.1.0.002
+// @version      1.0.001
 // @author       IceCube aka i.algurabi, (c) 2018
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @include      https://*.duolingo.com/*
 // @include      https://i-algurabi.github.io/DuoVirtKeyboard/*
 // @updateURL    https://i-algurabi.github.io/DuoVirtKeyboard/xtnsn/DuoVirtKeyboard.meta
@@ -16,29 +16,34 @@
   var userInfo = {
     "documentDir": "",
     "loggedInUser": "",
-    "duoState": null,
+    "duoState": {},
     "firstrefresh": true,
     "needrefresh": false,
     "getLangs": function(withoutMapped) {
-      var currentDuoState;
-      currentDuoState = userInfo.duoState = userInfo.refresh(userInfo.needrefresh);
-      var result = {};
+      let currentDuoState = {};
+      currentDuoState = userInfo.tools.updateBase(userInfo.duoState, userInfo.refresh(userInfo.needrefresh));
+      let result = {};
       try {
-        var mappedFromLanguage, mappedToLanguage;
-        currentDuoState.courses.forEach(function(element) {
-          let frLanguage = mappedFromLanguage = element.fromLanguage;
-          let toLanguage = mappedToLanguage = element.learningLanguage;
-          if (!withoutMapped) {
-            mappedFromLanguage = basekeys.supported(frLanguage);
-            mappedToLanguage = basekeys.supported(toLanguage);
+        let mappedFromLanguage, mappedToLanguage;
+        if (currentDuoState.user.hasOwnProperty("id")) {
+          for (let courseId in currentDuoState.courses) {
+            let element = currentDuoState.courses[courseId];
+            let frLanguage = mappedFromLanguage ? mappedFromLanguage : element.fromLanguage;
+            let toLanguage = mappedToLanguage ? mappedToLanguage : element.learningLanguage;
+            if (!withoutMapped) {
+              mappedFromLanguage = basekeys.supported(frLanguage);
+              mappedToLanguage = basekeys.supported(toLanguage);
+            }
+            result[frLanguage] = (basekeys[mappedFromLanguage] !== undefined);
+            result[toLanguage] = (basekeys[mappedToLanguage] !== undefined);
           }
-          result[frLanguage] = (basekeys[mappedFromLanguage] !== undefined);
-          result[toLanguage] = (basekeys[mappedToLanguage] !== undefined);
-        });
-      } catch (e) {}
+        }
+      } catch (e) {
+        console.error("getLangs caused an exception", e);
+      }
       if (Object.keys(result).length === 0) {
-        var langs = basekeys.supported_lang;
-        for (var x in langs) {
+        let langs = basekeys.supported_lang;
+        for (let x in langs) {
           result[langs[x]] = true;
         }
       }
@@ -47,8 +52,6 @@
     "refresh": function(shouldntRefresh) {
       if (userInfo.firstrefresh) userInfo.tools.clearLocalStorage();
       userInfo.firstrefresh = false;
-      let localStorage = userInfo.tools.getLocalStorage(shouldntRefresh);
-      let duoStateSTR = localStorage["duo.state"];
       let result = {
         courses: {},
         user: {
@@ -63,59 +66,48 @@
           "urlName": ""
         }
       };
+      //userInfo.tools.updateBase(result, userInfo.tools.getFromLocalStorage("duo.state"));
+      userInfo.tools.updateBase(result, userInfo.tools.getFromLocalStorage("duo.state", shouldntRefresh));
 
-      if (duoStateSTR) {
-        userInfo.tools.saveToLocalStorage("duo.state", duoStateSTR);
-        return JSON.parse(duoStateSTR);
-      } else {
+      if (!result.user.hasOwnProperty("id")) {
         userInfo.loggedInUser = userInfo.getLoggedInUserId();
         if (userInfo.loggedInUser) {
-          result = userInfo.enrichUser();
-        } else {
-          result = userInfo.tools.getFromLocalStorage("duo.state");
+          userInfo.tools.updateBase(result, userInfo.enrichUser());
         }
-        userInfo.tools.saveToLocalStorage("duo.state", result);
-        return result;
       }
+      return userInfo.tools.saveToLocalStorage("duo.state", result);
     },
     "enrichUser": function(params) {
+      userInfo.loggedInUser = userInfo.getLoggedInUserId();
+      if (!userInfo.loggedInUser) return;
       userInfo.needrefresh = false;
       if (!params)
         params = "courses,currentCourse,fromLanguage,learningLanguage";
       userInfo.firstrefresh = false;
-      $.ajax({
-        type: "get",
-        url: "//www.duolingo.com/2016-04-13/users/" + userInfo.loggedInUser,
-        data: {
-          "fields": params
-        }
-      }).done(function(json) {
-        let jsonDuoState = {};
-        if (!userInfo.firstrefresh) {
-          jsonDuoState = JSON.parse(localStorage["duo.state"]);
-        }
-        if (json.fromLanguage) {
-          jsonDuoState.user = {
-            "fromLanguage": json.fromLanguage
-          };
-          jsonDuoState.user.learningLanguage = json.learningLanguage;
-        }
-        if (json.courses) {
-          if (!jsonDuoState.courses)
-            jsonDuoState.courses = {};
-          userInfo.tools.updateBase(jsonDuoState.courses, json.courses);
-        }
-        if (json.currentCourse) {
-          if (!jsonDuoState.courses)
-            jsonDuoState.courses = {};
-          jsonDuoState.courses[json.currentCourse.id] = json.currentCourse;
-          if (!jsonDuoState.skills)
-            jsonDuoState.skills = {};
-          userInfo.tools.updateBase(jsonDuoState.skills, json.currentCourse.skills);
-        }
-        localStorage["duo.state"] = JSON.stringify(jsonDuoState);
-        return jsonDuoState;
-      });
+      userInfo.tools.sendAjax({
+          type: "get",
+          url: "https://www.duolingo.com/2016-04-13/users/" + userInfo.loggedInUser,
+          data: {
+            "fields": params,
+            "_": Date.now()
+          }
+        },
+        function(json) {
+          if (json.hasOwnProperty("fromLanguage")) {
+            let jsonDuoState = {
+              "user": {},
+              "courses": {}
+            };
+            if (json.fromLanguage) {
+              jsonDuoState.user.fromLanguage = json.fromLanguage;
+              jsonDuoState.user.learningLanguage = json.learningLanguage;
+            }
+            if (json.currentCourse) {
+              jsonDuoState.courses[json.currentCourse.id] = json.currentCourse;
+            }
+            userInfo.tools.updateBase(userInfo.duoState, jsonDuoState);
+          }
+        });
     },
     "getCookie": function(name) {
       let cookies = document.cookie.split(';');
@@ -127,10 +119,19 @@
       return "";
     },
     "getLoggedInUserId": function() {
-      let e = userInfo.getCookie("auth_tkt") || "";
-      let t = e.match(/[0-9a-f]{40}(\d+)!/);
-      if (t)
-        return parseInt(t[1], 10);
+      if (userInfo.loggedInUser === "") {
+        if (userInfo.duoState.hasOwnProperty("user")) {
+          if (userInfo.duoState.user.hasOwnProperty("id")) {
+            userInfo.loggedInUser = userInfo.duoState.user.id
+          } else {
+            let e = userInfo.getCookie("auth_tkt") || "";
+            let t = e.match(/[0-9a-f]{40}(\d+)!/);
+            if (t)
+              userInfo.loggedInUser = parseInt(t[1], 10);
+          }
+        }
+      }
+      return userInfo.loggedInUser
     },
     "getSkills": function(skillsType, courseId) {
       let result = {};
@@ -139,7 +140,7 @@
         let skillArray = currentCourse.skills[skillArrayNo];
         for (var skillNo in skillArray) {
           let skill = skillArray[skillNo];
-          let currentSkill = this.duoState.skills[skill];
+          let currentSkill = this.duoState.skills[skill] || this.duoState.skills[skill.id] || skill;
           let willReturn = currentSkill.accessible &&
             ((skillsType === "weak") ? (
               currentSkill.finishedLevels > 0 && (
@@ -171,17 +172,26 @@
     },
     "switchLanguage": function(fromLanguage, learningLanguage) {
       let courseid = "DUOLINGO_" + learningLanguage.toUpperCase() + "_" + fromLanguage.toUpperCase();
-      userInfo.needrefresh = (userInfo.duoState && userInfo.duoState.courses && (!userInfo.duoState.courses[courseid] || !userInfo.duoState.courses[courseid].fluency));
+      userInfo.needrefresh = (userInfo.duoState && userInfo.duoState.hasOwnProperty("courses") && !(userInfo.duoState.courses[courseid] && userInfo.duoState.courses[courseid].fluency));
       userInfo.tools.sendAjax({
         type: "POST",
-        url: "/api/1/me/switch_language",
+        url: location.href + "api/1/me/switch_language",
         data: {
           from_language: fromLanguage,
           learning_language: learningLanguage
         }
-      }, function() {
-        if (userInfo.needrefresh && !duo.version)
-          userInfo.enrichUser();
+      }, function(json) {
+        if (json.hasOwnProperty("tracking_properties")) {
+          let jsonDuoState = userInfo.tools.getFromLocalStorage("duo.state");
+          if (json.tracking_properties) {
+            let tp = json.tracking_properties;
+            jsonDuoState.user = {
+              "fromLanguage": tp.ui_language
+            };
+            jsonDuoState.user.learningLanguage = tp.learning_language;
+          }
+          userInfo.tools.saveToLocalStorage("duo.state", jsonDuoState);
+        }
         document.location.href = document.location.protocol + "//" + document.location.hostname;
       });
     },
@@ -214,15 +224,19 @@
     },
     "tools": {
       "updateBase": function(lObject, jsonObj, depth) {
-        depth = (!depth) ? 0 : depth + 1;
-        for (let subObj in jsonObj) {
-          if (typeof jsonObj[subObj] === 'object' && typeof lObject[subObj] === 'object') {
-            if (depth < 10)
-              userInfo.tools.updateBase(lObject[subObj], jsonObj[subObj], depth);
-          } else {
-            lObject[subObj] = jsonObj[subObj];
+        if (typeof jsonObj === 'object' && typeof lObject === 'object') {
+          if (JSON.stringify(lObject) === JSON.stringify(jsonObj)) return lObject;
+          depth = (!depth) ? 0 : depth + 1;
+          for (let subObj in jsonObj) {
+            if (typeof jsonObj[subObj] === 'object' && typeof lObject[subObj] === 'object') {
+              if (depth < 10)
+                userInfo.tools.updateBase(lObject[subObj], jsonObj[subObj], depth);
+            } else {
+              lObject[subObj] = jsonObj[subObj];
+            }
           }
         }
+        return lObject;
       },
       "getLocalStorage": function(sync) {
         /** @namespace chrome.storage */
@@ -231,16 +245,22 @@
           return chrome.storage.sync;
         if (window.localStorage)
           return window.localStorage;
-
         return null;
       },
       "saveToLocalStorage": function(parameter, value) {
         let localStorage = userInfo.tools.getLocalStorage(true);
+        let lObject = {};
         if (localStorage) {
-          localStorage["keyboard." + parameter] = JSON.stringify(value);
-          return true;
+          let stringLObject = localStorage["keyboard." + parameter];
+          if (stringLObject) {
+            lObject = JSON.parse(stringLObject);
+            stringLObject = JSON.stringify(userInfo.tools.updateBase(lObject, value));
+          } else {
+            stringLObject = JSON.stringify(value);
+          }
+          localStorage["keyboard." + parameter] = stringLObject;
         }
-        return false;
+        return lObject;
       },
       "clearLocalStorage": function(parameter) {
         if (parameter) {
@@ -251,29 +271,41 @@
           }
         }
         window.localStorage.clear();
-        return false;
+        return {};
       },
-      "getFromLocalStorage": function(parameter) {
-        let localStorage = userInfo.tools.getLocalStorage(true);
+      "getFromLocalStorage": function(parameter, fromSyncStorage = true) {
+        let localStorage = userInfo.tools.getLocalStorage(fromSyncStorage);
+        let lObject = {};
+        let prefix = "";
+        if (fromSyncStorage) prefix = "keyboard.";
         if (localStorage) {
-          let param = localStorage["keyboard." + parameter];
+          let param = localStorage[prefix + parameter];
           if (param)
-            return JSON.parse(param);
+            lObject = JSON.parse(param);
         }
-        return false;
+        return lObject;
       },
       "sendAjax": function(options, callBack) {
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
           if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-            callBack(xhr.response);
+            let result = {};
+            try {
+              result = JSON.parse(xhr.response)
+            } catch (e) {
+              console.warn("Couldn't parse response from URI: " + options.url);
+            } finally {
+              callBack(result, options.passthrough);
+            }
           }
         };
         var data = "";
         if (!options.contentType) options.contentType = "application/json;charset=UTF-8";
         if (options.data) data = JSON.stringify(options.data);
-        xhr.open(options.type, encodeURI(location.href + options.url), true);
+        xhr.open(options.type, encodeURI(options.url), true);
         xhr.setRequestHeader("Content-Type", options.contentType);
+        xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+        xhr.setRequestHeader("Access-Control-Allow-Headers", "Content-Type");
         xhr.send(data);
       }
     },
@@ -2732,7 +2764,7 @@
       if (!lang1) {
         if (lang0 === virtKeyboard.secondlang) {
           lang1 = lang0;
-          lang0 = virtKeyboard.mainlang
+          lang0 = virtKeyboard.mainlang;
         } else {
           lang1 = virtKeyboard.secondlang;
         }
@@ -2939,7 +2971,7 @@
         } else {
           $(ddclass).append(newentry);
         }
-        let node = undefined;
+        let node;
         if (virtKeyboard.mainlang === langcode) {
           node = main_node[main_node.length - 1];
           namednodes.main.name = virtKeyboard.getlanguagename(langcode);
@@ -2965,10 +2997,10 @@
     "sethotKey": function() {
       let wordBankDiv = $('div._30i_q > div');
       let buttons = wordBankDiv.children('div > button');
-     
+
       if (buttons.length > 0) {
         $('span.hotkeyhint').remove();
-       
+
         for (var x = 0; x < buttons.length; x++) {
           let charcode = (48 + parseInt(x, 17));
           buttons[x].id = 'button_' + charcode;
@@ -2978,7 +3010,7 @@
           hotKey.text(String.fromCharCode(charcode));
 
           let hkeyDiv = $(buttons[x].parentElement);
-	      hkeyDiv.addClass("hotkeydiv")
+          hkeyDiv.addClass("hotkeydiv")
           hkeyDiv.append(hotKey);
         }
       }
@@ -3015,16 +3047,18 @@
       let jq_sl = $("#vrt-secondarylang").data("language");
       for (let lcode in update) {
         if (basekeys.supported_lang.indexOf(lcode) !== -1) {
-          $.ajax({
+          userInfo.tools.sendAjax({
             type: "get",
             url: virtKeyboard.rawgit + "duo/keyboard." + lcode + ".json"
-          }).done(function(json) {
-            basekeys[json.lang] = json.keysmap;
-            if (json.lang === jq_ml || json.lang === jq_sl) {
-              console.debug("updateLangs:fillKeyboard:ajax");
-              virtKeyboard.fillKeyboard(jq_ml, jq_sl);
+          }, function(json) {
+            if (json.hasOwnProperty("lang")) {
+              basekeys[json.lang] = json.keysmap;
+              if (json.lang === jq_ml || json.lang === jq_sl) {
+                console.debug("updateLangs:fillKeyboard:ajax");
+                virtKeyboard.fillKeyboard(jq_ml, jq_sl);
+              }
+              userInfo.tools.saveToLocalStorage("keys", basekeys);
             }
-            userInfo.tools.saveToLocalStorage("keys", basekeys);
           });
         }
       }
@@ -3275,7 +3309,7 @@
         return;
       }
       let settings = userInfo.tools.getFromLocalStorage("settings");
-      if (settings) {
+      if (settings.hasOwnProperty("version")) {
         console.info("Local version is:" + settings.version);
         console.info("Remote version is:" + virtKeyboard.version);
         if (settings.version !== virtKeyboard.version) {
@@ -3328,15 +3362,14 @@
         });
         return this;
       };
-      userInfo.duoState = userInfo.refresh(userInfo.needrefresh);
+      userInfo.refresh(userInfo.needrefresh);
       let oldkeys = userInfo.tools.getFromLocalStorage("keys");
-      if (!oldkeys || oldkeys.supported_lang.length === 0) {
-        $.ajax({
+      if (!oldkeys.hasOwnProperty("supported_lang") || oldkeys.supported_lang.length === 0) {
+        userInfo.tools.sendAjax({
           type: "get",
           url: virtKeyboard.rawgit + "duo/keyboard.base.json"
-        }).done(function(json) {
-          userInfo.tools.updateBase(basekeys, json);
-          userInfo.tools.saveToLocalStorage("keys", basekeys);
+        }, function(json) {
+          userInfo.tools.saveToLocalStorage("keys", userInfo.tools.updateBase(basekeys, json));
         });
       } else {
         userInfo.tools.updateBase(basekeys, oldkeys);
@@ -3372,15 +3405,17 @@
       }
       console.info("sidepanel: v." + sidepanel.version);
       $("body").append(this.html);
-      userInfo.duoState = userInfo.refresh(userInfo.needrefresh);
+      userInfo.refresh(userInfo.needrefresh);
       sidepanel.refresh(".panel-inner");
     },
-    "refresh": function(activeElelment) {
+    "refresh": function(activeElelment, iteration) {
+      if (!iteration) iteration = 0;
       if ($(activeElelment).children().length > 0)
         $(activeElelment).children()[0].remove();
       let courseslist = $("<ul class='courses'>");
-      userInfo.duoState = userInfo.refresh(userInfo.needrefresh);
-      if (!userInfo.duoState) {
+      //userInfo.duoState = userInfo.refresh(true);
+      userInfo.enrichUser();
+      if (!userInfo.hasOwnProperty("duoState")) {
         userInfo.duoState = {
           courses: {},
           currentCourse: {},
@@ -3390,11 +3425,23 @@
           }
         };
       }
-      let sortedCourses = Object.keys(userInfo.duoState.courses).sort(function(a, b) {
-        return (userInfo.duoState.courses[a].fromLanguage.localeCompare(userInfo.duoState.courses[b].fromLanguage))
+      let sortedCourses = Object.keys(userInfo.duoState.courses);
+      //if (!sortedCourses.hasOwnProperty("length") || sortedCourses.length === 0) {
+      sortedCourses = sortedCourses.sort(function(a, b) {
+        return (userInfo.duoState.courses[a].fromLanguage.localeCompare(userInfo.duoState.courses[b].fromLanguage));
       });
+      //userInfo.tools.updateBase(userInfo.duoState.courses, sortedCourses);
+      //}
       let currentCourse;
-      let courseLevel = userInfo.tools.getFromLocalStorage("courseLevel") || {};
+      let courseLevel = userInfo.tools.getFromLocalStorage("courseLevel");
+      if (sortedCourses.length == 0 && iteration < 10) {
+        iteration++;
+        userInfo.tools.updateBase(userInfo.duoState, userInfo.refresh(userInfo.needrefresh));
+        setTimeout(function() {
+          sidepanel.refresh(activeElelment, iteration);
+        }, 300);
+        return;
+      }
       for (let x in sortedCourses) {
         let course = sortedCourses[x];
         let currCourse = userInfo.duoState.courses[course];
@@ -3417,14 +3464,23 @@
         let newSkills = userInfo.getSkills("new", courseid)[courseid];
         let skill;
         let nClone;
-        if (courseid === userInfo.duoState.user.courseId) {
+        let userCourseid = "DUOLINGO_" + userInfo.duoState.user.learningLanguage.toUpperCase() + "_" + userInfo.duoState.user.fromLanguage.toUpperCase();
+        if (courseid === userCourseid) {
           let empty_node = $("");
           let prevWeak = $(userInfo.tools.getFromLocalStorage("weakspan").html) || empty_node;
           let prevNew = $(userInfo.tools.getFromLocalStorage("newspan").html) || empty_node;
           li.addClass("active");
-          for (skill in weakSkills) {
-            weakspan.append(sidepanel.activeSkillsEl(weakSkills[skill].URI, prevWeak, weakSkills[skill].shortName, weakSkills[skill].finishedLevels));
-            addweakspan = true;
+          if (weakSkills) {
+            let sortedSkills = Object.keys(weakSkills);
+            sortedSkills = sortedSkills.sort(function(a, b) {
+              return (weakSkills[a].finishedLevels - weakSkills[b].finishedLevels);
+            });
+
+            for (let i in sortedSkills) {
+              let skill = sortedSkills[i];
+              weakspan.append(sidepanel.activeSkillsEl(weakSkills[skill].URI, prevWeak, weakSkills[skill].shortName, weakSkills[skill].finishedLevels));
+              addweakspan = true;
+            }
           }
           for (skill in newSkills) {
             newspan.append(sidepanel.activeSkillsEl(newSkills[skill].URI, prevNew, newSkills[skill].shortName));
@@ -3479,6 +3535,7 @@
           li.append(newspan);
         if (fromLanguage === userInfo.duoState.user.fromLanguage) {
           if (learningLanguage === userInfo.duoState.user.learningLanguage) {
+            li.data("activeCourse", true);
             currentCourse = li;
           } else {
             courseslist.prepend(li);
@@ -3490,7 +3547,7 @@
       courseslist.prepend(currentCourse);
       $(activeElelment).append(courseslist);
       $("li.course").on("click", function() {
-        if ($(this).data("learningLanguage") !== userInfo.duoState.user.learningLanguage || $(this).data("fromLanguage") !== userInfo.duoState.user.fromLanguage) {
+        if (!$(this).data("activeCourse")) {
           userInfo.switchLanguage($(this).data("fromLanguage"), $(this).data("learningLanguage"));
         }
       });
@@ -3549,9 +3606,10 @@
       return nClone;
     }
   };
-  var chrome = chrome || browser || {
+  var browser = browser || {
     "extension": false
   };
+  var chrome = chrome || browser;
   var duo = window.duo || {};
   if (chrome) {
     if (!chrome.extension) {
