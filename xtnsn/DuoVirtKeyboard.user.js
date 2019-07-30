@@ -2962,23 +2962,25 @@
         }
       }
     },
-    "sethotkey": function() {
-      let buttons = $('div._30i_q > div').children('div > button');
-
-      let hotkey = $('span.hotkeyhint');
+    "sethotKey": function() {
+      let wordBankDiv = $('div._30i_q > div');
+      let buttons = wordBankDiv.children('div > button');
+     
       if (buttons.length > 0) {
-        $('div.hotkeydiv').remove();
-        hotkey.remove();
+        $('span.hotkeyhint').remove();
+       
         for (var x = 0; x < buttons.length; x++) {
           let charcode = (48 + parseInt(x, 17));
           buttons[x].id = 'button_' + charcode;
-          let HKeyButton = $(buttons[x]);
-          let HKeyDiv = $("<div class='hotkeydiv'>");
-          HKeyDiv.append(HKeyButton);
-          HKeyDiv.append('<span class="hotkeyhint">' + String.fromCharCode(charcode) + '</span>');
-          $('div._30i_q').append(HKeyDiv);
+
+          let hotKey = $('<span>');
+          hotKey.addClass('hotkeyhint');
+          hotKey.text(String.fromCharCode(charcode));
+
+          let hkeyDiv = $(buttons[x].parentElement);
+	      hkeyDiv.addClass("hotkeydiv")
+          hkeyDiv.append(hotKey);
         }
-        //$('div._30i_q').children('button').remove();
       }
     },
     "drawKeyboard": function() {
@@ -3255,13 +3257,13 @@
       });
       $(document).on("keydown", null, function(keypressed) {
         if ($("textarea, input[type='text']").length === 0) {
-          virtKeyboard.sethotkey();
-          let hotkey = $('button#button_' + keypressed.keyCode);
-          //console.info(hotkey);
-          hotkey.click();
+          virtKeyboard.sethotKey();
+          let hotKey = $('button#button_' + keypressed.keyCode);
+          //console.info(hotKey);
+          hotKey.click();
         }
       });
-      virtKeyboard.sethotkey();
+      virtKeyboard.sethotKey();
       virtKeyboard.completeInit();
       virt_keyboard.draggable();
     },
@@ -3421,7 +3423,7 @@
           let prevNew = $(userInfo.tools.getFromLocalStorage("newspan").html) || empty_node;
           li.addClass("active");
           for (skill in weakSkills) {
-            weakspan.append(sidepanel.activeSkillsEl(weakSkills[skill].URI, prevWeak, weakSkills[skill].shortName));
+            weakspan.append(sidepanel.activeSkillsEl(weakSkills[skill].URI, prevWeak, weakSkills[skill].shortName, weakSkills[skill].finishedLevels));
             addweakspan = true;
           }
           for (skill in newSkills) {
@@ -3430,14 +3432,14 @@
           /*Add general practice button to weakspan*/
           let practiceArr = $("a[href='/practice']");
           if (practiceArr[0] && practiceArr[0].attributes) {
-            weakspan.append(sidepanel.activeSkillsEl(practiceArr[0].attributes.href.value, prevWeak, "", "practice"));
+            weakspan.append(sidepanel.activeSkillsEl(practiceArr[0].attributes.href.value, prevWeak, "", "", "practice"));
             addweakspan = true;
           }
           /*Add shortcuts to bigtest section to newspan*/
           practiceArr = $("a[href*='/bigtest']");
           for (let bigtest in practiceArr) {
             if (practiceArr[bigtest] && practiceArr[bigtest].attributes)
-              newspan.append(sidepanel.activeSkillsEl(practiceArr[bigtest].attributes.href.value, prevNew, "", "practice"));
+              newspan.append(sidepanel.activeSkillsEl(practiceArr[bigtest].attributes.href.value, prevNew, "", "", "practice"));
           }
 
           userInfo.tools.saveToLocalStorage("weakspan", {
@@ -3505,7 +3507,7 @@
         }
       });
     },
-    "activeSkillsEl": function(skillURI, prevSkills, skillName, class2add) {
+    "activeSkillsEl": function(skillURI, prevSkills, skillName, crownsLevel, class2add) {
       if (!class2add)
         class2add = "micro";
       let color = ["red", "blue", "green"];
@@ -3529,7 +3531,18 @@
           nClone.addClass(class2add);
       } else {
         nClone.appendTo($("<a class='item' href='" + skillURI + "'>"));
+        if (crownsLevel) {
+          let crownLevelSpan = $("<span style='display:block;position:relative;left:45px;bottom:55px;'>");
+          crownLevelSpan.addClass('crownlevel');
+          let innerSpan = $("<span style='position:relative;left:9px;bottom:25px;font-size:10px;'>");
+          let innerImg = $("<img style='height:25px;width:25px;' src='//d35aaqx5ub95lt.cloudfront.net/images/juicy-crown.svg'>");
+          innerSpan.text(crownsLevel);
+          crownLevelSpan.append(innerSpan);
+          crownLevelSpan.append(innerImg);
+          nClone.after(crownLevelSpan);
+        }
         nClone.after($("<span class='name'>").text(skillName));
+
         zClone = nClone.parent().appendTo("<span class='item-box'>");
         return zClone.parent();
       }
